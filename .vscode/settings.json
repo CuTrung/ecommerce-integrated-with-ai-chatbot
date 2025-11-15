@@ -1,0 +1,14 @@
+{
+  "sqltools.connections": [
+    {
+      "previewLimit": 50,
+      "server": "localhost",
+      "port": 5432,
+      "driver": "PostgreSQL",
+      "name": "db_nestjs_ecommerce_conn",
+      "database": "db_nestjs_ecommerce",
+      "username": "user_nestjs_ecommerce",
+      "password": "password_nestjs_ecommerce"
+    }
+  ]
+}
