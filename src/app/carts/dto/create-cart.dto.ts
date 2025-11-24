@@ -1,13 +1,8 @@
-import { Prisma } from '@prisma/client';
 import { ImportExcel } from '../../../common/utils/excel-util/excel-util.const';
+import { createZodDto } from 'nestjs-zod';
+import { CartCreateInputSchema } from '../../../generated/zod';
 
-class CreateCartDto implements Prisma.CartCreateInput {
-  id?: string | undefined;
-  createdAt?: string | Date | undefined;
-  updatedAt?: string | Date | undefined;
-  user: Prisma.UserCreateNestedOneWithoutCartInput;
-  cartItems?: Prisma.CartItemCreateNestedManyWithoutCartInput | undefined;
-}
+class CreateCartDto extends createZodDto(CartCreateInputSchema) {}
 
 class ImportCartsDto extends ImportExcel {}
 

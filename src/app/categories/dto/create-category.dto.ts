@@ -1,25 +1,9 @@
-import { Prisma } from '@prisma/client';
 import { ImportExcel } from '../../../common/utils/excel-util/excel-util.const';
-import { UserInfo } from '../../../common/decorators/user.decorator';
+import { createZodDto } from 'nestjs-zod';
+import { CategoryCreateInputSchema } from '../../../generated/zod';
 
-class CreateCategoryDto implements Prisma.CategoryCreateInput {
-  id?: string | undefined;
-  name: string;
-  slug: string;
-  description?: string | null | undefined;
-  imageUrl?: string | null | undefined;
-  createdAt?: string | Date | undefined;
-  createdBy?: string | null | undefined;
-  updatedAt?: string | Date | undefined;
-  deletedAt?: string | Date | null | undefined;
-  parent?: Prisma.CategoryCreateNestedOneWithoutChildrenInput | undefined;
-  children?: Prisma.CategoryCreateNestedManyWithoutParentInput | undefined;
-  productCategories?:
-    | Prisma.ProductCategoryCreateNestedManyWithoutCategoryInput
-    | undefined;
-  user: UserInfo;
-}
+class CreateCategoryDto extends createZodDto(CategoryCreateInputSchema) {}
 
-class ImportCategoriesDto extends ImportExcel {}
+class ImportCategorysDto extends ImportExcel {}
 
-export { CreateCategoryDto, ImportCategoriesDto };
+export { CreateCategoryDto, ImportCategorysDto };

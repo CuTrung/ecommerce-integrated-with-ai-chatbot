@@ -1,22 +1,8 @@
-import { Prisma } from '@prisma/client';
 import { ImportExcel } from '../../../common/utils/excel-util/excel-util.const';
+import { createZodDto } from 'nestjs-zod';
+import { RoleCreateInputSchema } from '../../../generated/zod';
 
-class CreateRoleDto implements Prisma.RoleCreateInput {
-  id?: string | undefined;
-  name: string;
-  description?: string | null | undefined;
-  isSystemRole?: boolean | undefined;
-  createdAt?: string | Date | undefined;
-  createdBy?: string | null | undefined;
-  updatedAt?: string | Date | undefined;
-  deletedAt?: string | Date | null | undefined;
-  userVendorRoles?:
-    | Prisma.UserVendorRoleCreateNestedManyWithoutRoleInput
-    | undefined;
-  rolePermissions?:
-    | Prisma.RolePermissionCreateNestedManyWithoutRoleInput
-    | undefined;
-}
+class CreateRoleDto extends createZodDto(RoleCreateInputSchema) {}
 
 class ImportRolesDto extends ImportExcel {}
 

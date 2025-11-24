@@ -1,23 +1,9 @@
-import { $Enums, Prisma } from '@prisma/client';
 import { ImportExcel } from '../../../common/utils/excel-util/excel-util.const';
-import { UserInfo } from '../../../common/decorators/user.decorator';
+import { createZodDto } from 'nestjs-zod';
+import { OrderAddressCreateInputSchema } from '../../../generated/zod';
 
-class CreateOrderAddressDto implements Prisma.OrderAddressCreateInput {
-  id?: string | undefined;
-  type: $Enums.AddressType;
-  firstName: string;
-  lastName?: string | null | undefined;
-  company?: string | null | undefined;
-  fullAddress: string;
-  city?: string | null | undefined;
-  province?: string | null | undefined;
-  country?: string | null | undefined;
-  phone: string;
-  order: Prisma.OrderCreateNestedOneWithoutOrderAddressesInput;
+class CreateOrderAddressDto extends createZodDto(OrderAddressCreateInputSchema) {}
 
-  user: UserInfo;
-}
+class ImportOrderAddresssDto extends ImportExcel {}
 
-class ImportOrderAddressesDto extends ImportExcel {}
-
-export { CreateOrderAddressDto, ImportOrderAddressesDto };
+export { CreateOrderAddressDto, ImportOrderAddresssDto };
