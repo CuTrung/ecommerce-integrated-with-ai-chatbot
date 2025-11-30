@@ -8,9 +8,6 @@ import winston from 'winston';
 @Module({})
 export class LoggerModule {
   private static initLogsFile() {
-    if (process.env.NODE_ENV === 'production') {
-      return [];
-    }
     const logLevels = ['error', 'warn', 'info'];
     return logLevels.map(
       (level) =>
@@ -41,7 +38,10 @@ export class LoggerModule {
   }
   static createLogger() {
     return WinstonModule.createLogger({
-      transports: [this.initConsoleLog(), ...this.initLogsFile()],
+      transports: [
+        this.initConsoleLog(),
+        //  ...this.initLogsFile()
+      ],
     });
   }
 }
