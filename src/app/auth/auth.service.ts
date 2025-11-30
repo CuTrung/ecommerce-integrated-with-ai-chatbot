@@ -7,7 +7,7 @@ import { UsersService } from '../users/users.service';
 import { StringUtilService } from '../../common/utils/string-util/string-util.service';
 import { JwtService, TokenExpiredError } from '@nestjs/jwt';
 import { SignInDto, SignUpDto } from './dto/sign.dto';
-import { UserInfo } from '../../common/decorators/user.decorator';
+import { UserInfo, WithUser } from '../../common/decorators/user.decorator';
 import { JWTToken, TokenKeys } from './consts/jwt.const';
 import { MailTemplate } from '../../common/utils/mail-util/mail-util.const';
 import { ForgotPasswordDto, ResetPasswordDto } from './dto/password.dto';
@@ -110,15 +110,15 @@ export class AuthService {
     }
   }
 
-  async resetPassword(resetPasswordDto: ResetPasswordDto) {
-    const { userID, password, user } = resetPasswordDto;
+  async resetPassword(resetPasswordDto: WithUser<ResetPasswordDto>) {
+    const { password, user } = resetPasswordDto;
     const dataUpdate = {
       password: await this.stringUtilService.hash(password),
       user,
     };
     return await this.usersService.extended.update({
       data: dataUpdate,
-      where: { id: userID },
+      where: { id: user.userID },
     });
   }
 }

@@ -12,6 +12,8 @@ import {
 import { ZodResponse } from 'nestjs-zod';
 import { TokenKeys } from './consts/jwt.const';
 import { ForgotPasswordDto, ResetPasswordDto } from './dto/password.dto';
+import { User } from '../../common/decorators/user.decorator';
+import type { UserInfo } from '../../common/decorators/user.decorator';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -81,7 +83,10 @@ export class AuthController {
   }
 
   @Post('reset-password')
-  async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
-    return await this.authService.resetPassword(resetPasswordDto);
+  async resetPassword(
+    @Body() resetPasswordDto: ResetPasswordDto,
+    @User() user: UserInfo,
+  ) {
+    return await this.authService.resetPassword({ ...resetPasswordDto, user });
   }
 }

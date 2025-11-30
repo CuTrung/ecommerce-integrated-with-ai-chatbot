@@ -1,15 +1,17 @@
-import { PartialType, PickType } from '@nestjs/mapped-types';
-import { Auth } from '../entities/auth.entity';
-import { User } from '../../users/entities/user.entity';
-import { UserInfo } from '../../../common/decorators/user.decorator';
+import { UserSchema } from '../../../generated/zod';
+import z from 'zod';
+import { createZodDto } from 'nestjs-zod';
 
-export class ForgotPasswordDto extends PartialType(
-  PickType(Auth, ['email', 'phone']),
-) {
-  redirectTo: string;
-}
+const forgotPasswordSchema = z.object({
+  email: UserSchema.shape.email,
+  phone: UserSchema.shape.phone,
+  redirectTo: z.string().url().optional(),
+});
 
-export class ResetPasswordDto extends PickType(Auth, ['password']) {
-  userID: User['id'];
-  user: UserInfo;
-}
+export class ForgotPasswordDto extends createZodDto(forgotPasswordSchema) {}
+
+const resetPasswordSchema = z.object({
+  password: UserSchema.shape.password,
+});
+
+export class ResetPasswordDto extends createZodDto(resetPasswordSchema) {}
