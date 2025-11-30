@@ -69,7 +69,7 @@ const initOpenAPI = (app: INestApplication) => {
   );
 
   openApiDoc = removeAuditFields(openApiDoc);
-  openApiDoc = removeRelations(openApiDoc);
+  // openApiDoc = removeRelations(openApiDoc);
   SwaggerModule.setup('api', app, cleanupOpenApiDoc(openApiDoc));
 };
 
