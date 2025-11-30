@@ -30,7 +30,7 @@ import type { GetOptionsParams } from '../../common/query/options.interface';
 import { ParseParamsPaginationPipe } from '../../common/pipes/parse-params-pagination.pipe';
 import { IDDto } from '../../common/dto/param.dto';
 
-@Controller('cartItems')
+@Controller('cart-items')
 export class CartItemsController {
   constructor(private readonly cartItemsService: CartItemsService) {}
 

@@ -30,7 +30,7 @@ import type { GetOptionsParams } from '../../common/query/options.interface';
 import { ParseParamsPaginationPipe } from '../../common/pipes/parse-params-pagination.pipe';
 import { IDDto } from '../../common/dto/param.dto';
 
-@Controller('orderAddresses')
+@Controller('order-addresses')
 export class OrderAddressesController {
   constructor(private readonly orderAddressesService: OrderAddressesService) {}
 
