@@ -6,6 +6,6 @@ class CreateOrderAddressDto extends createZodDto(
   OrderAddressCreateInputSchema,
 ) {}
 
-class ImportOrderAddresssDto extends ImportExcel {}
+class ImportOrderAddressesDto extends ImportExcel {}
 
-export { CreateOrderAddressDto, ImportOrderAddresssDto };
+export { CreateOrderAddressDto, ImportOrderAddressesDto };
