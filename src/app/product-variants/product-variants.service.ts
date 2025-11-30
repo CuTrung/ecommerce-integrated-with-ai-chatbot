@@ -19,6 +19,7 @@ import {
 } from '../../common/query/options.interface';
 import { PaginationUtilService } from '../../common/utils/pagination-util/pagination-util.service';
 import { QueryUtilService } from '../../common/utils/query-util/query-util.service';
+import { WithUser } from '../../common/decorators/user.decorator';
 
 @Injectable()
 export class ProductVariantsService
@@ -72,7 +73,9 @@ export class ProductVariantsService
     return data;
   }
 
-  async createProductVariant(createProductVariantDto: CreateProductVariantDto) {
+  async createProductVariant(
+    createProductVariantDto: WithUser<CreateProductVariantDto>,
+  ) {
     const data = await this.extended.create({
       data: createProductVariantDto,
     });

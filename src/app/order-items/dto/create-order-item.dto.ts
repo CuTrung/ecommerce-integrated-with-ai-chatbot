@@ -1,21 +1,8 @@
-import { Prisma } from '@prisma/client';
+import { createZodDto } from 'nestjs-zod';
 import { ImportExcel } from '../../../common/utils/excel-util/excel-util.const';
-import { DecimalJsLike } from '@prisma/client/runtime/library';
-import { UserInfo } from '../../../common/decorators/user.decorator';
+import { OrderItemCreateInputSchema } from '../../../generated/zod';
 
-class CreateOrderItemDto implements Prisma.OrderItemCreateInput {
-  id?: string | undefined;
-  quantity: number;
-  unitPrice: string | number | Prisma.Decimal | DecimalJsLike;
-  totalPrice: string | number | Prisma.Decimal | DecimalJsLike;
-  productVariantSnapshot?:
-    | PrismaJson.ProductVariantSnapshotType
-    | Prisma.NullableJsonNullValueInput
-    | undefined;
-  productVariant: Prisma.ProductVariantCreateNestedOneWithoutOrderItemsInput;
-  order: Prisma.OrderCreateNestedOneWithoutOrderItemsInput;
-  user: UserInfo;
-}
+class CreateOrderItemDto extends createZodDto(OrderItemCreateInputSchema) {}
 
 class ImportOrderItemsDto extends ImportExcel {}
 

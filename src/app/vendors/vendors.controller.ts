@@ -34,8 +34,8 @@ export class VendorsController {
   constructor(private readonly vendorsService: VendorsService) {}
 
   @Post()
-  createVendor(@Body() createDto: CreateVendorDto) {
-    return this.vendorsService.createVendor(createDto);
+  createVendor(@Body() createDto: CreateVendorDto, @User() user: UserInfo) {
+    return this.vendorsService.createVendor({ ...createDto, user });
   }
 
   @Patch(':id')

@@ -19,6 +19,7 @@ import {
 } from '../../common/query/options.interface';
 import { PaginationUtilService } from '../../common/utils/pagination-util/pagination-util.service';
 import { QueryUtilService } from '../../common/utils/query-util/query-util.service';
+import { WithUser } from '../../common/decorators/user.decorator';
 
 @Injectable()
 export class OrderAddressesService
@@ -72,7 +73,9 @@ export class OrderAddressesService
     return data;
   }
 
-  async createOrderAddress(createOrderAddressDto: CreateOrderAddressDto) {
+  async createOrderAddress(
+    createOrderAddressDto: WithUser<CreateOrderAddressDto>,
+  ) {
     const data = await this.extended.create({
       data: createOrderAddressDto,
     });

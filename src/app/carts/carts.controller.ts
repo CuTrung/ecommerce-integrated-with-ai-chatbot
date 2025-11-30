@@ -32,7 +32,7 @@ export class CartsController {
 
   @Post()
   createCart(@Body() createDto: CreateCartDto, @User() user: UserInfo) {
-    const userID = user?.userID;
+    const userID = user.userID;
     if (userID) {
       createDto['userID'] = userID;
     }

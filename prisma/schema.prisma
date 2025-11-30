@@ -93,7 +93,7 @@ model User {
   userVendorRoles UserVendorRole[]
   orders          Order[]
   cart            Cart?
-  // notifications   Notification[]
+  notifications   Notification[]
 }
 
 model Vendor {
@@ -285,7 +285,7 @@ model Order {
   orderItems      OrderItem[]
   orderAddresses  OrderAddress[]
   orderPromotions OrderPromotion[]
-  // payments        Payment[]
+  payments        Payment[]
 }
 
 model OrderItem {
@@ -373,40 +373,40 @@ model CartItem {
   @@unique([cartID, productVariantID])
 }
 
-// model Notification {
-//   id      String  @id @default(uuid())
-//   userID  String
-//   title   String
-//   message String
-//   isRead  Boolean @default(false)
+model Notification {
+  id      String  @id @default(uuid())
+  userID  String
+  title   String
+  message String
+  isRead  Boolean @default(false)
 
-//   User User? @relation(fields: [userID], references: [id])
-// }
+  User User? @relation(fields: [userID], references: [id])
+}
 
-// enum PaymentStatus {
-//   pending
-//   completed
-//   failed
-//   refunded
-// }
+enum PaymentStatus {
+  pending
+  completed
+  failed
+  refunded
+}
 
-// enum PaymentType {
-//   creditCard
-//   bankTransfer
-//   eWallet
-// }
+enum PaymentType {
+  creditCard
+  bankTransfer
+  eWallet
+}
 
-// model Payment {
-//   id            String        @id @default(uuid())
-//   orderID       String
-//   type          PaymentType
-//   status        PaymentStatus
-//   amount        Decimal
-//   transactionID String?
-//   createdAt     DateTime      @default(now())
-//   createdBy     String?
-//   updatedAt     DateTime      @updatedAt
-//   deletedAt     DateTime?
+model Payment {
+  id            String        @id @default(uuid())
+  orderID       String
+  type          PaymentType
+  status        PaymentStatus
+  amount        Decimal
+  transactionID String?
+  createdAt     DateTime      @default(now())
+  createdBy     String?
+  updatedAt     DateTime      @updatedAt
+  deletedAt     DateTime?
 
-//   order Order @relation(fields: [orderID], references: [id])
-// }
+  order Order @relation(fields: [orderID], references: [id])
+}

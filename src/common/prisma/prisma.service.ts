@@ -71,10 +71,10 @@ export class PrismaService
     return data;
   }
 
-  private generateData<T>(data: T, model: string) {
+  private generateData(data: Record<string, any>, model: string) {
     const modelsGenSlug = [Product.name, Vendor.name, Category.name];
     if (modelsGenSlug.includes(model)) {
-      const slug = this.stringUtilService.toSlug(data['name']);
+      const slug = this.stringUtilService.toSlug(data.name);
       return { ...data, slug };
     }
     return data;

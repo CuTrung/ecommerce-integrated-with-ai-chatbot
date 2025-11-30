@@ -34,7 +34,7 @@ export class CartItemsController {
   constructor(private readonly cartItemsService: CartItemsService) {}
 
   @Post()
-  createCartItem(@Body() createDto: CreateCartItemDto, @User() user) {
+  createCartItem(@Body() createDto: CreateCartItemDto, @User() user: UserInfo) {
     return this.cartItemsService.createCartItem({ ...createDto, user });
   }
 

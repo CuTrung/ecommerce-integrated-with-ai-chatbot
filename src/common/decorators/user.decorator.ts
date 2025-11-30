@@ -12,3 +12,5 @@ export const User = createParamDecorator(
     return req.user as UserInfo;
   },
 );
+
+export type WithUser<T> = T & { user: UserInfo };

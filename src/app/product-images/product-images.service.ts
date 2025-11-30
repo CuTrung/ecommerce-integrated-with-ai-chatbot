@@ -14,6 +14,7 @@ import { UploadApiResponse } from 'cloudinary';
 import { FileUtilService } from '../../common/utils/file-util/file-util.service';
 import { PrismaBaseService } from '../../common/services/prisma-base.service';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
+import { WithUser } from '../../common/decorators/user.decorator';
 
 @Injectable()
 export class ProductImagesService extends PrismaBaseService<'productImage'> {
@@ -59,7 +60,9 @@ export class ProductImagesService extends PrismaBaseService<'productImage'> {
     return data;
   }
 
-  async createProductImage(createProductImageDto: CreateProductImageDto) {
+  async createProductImage(
+    createProductImageDto: WithUser<CreateProductImageDto>,
+  ) {
     const data = await this.extended.create({
       data: createProductImageDto,
     });

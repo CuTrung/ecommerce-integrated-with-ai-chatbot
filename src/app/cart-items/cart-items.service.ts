@@ -19,6 +19,7 @@ import {
 } from '../../common/query/options.interface';
 import { PaginationUtilService } from '../../common/utils/pagination-util/pagination-util.service';
 import { QueryUtilService } from '../../common/utils/query-util/query-util.service';
+import { WithUser } from '../../common/decorators/user.decorator';
 
 @Injectable()
 export class CartItemsService
@@ -69,7 +70,7 @@ export class CartItemsService
     return data;
   }
 
-  async createCartItem(createCartItemDto: CreateCartItemDto) {
+  async createCartItem(createCartItemDto: WithUser<CreateCartItemDto>) {
     const data = await this.extended.create({
       data: createCartItemDto,
     });

@@ -34,7 +34,7 @@ export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
   @Post()
-  createCategory(@Body() createDto: CreateCategoryDto, @User() user) {
+  createCategory(@Body() createDto: CreateCategoryDto, @User() user: UserInfo) {
     return this.categoriesService.createCategory({ ...createDto, user });
   }
 

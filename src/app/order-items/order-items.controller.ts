@@ -34,7 +34,10 @@ export class OrderItemsController {
   constructor(private readonly orderItemsService: OrderItemsService) {}
 
   @Post()
-  createOrderItem(@Body() createDto: CreateOrderItemDto, @User() user) {
+  createOrderItem(
+    @Body() createDto: CreateOrderItemDto,
+    @User() user: UserInfo,
+  ) {
     return this.orderItemsService.createOrderItem({ ...createDto, user });
   }
 

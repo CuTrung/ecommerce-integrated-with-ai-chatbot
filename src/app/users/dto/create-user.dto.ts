@@ -1,26 +1,7 @@
-import { $Enums, Prisma } from '@prisma/client';
 import { ImportExcel } from '../../../common/utils/excel-util/excel-util.const';
-export class CreateUserDto implements Prisma.UserCreateInput {
-  id?: string | undefined;
-  email: string;
-  password: string;
-  firstName: string;
-  lastName?: string | null | undefined;
-  fullAddress: string;
-  city?: string | null | undefined;
-  province?: string | null | undefined;
-  country?: string | null | undefined;
-  phone?: string | null | undefined;
-  status?: $Enums.UserStatus | undefined;
-  createdAt?: string | Date | undefined;
-  createdBy?: string | null | undefined;
-  updatedAt?: string | Date | undefined;
-  deletedAt?: string | Date | null | undefined;
-  vendors?: Prisma.VendorCreateNestedManyWithoutUserInput | undefined;
-  userVendorRoles?:
-    | Prisma.UserVendorRoleCreateNestedManyWithoutUserInput
-    | undefined;
-  orders?: Prisma.OrderCreateNestedManyWithoutUserInput | undefined;
-}
+import { createZodDto } from 'nestjs-zod';
+import { UserCreateInputSchema } from '../../../generated/zod';
+
+export class CreateUserDto extends createZodDto(UserCreateInputSchema) {}
 
 export class ImportUsersDto extends ImportExcel {}

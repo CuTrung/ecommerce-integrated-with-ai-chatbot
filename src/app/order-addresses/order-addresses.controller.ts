@@ -34,7 +34,10 @@ export class OrderAddressesController {
   constructor(private readonly orderAddressesService: OrderAddressesService) {}
 
   @Post()
-  createOrderAddress(@Body() createDto: CreateOrderAddressDto, @User() user) {
+  createOrderAddress(
+    @Body() createDto: CreateOrderAddressDto,
+    @User() user: UserInfo,
+  ) {
     return this.orderAddressesService.createOrderAddress({
       ...createDto,
       user,

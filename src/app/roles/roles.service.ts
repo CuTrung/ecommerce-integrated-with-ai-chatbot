@@ -13,6 +13,7 @@ import {
 } from '../../common/query/options.interface';
 import { PaginationUtilService } from '../../common/utils/pagination-util/pagination-util.service';
 import { QueryUtilService } from '../../common/utils/query-util/query-util.service';
+import { WithUser } from '../../common/decorators/user.decorator';
 
 @Injectable()
 export class RolesService
@@ -63,7 +64,7 @@ export class RolesService
     return data;
   }
 
-  async createRole(createRoleDto: CreateRoleDto) {
+  async createRole(createRoleDto: WithUser<CreateRoleDto>) {
     const data = await this.extended.create({
       data: createRoleDto,
     });

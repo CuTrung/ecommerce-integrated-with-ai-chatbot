@@ -13,6 +13,7 @@ import {
 } from '../../common/query/options.interface';
 import { PaginationUtilService } from '../../common/utils/pagination-util/pagination-util.service';
 import { QueryUtilService } from '../../common/utils/query-util/query-util.service';
+import { WithUser } from '../../common/decorators/user.decorator';
 
 @Injectable()
 export class OrdersService
@@ -63,7 +64,7 @@ export class OrdersService
     return data;
   }
 
-  async createOrder(createOrderDto: CreateOrderDto) {
+  async createOrder(createOrderDto: WithUser<CreateOrderDto>) {
     const data = await this.extended.create({
       data: createOrderDto,
     });

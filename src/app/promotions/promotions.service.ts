@@ -19,6 +19,7 @@ import {
 } from '../../common/query/options.interface';
 import { PaginationUtilService } from '../../common/utils/pagination-util/pagination-util.service';
 import { QueryUtilService } from '../../common/utils/query-util/query-util.service';
+import { WithUser } from '../../common/decorators/user.decorator';
 
 @Injectable()
 export class PromotionsService
@@ -69,7 +70,7 @@ export class PromotionsService
     return data;
   }
 
-  async createPromotion(createPromotionDto: CreatePromotionDto) {
+  async createPromotion(createPromotionDto: WithUser<CreatePromotionDto>) {
     const data = await this.extended.create({
       data: createPromotionDto,
     });

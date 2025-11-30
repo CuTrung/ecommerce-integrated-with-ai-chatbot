@@ -34,7 +34,10 @@ export class PermissionsController {
   constructor(private readonly permissionsService: PermissionsService) {}
 
   @Post()
-  createPermission(@Body() createDto: CreatePermissionDto, @User() user) {
+  createPermission(
+    @Body() createDto: CreatePermissionDto,
+    @User() user: UserInfo,
+  ) {
     return this.permissionsService.createPermission({ ...createDto, user });
   }
 

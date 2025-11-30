@@ -38,7 +38,7 @@ export class ProductVariantsController {
   @Post()
   createProductVariant(
     @Body() createDto: CreateProductVariantDto,
-    @User() user,
+    @User() user: UserInfo,
   ) {
     return this.productVariantsService.createProductVariant({
       ...createDto,

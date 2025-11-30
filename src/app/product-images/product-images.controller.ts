@@ -29,8 +29,14 @@ export class ProductImagesController {
   constructor(private readonly productImagesService: ProductImagesService) {}
 
   @Post()
-  createProductImage(@Body() createProductImageDto: CreateProductImageDto) {
-    return this.productImagesService.createProductImage(createProductImageDto);
+  createProductImage(
+    @Body() createProductImageDto: CreateProductImageDto,
+    @User() user: UserInfo,
+  ) {
+    return this.productImagesService.createProductImage({
+      ...createProductImageDto,
+      user,
+    });
   }
 
   @Get('export')
