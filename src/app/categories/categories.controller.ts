@@ -28,6 +28,7 @@ import type { Response } from 'express';
 import type { File } from '../../common/utils/excel-util/dto/excel-util.interface';
 import type { GetOptionsParams } from '../../common/query/options.interface';
 import { ParseParamsPaginationPipe } from '../../common/pipes/parse-params-pagination.pipe';
+import { IDDto } from '../../common/dto/param.dto';
 
 @Controller('categories')
 export class CategoriesController {
@@ -40,7 +41,7 @@ export class CategoriesController {
 
   @Patch(':id')
   updateCategory(
-    @Param('id') id: Category['id'],
+    @Param() { id }: IDDto,
     @Body() updateCategoryDto: UpdateCategoryDto,
   ) {
     return this.categoriesService.updateCategory({
@@ -80,12 +81,12 @@ export class CategoriesController {
   }
 
   @Get(':id')
-  getCategory(@Param('id') id: Category['id']) {
+  getCategory(@Param() { id }: IDDto) {
     return this.categoriesService.getCategory({ id });
   }
 
   @Delete(':id')
-  deleteCategory(@Param('id') id: Category['id']) {
+  deleteCategory(@Param() { id }: IDDto) {
     return this.categoriesService.deleteCategory({ id });
   }
 }

@@ -28,6 +28,7 @@ import type { Response } from 'express';
 import type { File } from '../../common/utils/excel-util/dto/excel-util.interface';
 import type { GetOptionsParams } from '../../common/query/options.interface';
 import { ParseParamsPaginationPipe } from '../../common/pipes/parse-params-pagination.pipe';
+import { IDDto } from '../../common/dto/param.dto';
 
 @Controller('promotions')
 export class PromotionsController {
@@ -43,7 +44,7 @@ export class PromotionsController {
 
   @Patch(':id')
   updatePromotion(
-    @Param('id') id: Promotion['id'],
+    @Param() { id }: IDDto,
     @Body() updatePromotionDto: UpdatePromotionDto,
   ) {
     return this.promotionsService.updatePromotion({
@@ -83,12 +84,12 @@ export class PromotionsController {
   }
 
   @Get(':id')
-  getPromotion(@Param('id') id: Promotion['id']) {
+  getPromotion(@Param() { id }: IDDto) {
     return this.promotionsService.getPromotion({ id });
   }
 
   @Delete(':id')
-  deletePromotion(@Param('id') id: Promotion['id']) {
+  deletePromotion(@Param() { id }: IDDto) {
     return this.promotionsService.deletePromotion({ id });
   }
 }

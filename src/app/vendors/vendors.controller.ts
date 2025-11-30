@@ -28,6 +28,7 @@ import type { Response } from 'express';
 import type { File } from '../../common/utils/excel-util/dto/excel-util.interface';
 import type { GetOptionsParams } from '../../common/query/options.interface';
 import { ParseParamsPaginationPipe } from '../../common/pipes/parse-params-pagination.pipe';
+import { IDDto } from '../../common/dto/param.dto';
 
 @Controller('vendors')
 export class VendorsController {
@@ -40,7 +41,7 @@ export class VendorsController {
 
   @Patch(':id')
   updateVendor(
-    @Param('id') id: Vendor['id'],
+    @Param() { id }: IDDto,
     @Body() updateVendorDto: UpdateVendorDto,
   ) {
     return this.vendorsService.updateVendor({
@@ -79,12 +80,12 @@ export class VendorsController {
   }
 
   @Get(':id')
-  getVendor(@Param('id') id: Vendor['id']) {
+  getVendor(@Param() { id }: IDDto) {
     return this.vendorsService.getVendor({ id });
   }
 
   @Delete(':id')
-  deleteVendor(@Param('id') id: Vendor['id']) {
+  deleteVendor(@Param() { id }: IDDto) {
     return this.vendorsService.deleteVendor({ id });
   }
 }

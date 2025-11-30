@@ -25,6 +25,7 @@ import type { Response } from 'express';
 import type { File } from '../../common/utils/excel-util/dto/excel-util.interface';
 import type { GetOptionsParams } from '../../common/query/options.interface';
 import { ParseParamsPaginationPipe } from '../../common/pipes/parse-params-pagination.pipe';
+import { IDDto } from '../../common/dto/param.dto';
 
 @Controller('orders')
 export class OrdersController {
@@ -36,10 +37,7 @@ export class OrdersController {
   }
 
   @Patch(':id')
-  updateOrder(
-    @Param('id') id: Order['id'],
-    @Body() updateOrderDto: UpdateOrderDto,
-  ) {
+  updateOrder(@Param() { id }: IDDto, @Body() updateOrderDto: UpdateOrderDto) {
     return this.ordersService.updateOrder({
       data: updateOrderDto,
       where: { id },
@@ -76,12 +74,12 @@ export class OrdersController {
   }
 
   @Get(':id')
-  getOrder(@Param('id') id: Order['id']) {
+  getOrder(@Param() { id }: IDDto) {
     return this.ordersService.getOrder({ id });
   }
 
   @Delete(':id')
-  deleteOrder(@Param('id') id: Order['id']) {
+  deleteOrder(@Param() { id }: IDDto) {
     return this.ordersService.deleteOrder({ id });
   }
 }

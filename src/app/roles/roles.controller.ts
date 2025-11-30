@@ -25,6 +25,7 @@ import type { Response } from 'express';
 import type { File } from '../../common/utils/excel-util/dto/excel-util.interface';
 import type { GetOptionsParams } from '../../common/query/options.interface';
 import { ParseParamsPaginationPipe } from '../../common/pipes/parse-params-pagination.pipe';
+import { IDDto } from '../../common/dto/param.dto';
 
 @Controller('roles')
 export class RolesController {
@@ -36,10 +37,7 @@ export class RolesController {
   }
 
   @Patch(':id')
-  updateRole(
-    @Param('id') id: Role['id'],
-    @Body() updateRoleDto: UpdateRoleDto,
-  ) {
+  updateRole(@Param() { id }: IDDto, @Body() updateRoleDto: UpdateRoleDto) {
     return this.rolesService.updateRole({
       data: updateRoleDto,
       where: { id },
@@ -76,12 +74,12 @@ export class RolesController {
   }
 
   @Get(':id')
-  getRole(@Param('id') id: Role['id']) {
+  getRole(@Param() { id }: IDDto) {
     return this.rolesService.getRole({ id });
   }
 
   @Delete(':id')
-  deleteRole(@Param('id') id: Role['id']) {
+  deleteRole(@Param() { id }: IDDto) {
     return this.rolesService.deleteRole({ id });
   }
 }

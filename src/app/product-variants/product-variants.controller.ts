@@ -28,6 +28,7 @@ import type { Response } from 'express';
 import type { File } from '../../common/utils/excel-util/dto/excel-util.interface';
 import type { GetOptionsParams } from '../../common/query/options.interface';
 import { ParseParamsPaginationPipe } from '../../common/pipes/parse-params-pagination.pipe';
+import { IDDto } from '../../common/dto/param.dto';
 
 @Controller('product-variants')
 export class ProductVariantsController {
@@ -48,7 +49,7 @@ export class ProductVariantsController {
 
   @Patch(':id')
   updateProductVariant(
-    @Param('id') id: ProductVariant['id'],
+    @Param() { id }: IDDto,
     @Body() updateProductVariantDto: UpdateProductVariantDto,
   ) {
     return this.productVariantsService.updateProductVariant({
@@ -89,12 +90,12 @@ export class ProductVariantsController {
   }
 
   @Get(':id')
-  getProductVariant(@Param('id') id: ProductVariant['id']) {
+  getProductVariant(@Param() { id }: IDDto) {
     return this.productVariantsService.getProductVariant({ id });
   }
 
   @Delete(':id')
-  deleteProductVariant(@Param('id') id: ProductVariant['id']) {
+  deleteProductVariant(@Param() { id }: IDDto) {
     return this.productVariantsService.deleteProductVariant({ id });
   }
 }

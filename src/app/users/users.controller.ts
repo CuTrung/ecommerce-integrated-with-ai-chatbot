@@ -26,6 +26,7 @@ import type { Response } from 'express';
 import { ExcelResponseInterceptor } from '../../common/interceptors/excel-response/excel-response.interceptor';
 import { ParseParamsPaginationPipe } from '../../common/pipes/parse-params-pagination.pipe';
 import type { GetOptionsParams } from '../../common/query/options.interface';
+import { IDDto } from '../../common/dto/param.dto';
 
 @Controller('users')
 export class UsersController {
@@ -66,15 +67,12 @@ export class UsersController {
   }
 
   @Get(':id')
-  getUser(@Param('id') id: UserEntity['id']) {
+  getUser(@Param() { id }: IDDto) {
     return this.usersService.getUser({ id });
   }
 
   @Patch(':id')
-  updateUser(
-    @Param('id') id: UserEntity['id'],
-    @Body() updateUserDto: UpdateUserDto,
-  ) {
+  updateUser(@Param() { id }: IDDto, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.updateUser({
       data: updateUserDto,
       where: { id },
@@ -82,7 +80,7 @@ export class UsersController {
   }
 
   @Delete(':id')
-  deleteUser(@Param('id') id: UserEntity['id']) {
+  deleteUser(@Param() { id }: IDDto) {
     return this.usersService.deleteUser({ id });
   }
 }

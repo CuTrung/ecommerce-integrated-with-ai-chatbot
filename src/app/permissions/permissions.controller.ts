@@ -28,6 +28,7 @@ import type { Response } from 'express';
 import type { File } from '../../common/utils/excel-util/dto/excel-util.interface';
 import type { GetOptionsParams } from '../../common/query/options.interface';
 import { ParseParamsPaginationPipe } from '../../common/pipes/parse-params-pagination.pipe';
+import { IDDto } from '../../common/dto/param.dto';
 
 @Controller('permissions')
 export class PermissionsController {
@@ -43,7 +44,7 @@ export class PermissionsController {
 
   @Patch(':id')
   updatePermission(
-    @Param('id') id: Permission['id'],
+    @Param() { id }: IDDto,
     @Body() updatePermissionDto: UpdatePermissionDto,
   ) {
     return this.permissionsService.updatePermission({
@@ -83,12 +84,12 @@ export class PermissionsController {
   }
 
   @Get(':id')
-  getPermission(@Param('id') id: Permission['id']) {
+  getPermission(@Param() { id }: IDDto) {
     return this.permissionsService.getPermission({ id });
   }
 
   @Delete(':id')
-  deletePermission(@Param('id') id: Permission['id']) {
+  deletePermission(@Param() { id }: IDDto) {
     return this.permissionsService.deletePermission({ id });
   }
 }

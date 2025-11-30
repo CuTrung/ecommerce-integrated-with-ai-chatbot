@@ -17,12 +17,12 @@ import { CreateProductImageDto } from './dto/create-product-images.dto';
 import { UpdateProductImageDto } from './dto/update-product-images.dto';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { ExportProductImagesDto } from './dto/get-product-images.dto';
-import type { ProductImage as ProductImageEntity } from './entities/product-images.entity';
 import type { File } from '../../common/utils/excel-util/dto/excel-util.interface';
 import type { Response } from 'express';
 import { ExcelResponseInterceptor } from '../../common/interceptors/excel-response/excel-response.interceptor';
 import { User } from '../../common/decorators/user.decorator';
 import type { UserInfo } from '../../common/decorators/user.decorator';
+import { IDDto } from '../../common/dto/param.dto';
 
 @Controller('product-images')
 export class ProductImagesController {
@@ -77,13 +77,13 @@ export class ProductImagesController {
   }
 
   @Get(':id')
-  getProductImage(@Param('id') id: ProductImageEntity['id']) {
+  getProductImage(@Param() { id }: IDDto) {
     return this.productImagesService.getProductImage({ id });
   }
 
   @Patch(':id')
   updateProductImage(
-    @Param('id') id: ProductImageEntity['id'],
+    @Param() { id }: IDDto,
     @Body() updateProductImageDto: UpdateProductImageDto,
   ) {
     return this.productImagesService.updateProductImage({
@@ -93,7 +93,7 @@ export class ProductImagesController {
   }
 
   @Delete(':id')
-  deleteProductImage(@Param('id') id: ProductImageEntity['id']) {
+  deleteProductImage(@Param() { id }: IDDto) {
     return this.productImagesService.deleteProductImage({ id });
   }
 }

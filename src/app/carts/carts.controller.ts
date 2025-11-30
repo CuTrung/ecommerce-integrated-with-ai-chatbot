@@ -25,6 +25,7 @@ import type { Response } from 'express';
 import type { File } from '../../common/utils/excel-util/dto/excel-util.interface';
 import type { GetOptionsParams } from '../../common/query/options.interface';
 import { ParseParamsPaginationPipe } from '../../common/pipes/parse-params-pagination.pipe';
+import { IDDto } from '../../common/dto/param.dto';
 
 @Controller('carts')
 export class CartsController {
@@ -40,10 +41,7 @@ export class CartsController {
   }
 
   @Patch(':id')
-  updateCart(
-    @Param('id') id: Cart['id'],
-    @Body() updateCartDto: UpdateCartDto,
-  ) {
+  updateCart(@Param() { id }: IDDto, @Body() updateCartDto: UpdateCartDto) {
     return this.cartsService.updateCart({
       data: updateCartDto,
       where: { id },
@@ -80,12 +78,12 @@ export class CartsController {
   }
 
   @Get(':id')
-  getCart(@Param('id') id: Cart['id']) {
+  getCart(@Param() { id }: IDDto) {
     return this.cartsService.getCart({ id });
   }
 
   @Delete(':id')
-  deleteCart(@Param('id') id: Cart['id']) {
+  deleteCart(@Param() { id }: IDDto) {
     return this.cartsService.deleteCart({ id });
   }
 }

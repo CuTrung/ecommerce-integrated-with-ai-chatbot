@@ -1,9 +1,4 @@
 import { PartialType } from '@nestjs/swagger';
 import { CreateRoleDto } from './create-role.dto';
-import { IntersectionType, PickType } from '@nestjs/mapped-types';
-import { Role } from '../entities/role.entity';
 
-export class UpdateRoleDto extends IntersectionType(
-  PartialType(CreateRoleDto),
-  PickType(Role, ['id']),
-) {}
+export class UpdateRoleDto extends PartialType(CreateRoleDto) {}
