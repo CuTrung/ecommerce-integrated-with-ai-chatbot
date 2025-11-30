@@ -4,6 +4,6 @@ import { CategoryCreateInputSchema } from '../../../generated/zod';
 
 class CreateCategoryDto extends createZodDto(CategoryCreateInputSchema) {}
 
-class ImportCategorysDto extends ImportExcel {}
+class ImportCategoriesDto extends ImportExcel {}
 
-export { CreateCategoryDto, ImportCategorysDto };
+export { CreateCategoryDto, ImportCategoriesDto };
