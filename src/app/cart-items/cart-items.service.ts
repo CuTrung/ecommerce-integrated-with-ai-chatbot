@@ -24,7 +24,7 @@ import { WithUser } from '../../common/decorators/user.decorator';
 @Injectable()
 export class CartItemsService
   extends PrismaBaseService<'cartItem'>
-  implements Options<CartItem>
+  implements Options
 {
   private cartItemEntityName = CartItem.name;
   private excelSheets = {
@@ -89,15 +89,16 @@ export class CartItemsService
     return data;
   }
 
-  async getOptions(params: GetOptionsParams<CartItem>) {
+  async getOptions(params: GetOptionsParams) {
     const { limit, select, ...searchFields } = params;
-    const fieldsSelect = this.queryUtil.convertFieldsSelectOption(select);
+    const fieldsSelect =
+      this.queryUtil.convertFieldsSelectOption<CartItem>(select);
     const data = await this.extended.findMany({
       select: fieldsSelect,
       where: {
         ...searchFields,
       },
-      take: limit,
+      take: Number(limit),
     });
     return data;
   }

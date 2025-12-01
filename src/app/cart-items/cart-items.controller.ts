@@ -20,13 +20,12 @@ import {
 } from './dto/get-cart-item.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ExcelResponseInterceptor } from '../../common/interceptors/excel-response/excel-response.interceptor';
-import { CartItem } from '@prisma/client';
 import { CartItemsService } from './cart-items.service';
 import { User } from '../../common/decorators/user.decorator';
 import type { UserInfo } from '../../common/decorators/user.decorator';
 import type { Response } from 'express';
 import type { File } from '../../common/utils/excel-util/dto/excel-util.interface';
-import type { GetOptionsParams } from '../../common/query/options.interface';
+import { GetOptionsParams } from '../../common/query/options.interface';
 import { ParseParamsPaginationPipe } from '../../common/pipes/parse-params-pagination.pipe';
 import { IDDto } from '../../common/dto/param.dto';
 
@@ -57,7 +56,7 @@ export class CartItemsController {
   }
 
   @Get('options')
-  getCartItemOptions(@Query() query: GetOptionsParams<CartItem>) {
+  getCartItemOptions(@Query() query: GetOptionsParams) {
     return this.cartItemsService.getOptions(query);
   }
 

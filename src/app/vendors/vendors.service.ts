@@ -21,7 +21,7 @@ import { WithUser } from '../../common/decorators/user.decorator';
 @Injectable()
 export class VendorsService
   extends PrismaBaseService<'vendor'>
-  implements Options<Vendor>
+  implements Options
 {
   private vendorEntityName = Vendor.name;
   private excelSheets = {
@@ -86,15 +86,16 @@ export class VendorsService
     return data;
   }
 
-  async getOptions(params: GetOptionsParams<Vendor>) {
+  async getOptions(params: GetOptionsParams) {
     const { limit, select, ...searchFields } = params;
-    const fieldsSelect = this.queryUtil.convertFieldsSelectOption(select);
+    const fieldsSelect =
+      this.queryUtil.convertFieldsSelectOption<Vendor>(select);
     const data = await this.extended.findMany({
       select: fieldsSelect,
       where: {
         ...searchFields,
       },
-      take: limit,
+      take: Number(limit),
     });
     return data;
   }

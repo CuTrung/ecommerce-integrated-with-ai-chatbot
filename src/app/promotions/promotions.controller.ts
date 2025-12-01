@@ -20,13 +20,12 @@ import {
 } from './dto/get-promotion.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ExcelResponseInterceptor } from '../../common/interceptors/excel-response/excel-response.interceptor';
-import { Promotion } from '@prisma/client';
 import { PromotionsService } from './promotions.service';
 import { User } from '../../common/decorators/user.decorator';
 import type { UserInfo } from '../../common/decorators/user.decorator';
 import type { Response } from 'express';
 import type { File } from '../../common/utils/excel-util/dto/excel-util.interface';
-import type { GetOptionsParams } from '../../common/query/options.interface';
+import { GetOptionsParams } from '../../common/query/options.interface';
 import { ParseParamsPaginationPipe } from '../../common/pipes/parse-params-pagination.pipe';
 import { IDDto } from '../../common/dto/param.dto';
 
@@ -60,7 +59,7 @@ export class PromotionsController {
   }
 
   @Get('options')
-  getPromotionOptions(@Query() query: GetOptionsParams<Promotion>) {
+  getPromotionOptions(@Query() query: GetOptionsParams) {
     return this.promotionsService.getOptions(query);
   }
 

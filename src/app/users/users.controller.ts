@@ -20,13 +20,13 @@ import { ExportUsersDto } from './dto/get-user.dto';
 import type { GetUsersPaginationDto } from './dto/get-user.dto';
 import { User } from '../../common/decorators/user.decorator';
 import type { UserInfo } from '../../common/decorators/user.decorator';
-import type { User as UserEntity } from './entities/user.entity';
 import type { File } from '../../common/utils/excel-util/dto/excel-util.interface';
 import type { Response } from 'express';
 import { ExcelResponseInterceptor } from '../../common/interceptors/excel-response/excel-response.interceptor';
 import { ParseParamsPaginationPipe } from '../../common/pipes/parse-params-pagination.pipe';
-import type { GetOptionsParams } from '../../common/query/options.interface';
+import { GetOptionsParams } from '../../common/query/options.interface';
 import { IDDto } from '../../common/dto/param.dto';
+import { ParseParamsOptionPipe } from '../../common/pipes/parse-params-option.pipe';
 
 @Controller('users')
 export class UsersController {
@@ -62,7 +62,8 @@ export class UsersController {
   }
 
   @Get('options')
-  getUserOptions(@Query() query: GetOptionsParams<UserEntity>) {
+  @UsePipes(ParseParamsOptionPipe)
+  getUserOptions(@Query() query: GetOptionsParams) {
     return this.usersService.getOptions(query);
   }
 

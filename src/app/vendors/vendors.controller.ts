@@ -20,13 +20,12 @@ import {
 } from './dto/get-vendor.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ExcelResponseInterceptor } from '../../common/interceptors/excel-response/excel-response.interceptor';
-import { Vendor } from '@prisma/client';
 import { VendorsService } from './vendors.service';
 import { User } from '../../common/decorators/user.decorator';
 import type { UserInfo } from '../../common/decorators/user.decorator';
 import type { Response } from 'express';
 import type { File } from '../../common/utils/excel-util/dto/excel-util.interface';
-import type { GetOptionsParams } from '../../common/query/options.interface';
+import { GetOptionsParams } from '../../common/query/options.interface';
 import { ParseParamsPaginationPipe } from '../../common/pipes/parse-params-pagination.pipe';
 import { IDDto } from '../../common/dto/param.dto';
 
@@ -57,7 +56,7 @@ export class VendorsController {
   }
 
   @Get('options')
-  getVendorOptions(@Query() query: GetOptionsParams<Vendor>) {
+  getVendorOptions(@Query() query: GetOptionsParams) {
     return this.vendorsService.getOptions(query);
   }
 

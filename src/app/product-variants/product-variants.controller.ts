@@ -20,13 +20,12 @@ import {
 } from './dto/get-product-variant.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ExcelResponseInterceptor } from '../../common/interceptors/excel-response/excel-response.interceptor';
-import { ProductVariant } from '@prisma/client';
 import { ProductVariantsService } from './product-variants.service';
 import { User } from '../../common/decorators/user.decorator';
 import type { UserInfo } from '../../common/decorators/user.decorator';
 import type { Response } from 'express';
 import type { File } from '../../common/utils/excel-util/dto/excel-util.interface';
-import type { GetOptionsParams } from '../../common/query/options.interface';
+import { GetOptionsParams } from '../../common/query/options.interface';
 import { ParseParamsPaginationPipe } from '../../common/pipes/parse-params-pagination.pipe';
 import { IDDto } from '../../common/dto/param.dto';
 
@@ -65,7 +64,7 @@ export class ProductVariantsController {
   }
 
   @Get('options')
-  getProductVariantOptions(@Query() query: GetOptionsParams<ProductVariant>) {
+  getProductVariantOptions(@Query() query: GetOptionsParams) {
     return this.productVariantsService.getOptions(query);
   }
 

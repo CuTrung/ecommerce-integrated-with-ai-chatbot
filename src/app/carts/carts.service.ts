@@ -15,10 +15,7 @@ import { PaginationUtilService } from '../../common/utils/pagination-util/pagina
 import { QueryUtilService } from '../../common/utils/query-util/query-util.service';
 
 @Injectable()
-export class CartsService
-  extends PrismaBaseService<'cart'>
-  implements Options<Cart>
-{
+export class CartsService extends PrismaBaseService<'cart'> implements Options {
   private cartEntityName = Cart.name;
   private excelSheets = {
     [this.cartEntityName]: this.cartEntityName,
@@ -82,15 +79,15 @@ export class CartsService
     return data;
   }
 
-  async getOptions(params: GetOptionsParams<Cart>) {
+  async getOptions(params: GetOptionsParams) {
     const { limit, select, ...searchFields } = params;
-    const fieldsSelect = this.queryUtil.convertFieldsSelectOption(select);
+    const fieldsSelect = this.queryUtil.convertFieldsSelectOption<Cart>(select);
     const data = await this.extended.findMany({
       select: fieldsSelect,
       where: {
         ...searchFields,
       },
-      take: limit,
+      take: Number(limit),
     });
     return data;
   }

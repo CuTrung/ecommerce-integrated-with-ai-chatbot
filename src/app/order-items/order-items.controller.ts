@@ -20,13 +20,12 @@ import {
 } from './dto/get-order-item.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ExcelResponseInterceptor } from '../../common/interceptors/excel-response/excel-response.interceptor';
-import { OrderItem } from '@prisma/client';
 import { OrderItemsService } from './order-items.service';
 import { User } from '../../common/decorators/user.decorator';
 import type { UserInfo } from '../../common/decorators/user.decorator';
 import type { Response } from 'express';
 import type { File } from '../../common/utils/excel-util/dto/excel-util.interface';
-import type { GetOptionsParams } from '../../common/query/options.interface';
+import { GetOptionsParams } from '../../common/query/options.interface';
 import { ParseParamsPaginationPipe } from '../../common/pipes/parse-params-pagination.pipe';
 import { IDDto } from '../../common/dto/param.dto';
 
@@ -60,7 +59,7 @@ export class OrderItemsController {
   }
 
   @Get('options')
-  getOrderItemOptions(@Query() query: GetOptionsParams<OrderItem>) {
+  getOrderItemOptions(@Query() query: GetOptionsParams) {
     return this.orderItemsService.getOptions(query);
   }
 

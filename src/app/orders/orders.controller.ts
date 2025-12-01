@@ -17,13 +17,12 @@ import { UpdateOrderDto } from './dto/update-order.dto';
 import { ExportOrdersDto, GetOrdersPaginationDto } from './dto/get-order.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ExcelResponseInterceptor } from '../../common/interceptors/excel-response/excel-response.interceptor';
-import { Order } from '@prisma/client';
 import { OrdersService } from './orders.service';
 import { User } from '../../common/decorators/user.decorator';
 import type { UserInfo } from '../../common/decorators/user.decorator';
 import type { Response } from 'express';
 import type { File } from '../../common/utils/excel-util/dto/excel-util.interface';
-import type { GetOptionsParams } from '../../common/query/options.interface';
+import { GetOptionsParams } from '../../common/query/options.interface';
 import { ParseParamsPaginationPipe } from '../../common/pipes/parse-params-pagination.pipe';
 import { IDDto } from '../../common/dto/param.dto';
 
@@ -51,7 +50,7 @@ export class OrdersController {
   }
 
   @Get('options')
-  getOrderOptions(@Query() query: GetOptionsParams<Order>) {
+  getOrderOptions(@Query() query: GetOptionsParams) {
     return this.ordersService.getOptions(query);
   }
 

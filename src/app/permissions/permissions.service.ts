@@ -24,7 +24,7 @@ import { WithUser } from '../../common/decorators/user.decorator';
 @Injectable()
 export class PermissionsService
   extends PrismaBaseService<'permission'>
-  implements Options<Permission>
+  implements Options
 {
   private permissionEntityName = Permission.name;
   private excelSheets = {
@@ -89,15 +89,16 @@ export class PermissionsService
     return data;
   }
 
-  async getOptions(params: GetOptionsParams<Permission>) {
+  async getOptions(params: GetOptionsParams) {
     const { limit, select, ...searchFields } = params;
-    const fieldsSelect = this.queryUtil.convertFieldsSelectOption(select);
+    const fieldsSelect =
+      this.queryUtil.convertFieldsSelectOption<Permission>(select);
     const data = await this.extended.findMany({
       select: fieldsSelect,
       where: {
         ...searchFields,
       },
-      take: limit,
+      take: Number(limit),
     });
     return data;
   }

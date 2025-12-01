@@ -17,13 +17,12 @@ import { UpdateCartDto } from './dto/update-cart.dto';
 import { ExportCartsDto, GetCartsPaginationDto } from './dto/get-cart.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ExcelResponseInterceptor } from '../../common/interceptors/excel-response/excel-response.interceptor';
-import { Cart } from '@prisma/client';
 import { CartsService } from './carts.service';
 import { User } from '../../common/decorators/user.decorator';
 import type { UserInfo } from '../../common/decorators/user.decorator';
 import type { Response } from 'express';
 import type { File } from '../../common/utils/excel-util/dto/excel-util.interface';
-import type { GetOptionsParams } from '../../common/query/options.interface';
+import { GetOptionsParams } from '../../common/query/options.interface';
 import { ParseParamsPaginationPipe } from '../../common/pipes/parse-params-pagination.pipe';
 import { IDDto } from '../../common/dto/param.dto';
 
@@ -55,7 +54,7 @@ export class CartsController {
   }
 
   @Get('options')
-  getCartOptions(@Query() query: GetOptionsParams<Cart>) {
+  getCartOptions(@Query() query: GetOptionsParams) {
     return this.cartsService.getOptions(query);
   }
 

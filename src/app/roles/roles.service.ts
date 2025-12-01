@@ -16,10 +16,7 @@ import { QueryUtilService } from '../../common/utils/query-util/query-util.servi
 import { WithUser } from '../../common/decorators/user.decorator';
 
 @Injectable()
-export class RolesService
-  extends PrismaBaseService<'role'>
-  implements Options<Role>
-{
+export class RolesService extends PrismaBaseService<'role'> implements Options {
   private roleEntityName = Role.name;
   private excelSheets = {
     [this.roleEntityName]: this.roleEntityName,
@@ -83,15 +80,15 @@ export class RolesService
     return data;
   }
 
-  async getOptions(params: GetOptionsParams<Role>) {
+  async getOptions(params: GetOptionsParams) {
     const { limit, select, ...searchFields } = params;
-    const fieldsSelect = this.queryUtil.convertFieldsSelectOption(select);
+    const fieldsSelect = this.queryUtil.convertFieldsSelectOption<Role>(select);
     const data = await this.extended.findMany({
       select: fieldsSelect,
       where: {
         ...searchFields,
       },
-      take: limit,
+      take: Number(limit),
     });
     return data;
   }

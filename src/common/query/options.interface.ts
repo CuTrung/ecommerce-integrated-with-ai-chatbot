@@ -1,8 +1,13 @@
-export type GetOptionsParams<T> = {
-  limit: number;
-  select: string;
-} & Partial<T>;
+import { createZodDto } from 'nestjs-zod';
+import { z } from 'zod';
 
-export interface Options<T> {
-  getOptions(params: GetOptionsParams<T>);
+export class GetOptionsParams extends createZodDto(
+  z.object({
+    limit: z.string().optional().default('10'),
+    select: z.string().optional(),
+  }),
+) {}
+
+export interface Options {
+  getOptions(params: GetOptionsParams);
 }
