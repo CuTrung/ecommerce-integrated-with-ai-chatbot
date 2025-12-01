@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import {
   CreatePermissionDto,
   ImportPermissionsDto,
@@ -20,6 +20,7 @@ import {
 import { PaginationUtilService } from '../../common/utils/pagination-util/pagination-util.service';
 import { QueryUtilService } from '../../common/utils/query-util/query-util.service';
 import { WithUser } from '../../common/decorators/user.decorator';
+import { Actions } from '../../common/guards/access-control/access-control.const';
 
 @Injectable()
 export class PermissionsService
@@ -70,7 +71,22 @@ export class PermissionsService
     return data;
   }
 
+  private isKeyValid(key: string) {
+    const actions = Object.values(Actions).join('|');
+    const regex = new RegExp(
+      `^\\[\\/[a-zA-Z0-9\\/\\-]+\\]_\\[(${actions})\\]$`,
+    );
+    return regex.test(key);
+  }
+
   async createPermission(createPermissionDto: WithUser<CreatePermissionDto>) {
+    const isKeyValid = this.isKeyValid(createPermissionDto.key);
+    if (!isKeyValid) {
+      const actions = Object.values(Actions).join(', ');
+      throw new BadRequestException(
+        `Permission key ${createPermissionDto.key} is not valid. It must follow the pattern [/resource]_[action] where action is one of the following: ${actions}.`,
+      );
+    }
     const data = await this.extended.create({
       data: createPermissionDto,
     });

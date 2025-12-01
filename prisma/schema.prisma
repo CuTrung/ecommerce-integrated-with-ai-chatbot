@@ -135,8 +135,7 @@ model Permission {
   id                 String    @id @default(uuid())
   name               String
   description        String?
-  // [route]_[action] (Ex: [/product]_[read], [/product]_[create], [/product]_[manage])
-  key                String
+  key                String /// @zod.string.describe("Pattern: [/resource]_[action], e.g: [/product]_[read], [/product]_[create], [/product]_[manage]")
   isSystemPermission Boolean   @default(false)
   createdAt          DateTime  @default(now())
   createdBy          String?

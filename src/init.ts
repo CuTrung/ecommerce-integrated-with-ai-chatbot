@@ -66,11 +66,13 @@ const initOpenAPI = (app: INestApplication) => {
 const initApp = (app: INestApplication) => {
   const { APP_PREFIX = '/api', FE_URL } = process.env;
   app.setGlobalPrefix(APP_PREFIX);
+  const corsOptions: Record<string, any> = {};
   if (FE_URL) {
-    app.enableCors({
-      origin: FE_URL,
-    });
+    corsOptions.origin = FE_URL;
   }
+  app.enableCors({
+    ...corsOptions,
+  });
   // app.enableVersioning({
   //   type: VersioningType.HEADER,
   //   header: 'x-api-version',

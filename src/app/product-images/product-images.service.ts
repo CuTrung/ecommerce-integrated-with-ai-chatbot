@@ -120,38 +120,6 @@ export class ProductImagesService extends PrismaBaseService<'productImage'> {
   uploadProductImages({ files, user }: UploadProductImagesDto) {
     const data: ProductImage[] = [];
     for (const file of files) {
-      // const fileName = this.fileUtilService.removeFileExtension(
-      //   file.originalname,
-      // );
-      // const productImageExist = await this.getProductImage({
-      //   name: fileName,
-      // });
-      // if (productImageExist) {
-      //   await this.fileUtilService.removeImage(file);
-      // }
-
-      // const { url, secure_url, display_name, created_at } =
-      //   await this.fileUtilService.uploadImage<UploadApiResponse>(file);
-      // const dataUpsert = {
-      //   name: display_name,
-      //   description: display_name,
-      //   imageUrl: secure_url ?? url,
-      //   user,
-      // };
-      // const result = await this.extended.upsert({
-      //   create: {
-      //     ...dataUpsert,
-      //     createdAt: created_at,
-      //   },
-      //   update: {
-      //     ...dataUpsert,
-      //   },
-      //   where: {
-      //     id: productImageExist?.id ?? '',
-      //   },
-      // });
-      // data.push(result);
-
       this.eventEmitter.emit('product-images.upload', {
         file,
         user,
