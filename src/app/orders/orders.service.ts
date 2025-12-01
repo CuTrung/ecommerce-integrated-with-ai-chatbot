@@ -131,4 +131,9 @@ export class OrdersService
     const data = await this.extended.softDelete(where);
     return data;
   }
+
+  // @Cron('*/2 * * * * *')
+  // cancelOrderBackground() {
+  //   console.log(">>> cancel order")
+  // }
 }

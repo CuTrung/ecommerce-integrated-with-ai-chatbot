@@ -46,6 +46,7 @@ import { VendorsModule } from './vendors/vendors.module';
 import { QueryUtilModule } from '../common/utils/query-util/query-util.module';
 import { UserVendorRolesModule } from './user-vendor-roles/user-vendor-roles.module';
 import { EventsModule } from '../events/events.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -87,6 +88,7 @@ import { EventsModule } from '../events/events.module';
     QueryUtilModule,
     UserVendorRolesModule,
     EventsModule,
+    ScheduleModule.forRoot(),
   ],
   controllers: [AppController],
   providers: [
