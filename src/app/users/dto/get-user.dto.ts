@@ -1,7 +1,7 @@
 import { Prisma } from '@prisma/client';
 import { User } from '../entities/user.entity';
 import { Pagination } from '../../../common/utils/pagination-util/pagination-util.interface';
-import { IntersectionType, PartialType } from '@nestjs/mapped-types';
+import { IntersectionType, PartialType } from '@nestjs/swagger';
 
 class ExportUsersDto {
   ids: NonNullable<Prisma.UserWhereUniqueInput['id']>[];

@@ -49,7 +49,7 @@ const removeFieldsAndRelations = (document: any) => {
 };
 
 const initOpenAPI = (app: INestApplication) => {
-  const { APP_NAME } = process.env;
+  const { APP_NAME, APP_PREFIX = '' } = process.env;
   let openApiDoc = SwaggerModule.createDocument(
     app,
     new DocumentBuilder()
@@ -60,7 +60,7 @@ const initOpenAPI = (app: INestApplication) => {
   );
 
   openApiDoc = removeFieldsAndRelations(openApiDoc);
-  SwaggerModule.setup('api', app, cleanupOpenApiDoc(openApiDoc));
+  SwaggerModule.setup(APP_PREFIX, app, cleanupOpenApiDoc(openApiDoc));
 };
 
 const initApp = (app: INestApplication) => {
