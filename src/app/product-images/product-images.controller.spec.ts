@@ -1,7 +1,7 @@
 import { TestingModule } from '@nestjs/testing';
 import { ProductImagesController } from './product-images.controller';
 import { ProductImagesModule } from './product-images.module';
-import { AutoMockingModule } from '../../testing/auto-mocking/auto-mocking.module';
+import { AutoMockingModule } from '../../../test/auto-mocking/auto-mocking.module';
 
 describe('ProductImagesController', () => {
   let controller: ProductImagesController;

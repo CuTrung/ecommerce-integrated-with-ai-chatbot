@@ -1,6 +1,6 @@
 import { OrderPromotionsService } from './order-promotions.service';
 import { OrderPromotionsModule } from './order-promotions.module';
-import { AutoMockingModule } from '../../testing/auto-mocking/auto-mocking.module';
+import { AutoMockingModule } from '../../../test/auto-mocking/auto-mocking.module';
 
 describe('OrderPromotionsService', () => {
   let service: OrderPromotionsService;

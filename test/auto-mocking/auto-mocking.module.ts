@@ -2,7 +2,7 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Module, ModuleMetadata } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { ModuleMocker, MockMetadata } from 'jest-mock';
-import { PrismaService } from '../../common/prisma/prisma.service';
+import { PrismaService } from '../../src/common/prisma/prisma.service';
 
 const moduleMocker = new ModuleMocker(global);
 

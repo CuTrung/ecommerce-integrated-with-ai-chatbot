@@ -1,6 +1,6 @@
 import { TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service';
-import { AutoMockingModule } from '../../testing/auto-mocking/auto-mocking.module';
+import { AutoMockingModule } from '../../../test/auto-mocking/auto-mocking.module';
 import { AuthModule } from './auth.module';
 
 describe('AuthService', () => {

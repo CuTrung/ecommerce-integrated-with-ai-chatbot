@@ -1,4 +1,4 @@
-import { AutoMockingModule } from '../../../testing/auto-mocking/auto-mocking.module';
+import { AutoMockingModule } from '../../../../test/auto-mocking/auto-mocking.module';
 import { AccessControlGuard } from './access-control.guard';
 describe('AccessControlGuard', () => {
   let guard: AccessControlGuard;

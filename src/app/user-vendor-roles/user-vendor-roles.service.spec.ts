@@ -1,6 +1,6 @@
 import { UserVendorRolesService } from './user-vendor-roles.service';
 import { UserVendorRolesModule } from './user-vendor-roles.module';
-import { AutoMockingModule } from '../../testing/auto-mocking/auto-mocking.module';
+import { AutoMockingModule } from '../../../test/auto-mocking/auto-mocking.module';
 
 describe('UserVendorRolesService', () => {
   let service: UserVendorRolesService;

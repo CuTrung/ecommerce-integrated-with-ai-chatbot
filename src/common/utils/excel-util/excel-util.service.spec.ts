@@ -1,7 +1,7 @@
 import { TestingModule } from '@nestjs/testing';
 import { ExcelUtilService } from './excel-util.service';
 import { ExcelUtilModule } from './excel-util.module';
-import { AutoMockingModule } from '../../../testing/auto-mocking/auto-mocking.module';
+import { AutoMockingModule } from '../../../../test/auto-mocking/auto-mocking.module';
 
 describe('ExcelUtilService', () => {
   let service: ExcelUtilService;

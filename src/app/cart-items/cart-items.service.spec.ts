@@ -1,4 +1,4 @@
-import { AutoMockingModule } from '../../testing/auto-mocking/auto-mocking.module';
+import { AutoMockingModule } from '../../../test/auto-mocking/auto-mocking.module';
 import { CartItemsModule } from './cart-items.module';
 import { CartItemsService } from './cart-items.service';
 

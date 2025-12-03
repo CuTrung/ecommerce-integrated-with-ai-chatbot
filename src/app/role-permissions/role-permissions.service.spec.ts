@@ -1,6 +1,6 @@
 import { RolePermissionsService } from './role-permissions.service';
 import { RolePermissionsModule } from './role-permissions.module';
-import { AutoMockingModule } from '../../testing/auto-mocking/auto-mocking.module';
+import { AutoMockingModule } from '../../../test/auto-mocking/auto-mocking.module';
 
 describe('RolePermissionsService', () => {
   let service: RolePermissionsService;

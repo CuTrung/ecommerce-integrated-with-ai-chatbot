@@ -1,7 +1,7 @@
 import { TestingModule } from '@nestjs/testing';
 import { reduce } from 'rxjs/operators';
 import { EventsGateway } from './events.gateway';
-import { AutoMockingModule } from '../testing/auto-mocking/auto-mocking.module';
+import { AutoMockingModule } from '../../test/auto-mocking/auto-mocking.module';
 
 describe('EventsGateway', () => {
   let gateway: EventsGateway;

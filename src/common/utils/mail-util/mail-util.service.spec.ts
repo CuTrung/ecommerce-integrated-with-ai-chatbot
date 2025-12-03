@@ -1,6 +1,6 @@
 import { TestingModule } from '@nestjs/testing';
 import { MailUtilService } from './mail-util.service';
-import { AutoMockingModule } from '../../../testing/auto-mocking/auto-mocking.module';
+import { AutoMockingModule } from '../../../../test/auto-mocking/auto-mocking.module';
 import { MailUtilModule } from './mail-util.module';
 
 describe('MailUtilService', () => {

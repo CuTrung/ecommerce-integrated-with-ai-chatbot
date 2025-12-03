@@ -1,6 +1,6 @@
 import { TestingModule } from '@nestjs/testing';
 import { UsersService } from './users.service';
-import { AutoMockingModule } from '../../testing/auto-mocking/auto-mocking.module';
+import { AutoMockingModule } from '../../../test/auto-mocking/auto-mocking.module';
 import { UsersModule } from './users.module';
 
 describe('UsersService', () => {

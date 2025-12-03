@@ -1,4 +1,4 @@
-import { AutoMockingModule } from '../../testing/auto-mocking/auto-mocking.module';
+import { AutoMockingModule } from '../../../test/auto-mocking/auto-mocking.module';
 import { OrderItemsModule } from './order-items.module';
 import { OrderItemsService } from './order-items.service';
 

@@ -1,6 +1,6 @@
 import { TestingModule } from '@nestjs/testing';
 import { AppController } from './app.controller';
-import { AutoMockingModule } from '../testing/auto-mocking/auto-mocking.module';
+import { AutoMockingModule } from '../../test/auto-mocking/auto-mocking.module';
 import { AppModule } from './app.module';
 
 describe('AppController', () => {

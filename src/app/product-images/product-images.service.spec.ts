@@ -1,6 +1,6 @@
 import { TestingModule } from '@nestjs/testing';
 import { ProductImagesService } from './product-images.service';
-import { AutoMockingModule } from '../../testing/auto-mocking/auto-mocking.module';
+import { AutoMockingModule } from '../../../test/auto-mocking/auto-mocking.module';
 import { ProductImagesModule } from './product-images.module';
 
 describe('ProductImagesService', () => {
