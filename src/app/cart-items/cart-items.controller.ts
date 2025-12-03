@@ -18,7 +18,6 @@ import {
   ExportCartItemsDto,
   GetCartItemsPaginationDto,
 } from './dto/get-cart-item.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { ExcelResponseInterceptor } from '../../common/interceptors/excel-response/excel-response.interceptor';
 import { CartItemsService } from './cart-items.service';
 import { User } from '../../common/decorators/user.decorator';
@@ -28,6 +27,7 @@ import type { File } from '../../common/utils/excel-util/dto/excel-util.interfac
 import { GetOptionsParams } from '../../common/query/options.interface';
 import { ParseParamsPaginationPipe } from '../../common/pipes/parse-params-pagination.pipe';
 import { IDDto } from '../../common/dto/param.dto';
+import { ImportExcel } from '../../common/utils/excel-util/excel-util.decorator';
 
 @Controller('cart-items')
 export class CartItemsController {
@@ -60,7 +60,7 @@ export class CartItemsController {
     return this.cartItemsService.getOptions(query);
   }
 
-  @Get('export')
+  @Post('export')
   @UseInterceptors(ExcelResponseInterceptor)
   async exportCartItems(
     @Query() exportCartItemsDto: ExportCartItemsDto,
@@ -74,7 +74,7 @@ export class CartItemsController {
   }
 
   @Post('import')
-  @UseInterceptors(FileInterceptor('file'))
+  @ImportExcel()
   importCartItems(@UploadedFile() file: File, @User() user: UserInfo) {
     return this.cartItemsService.importCartItems({ file, user });
   }

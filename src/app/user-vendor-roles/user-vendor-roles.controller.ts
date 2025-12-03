@@ -10,9 +10,9 @@ import {
 } from '@nestjs/common';
 import { UserVendorRolesService } from './user-vendor-roles.service';
 import { ExportUserVendorRolesDto } from './dto/get-user-vendor-role.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { ExcelResponseInterceptor } from '../../common/interceptors/excel-response/excel-response.interceptor';
 import type { Response } from 'express';
+import { ImportExcel } from '../../common/utils/excel-util/excel-util.decorator';
 
 @Controller('user-vendor-roles')
 export class UserVendorRolesController {
@@ -25,7 +25,7 @@ export class UserVendorRolesController {
     return this.userVendorRolesService.getUserVendorRoles();
   }
 
-  @Get('export')
+  @Post('export')
   @UseInterceptors(ExcelResponseInterceptor)
   async exportUserVendorRoles(
     @Body() params: ExportUserVendorRolesDto,
@@ -39,7 +39,7 @@ export class UserVendorRolesController {
   }
 
   @Post('import')
-  @UseInterceptors(FileInterceptor('file'))
+  @ImportExcel()
   importUserVendorRoles(@UploadedFile() file, @Req() req) {
     return this.userVendorRolesService.importUserVendorRoles({
       file,

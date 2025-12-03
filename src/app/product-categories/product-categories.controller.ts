@@ -10,9 +10,9 @@ import {
 } from '@nestjs/common';
 import { ProductCategoriesService } from './product-categories.service';
 import { ExportProductCategoriesDto } from './dto/get-product-category.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { ExcelResponseInterceptor } from '../../common/interceptors/excel-response/excel-response.interceptor';
 import type { Response } from 'express';
+import { ImportExcel } from '../../common/utils/excel-util/excel-util.decorator';
 
 @Controller('product-categories')
 export class ProductCategoriesController {
@@ -25,7 +25,7 @@ export class ProductCategoriesController {
     return this.productCategoriesService.getProductCategories();
   }
 
-  @Get('export')
+  @Post('export')
   @UseInterceptors(ExcelResponseInterceptor)
   async exportProductCategories(
     @Body() params: ExportProductCategoriesDto,
@@ -39,7 +39,7 @@ export class ProductCategoriesController {
   }
 
   @Post('import')
-  @UseInterceptors(FileInterceptor('file'))
+  @ImportExcel()
   importProductCategories(@UploadedFile() file, @Req() req) {
     return this.productCategoriesService.importProductCategories({
       file,

@@ -18,7 +18,6 @@ import {
   ExportVendorsDto,
   GetVendorsPaginationDto,
 } from './dto/get-vendor.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { ExcelResponseInterceptor } from '../../common/interceptors/excel-response/excel-response.interceptor';
 import { VendorsService } from './vendors.service';
 import { User } from '../../common/decorators/user.decorator';
@@ -28,6 +27,7 @@ import type { File } from '../../common/utils/excel-util/dto/excel-util.interfac
 import { GetOptionsParams } from '../../common/query/options.interface';
 import { ParseParamsPaginationPipe } from '../../common/pipes/parse-params-pagination.pipe';
 import { IDDto } from '../../common/dto/param.dto';
+import { ImportExcel } from '../../common/utils/excel-util/excel-util.decorator';
 
 @Controller('vendors')
 export class VendorsController {
@@ -60,7 +60,7 @@ export class VendorsController {
     return this.vendorsService.getOptions(query);
   }
 
-  @Get('export')
+  @Post('export')
   @UseInterceptors(ExcelResponseInterceptor)
   async exportVendors(
     @Query() exportVendorsDto: ExportVendorsDto,
@@ -73,7 +73,7 @@ export class VendorsController {
   }
 
   @Post('import')
-  @UseInterceptors(FileInterceptor('file'))
+  @ImportExcel()
   importVendors(@UploadedFile() file: File, @User() user: UserInfo) {
     return this.vendorsService.importVendors({ file, user });
   }

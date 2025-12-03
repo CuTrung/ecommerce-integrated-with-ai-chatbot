@@ -1,12 +1,16 @@
+import { createZodDto } from 'nestjs-zod';
+import { z } from 'zod';
 import { Role } from '../../roles/entities/role.entity';
 import { User } from '../../users/entities/user.entity';
 import { Vendor } from '../../vendors/entities/vendor.entity';
 
-export class ExportUserVendorRolesDto {
-  userIDs: User['id'][];
-  vendorIDs: Vendor['id'][];
-  roleIDs: Role['id'][];
-}
+export class ExportUserVendorRolesDto extends createZodDto(
+  z.object({
+    userIDs: z.array(z.string().uuid()).optional().nullish().default(null),
+    vendorIDs: z.array(z.string().uuid()).optional().nullish().default(null),
+    roleIDs: z.array(z.string().uuid()).optional().nullish().default(null),
+  }),
+) {}
 
 export type UsersData = Pick<User, 'id' | 'email'>[];
 

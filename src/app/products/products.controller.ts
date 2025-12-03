@@ -18,7 +18,6 @@ import {
   ExportProductsDto,
   GetProductsPaginationDto,
 } from './dto/get-product.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { ExcelResponseInterceptor } from '../../common/interceptors/excel-response/excel-response.interceptor';
 import { ProductsService } from './products.service';
 import { User } from '../../common/decorators/user.decorator';
@@ -28,6 +27,7 @@ import type { File } from '../../common/utils/excel-util/dto/excel-util.interfac
 import { GetOptionsParams } from '../../common/query/options.interface';
 import { ParseParamsPaginationPipe } from '../../common/pipes/parse-params-pagination.pipe';
 import { IDDto } from '../../common/dto/param.dto';
+import { ImportExcel } from '../../common/utils/excel-util/excel-util.decorator';
 
 @Controller('products')
 export class ProductsController {
@@ -60,7 +60,7 @@ export class ProductsController {
     return this.productsService.getOptions(query);
   }
 
-  @Get('export')
+  @Post('export')
   @UseInterceptors(ExcelResponseInterceptor)
   async exportProducts(
     @Query() exportProductsDto: ExportProductsDto,
@@ -74,7 +74,7 @@ export class ProductsController {
   }
 
   @Post('import')
-  @UseInterceptors(FileInterceptor('file'))
+  @ImportExcel()
   importProducts(@UploadedFile() file: File, @User() user: UserInfo) {
     return this.productsService.importProducts({ file, user });
   }

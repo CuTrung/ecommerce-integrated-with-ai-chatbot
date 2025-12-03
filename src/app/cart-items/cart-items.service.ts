@@ -34,7 +34,7 @@ export class CartItemsService
     private excelUtilService: ExcelUtilService,
     public prismaService: PrismaService,
     private paginationUtilService: PaginationUtilService,
-    private queryUtil: QueryUtilService,
+    private queryUtilService: QueryUtilService,
   ) {
     super(prismaService, 'cartItem');
   }
@@ -92,7 +92,7 @@ export class CartItemsService
   async getOptions(params: GetOptionsParams) {
     const { limit, select, ...searchFields } = params;
     const fieldsSelect =
-      this.queryUtil.convertFieldsSelectOption<CartItem>(select);
+      this.queryUtilService.convertFieldsSelectOption<CartItem>(select);
     const data = await this.extended.findMany({
       select: fieldsSelect,
       where: {
@@ -103,11 +103,16 @@ export class CartItemsService
     return data;
   }
 
-  async exportCartItems({ ids }: ExportCartItemsDto) {
+  async exportCartItems({ ids, select }: ExportCartItemsDto) {
+    const where: Record<string, any> = {};
+    if (ids) {
+      where.id = { in: ids };
+    }
+    const fieldsSelect =
+      this.queryUtilService.convertFieldsSelectOption<CartItem>(select);
     const cartItems = await this.extended.export({
-      where: {
-        id: { in: ids },
-      },
+      select: fieldsSelect,
+      where,
     });
 
     const data = this.excelUtilService.generateExcel({

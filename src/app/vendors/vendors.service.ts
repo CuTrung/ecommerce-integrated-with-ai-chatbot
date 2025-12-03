@@ -31,7 +31,7 @@ export class VendorsService
     private excelUtilService: ExcelUtilService,
     public prismaService: PrismaService,
     private paginationUtilService: PaginationUtilService,
-    private queryUtil: QueryUtilService,
+    private queryUtilService: QueryUtilService,
   ) {
     super(prismaService, 'vendor');
   }
@@ -89,7 +89,7 @@ export class VendorsService
   async getOptions(params: GetOptionsParams) {
     const { limit, select, ...searchFields } = params;
     const fieldsSelect =
-      this.queryUtil.convertFieldsSelectOption<Vendor>(select);
+      this.queryUtilService.convertFieldsSelectOption<Vendor>(select);
     const data = await this.extended.findMany({
       select: fieldsSelect,
       where: {
@@ -100,11 +100,16 @@ export class VendorsService
     return data;
   }
 
-  async exportVendors({ ids }: ExportVendorsDto) {
+  async exportVendors({ ids, select }: ExportVendorsDto) {
+    const where: Record<string, any> = {};
+    if (ids) {
+      where.id = { in: ids };
+    }
+    const fieldsSelect =
+      this.queryUtilService.convertFieldsSelectOption<Vendor>(select);
     const vendors = await this.extended.export({
-      where: {
-        id: { in: ids },
-      },
+      select: fieldsSelect,
+      where,
     });
 
     const data = this.excelUtilService.generateExcel({

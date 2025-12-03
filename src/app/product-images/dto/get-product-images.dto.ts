@@ -1,7 +1,5 @@
-import { Prisma } from '@prisma/client';
+import { ExportExcelDto } from '../../../common/dto/param.dto';
 
-class ExportProductImagesDto {
-  ids: NonNullable<Prisma.ProductImageWhereUniqueInput['id']>[];
-}
+class ExportProductImagesDto extends ExportExcelDto {}
 
 export { ExportProductImagesDto };

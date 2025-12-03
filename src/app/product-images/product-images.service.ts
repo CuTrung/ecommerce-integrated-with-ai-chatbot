@@ -15,6 +15,7 @@ import { FileUtilService } from '../../common/utils/file-util/file-util.service'
 import { PrismaBaseService } from '../../common/services/prisma-base.service';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { WithUser } from '../../common/decorators/user.decorator';
+import { QueryUtilService } from '../../common/utils/query-util/query-util.service';
 
 @Injectable()
 export class ProductImagesService extends PrismaBaseService<'productImage'> {
@@ -27,6 +28,7 @@ export class ProductImagesService extends PrismaBaseService<'productImage'> {
     private excelUtilService: ExcelUtilService,
     private fileUtilService: FileUtilService,
     private eventEmitter: EventEmitter2,
+    private queryUtilService: QueryUtilService,
   ) {
     super(prismaService, 'productImage');
   }
@@ -86,11 +88,16 @@ export class ProductImagesService extends PrismaBaseService<'productImage'> {
     return data;
   }
 
-  async exportProductImages({ ids }: ExportProductImagesDto) {
+  async exportProductImages({ ids, select }: ExportProductImagesDto) {
+    const where: Record<string, any> = {};
+    if (ids) {
+      where.id = { in: ids };
+    }
+    const fieldsSelect =
+      this.queryUtilService.convertFieldsSelectOption<ProductImage>(select);
     const productImages = await this.extended.export({
-      where: {
-        id: { in: ids },
-      },
+      select: fieldsSelect,
+      where,
     });
 
     const data = this.excelUtilService.generateExcel({

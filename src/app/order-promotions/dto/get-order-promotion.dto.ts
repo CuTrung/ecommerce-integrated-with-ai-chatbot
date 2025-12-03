@@ -1,7 +1,9 @@
-import { Promotion } from '../../promotions/entities/promotion.entity';
-import { Order } from '../../orders/entities/order.entity';
+import { createZodDto } from 'nestjs-zod';
+import { z } from 'zod';
 
-export class ExportOrderPromotionsDto {
-  orderIDs: Order['id'][];
-  promotionIDs: Promotion['id'][];
-}
+export class ExportOrderPromotionsDto extends createZodDto(
+  z.object({
+    orderIDs: z.array(z.string().uuid()).optional().nullish().default(null),
+    promotionIDs: z.array(z.string().uuid()).optional().nullish().default(null),
+  }),
+) {}

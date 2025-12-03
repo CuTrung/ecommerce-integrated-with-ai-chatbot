@@ -1,11 +1,9 @@
-import { Prisma } from '@prisma/client';
 import { User } from '../entities/user.entity';
 import { Pagination } from '../../../common/utils/pagination-util/pagination-util.interface';
 import { IntersectionType, PartialType } from '@nestjs/swagger';
+import { ExportExcelDto } from '../../../common/dto/param.dto';
 
-class ExportUsersDto {
-  ids: NonNullable<Prisma.UserWhereUniqueInput['id']>[];
-}
+class ExportUsersDto extends ExportExcelDto {}
 
 class IsExistPermissionKeyDto {
   userID: User['id'];

@@ -35,7 +35,7 @@ export class PermissionsService
     private excelUtilService: ExcelUtilService,
     public prismaService: PrismaService,
     private paginationUtilService: PaginationUtilService,
-    private queryUtil: QueryUtilService,
+    private queryUtilService: QueryUtilService,
   ) {
     super(prismaService, 'permission');
   }
@@ -108,7 +108,7 @@ export class PermissionsService
   async getOptions(params: GetOptionsParams) {
     const { limit, select, ...searchFields } = params;
     const fieldsSelect =
-      this.queryUtil.convertFieldsSelectOption<Permission>(select);
+      this.queryUtilService.convertFieldsSelectOption<Permission>(select);
     const data = await this.extended.findMany({
       select: fieldsSelect,
       where: {
@@ -119,11 +119,16 @@ export class PermissionsService
     return data;
   }
 
-  async exportPermissions({ ids }: ExportPermissionsDto) {
+  async exportPermissions({ ids, select }: ExportPermissionsDto) {
+    const where: Record<string, any> = {};
+    if (ids) {
+      where.id = { in: ids };
+    }
+    const fieldsSelect =
+      this.queryUtilService.convertFieldsSelectOption<Permission>(select);
     const permissions = await this.extended.export({
-      where: {
-        id: { in: ids },
-      },
+      select: fieldsSelect,
+      where,
     });
 
     const data = this.excelUtilService.generateExcel({

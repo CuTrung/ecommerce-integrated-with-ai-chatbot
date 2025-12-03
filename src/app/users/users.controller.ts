@@ -15,7 +15,6 @@ import {
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { ExportUsersDto } from './dto/get-user.dto';
 import type { GetUsersPaginationDto } from './dto/get-user.dto';
 import { User } from '../../common/decorators/user.decorator';
@@ -27,6 +26,7 @@ import { ParseParamsPaginationPipe } from '../../common/pipes/parse-params-pagin
 import { GetOptionsParams } from '../../common/query/options.interface';
 import { IDDto } from '../../common/dto/param.dto';
 import { ParseParamsOptionPipe } from '../../common/pipes/parse-params-option.pipe';
+import { ImportExcel } from '../../common/utils/excel-util/excel-util.decorator';
 
 @Controller('users')
 export class UsersController {
@@ -37,10 +37,10 @@ export class UsersController {
     return this.usersService.createUser(createUserDto);
   }
 
-  @Get('export')
+  @Post('export')
   @UseInterceptors(ExcelResponseInterceptor)
   async exportUsers(
-    @Query() exportUsersDto: ExportUsersDto,
+    @Body() exportUsersDto: ExportUsersDto,
     @Res() res: Response,
   ) {
     const workbook = await this.usersService.exportUsers(exportUsersDto);
@@ -50,7 +50,7 @@ export class UsersController {
   }
 
   @Post('import')
-  @UseInterceptors(FileInterceptor('file'))
+  @ImportExcel()
   importUsers(@UploadedFile() file: File, @User() user: UserInfo) {
     return this.usersService.importUsers({ file, user });
   }

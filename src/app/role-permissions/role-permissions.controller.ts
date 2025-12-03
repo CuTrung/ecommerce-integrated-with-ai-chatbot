@@ -10,9 +10,9 @@ import {
 } from '@nestjs/common';
 import { RolePermissionsService } from './role-permissions.service';
 import { ExportRolePermissionsDto } from './dto/get-role-permission.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { ExcelResponseInterceptor } from '../../common/interceptors/excel-response/excel-response.interceptor';
 import type { Response } from 'express';
+import { ImportExcel } from '../../common/utils/excel-util/excel-util.decorator';
 
 @Controller('role-permissions')
 export class RolePermissionsController {
@@ -25,7 +25,7 @@ export class RolePermissionsController {
     return this.rolePermissionsService.getRolePermissions();
   }
 
-  @Get('export')
+  @Post('export')
   @UseInterceptors(ExcelResponseInterceptor)
   async exportRolePermissions(
     @Body() params: ExportRolePermissionsDto,
@@ -39,7 +39,7 @@ export class RolePermissionsController {
   }
 
   @Post('import')
-  @UseInterceptors(FileInterceptor('file'))
+  @ImportExcel()
   importRolePermissions(@UploadedFile() file, @Req() req) {
     return this.rolePermissionsService.importRolePermissions({
       file,

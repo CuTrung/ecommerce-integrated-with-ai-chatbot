@@ -4,8 +4,9 @@ import { INestApplication } from '@nestjs/common';
 import { applyMiddlewares } from './common/middlewares/common.middleware';
 
 const removeFieldsAndRelations = (document: any) => {
+  const otherFields = ['id', 'userID'];
   const auditFields = new Set([
-    'id',
+    ...otherFields,
     'createdAt',
     'updatedAt',
     'createdBy',
@@ -20,7 +21,6 @@ const removeFieldsAndRelations = (document: any) => {
     if (!props) continue;
 
     const newProps: Record<string, any> = {};
-
     for (const [propName, prop] of Object.entries<any>(props)) {
       if (auditFields.has(propName) || propName === 'data') continue;
 
@@ -36,6 +36,8 @@ const removeFieldsAndRelations = (document: any) => {
     }
 
     schema.properties = newProps;
+
+    auditFields.forEach((k) => delete schema.properties[k]);
 
     const schemaRequired = schema.required;
     if (Array.isArray(schemaRequired)) {
@@ -66,12 +68,8 @@ const initOpenAPI = (app: INestApplication) => {
 const initApp = (app: INestApplication) => {
   const { APP_PREFIX = '/api', FE_URL } = process.env;
   app.setGlobalPrefix(APP_PREFIX);
-  const corsOptions: Record<string, any> = {};
-  if (FE_URL) {
-    corsOptions.origin = FE_URL;
-  }
   app.enableCors({
-    ...corsOptions,
+    origin: FE_URL ? FE_URL : ['*'],
   });
   // app.enableVersioning({
   //   type: VersioningType.HEADER,

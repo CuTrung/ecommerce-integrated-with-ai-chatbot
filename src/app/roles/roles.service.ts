@@ -25,7 +25,7 @@ export class RolesService extends PrismaBaseService<'role'> implements Options {
     private excelUtilService: ExcelUtilService,
     public prismaService: PrismaService,
     private paginationUtilService: PaginationUtilService,
-    private queryUtil: QueryUtilService,
+    private queryUtilService: QueryUtilService,
   ) {
     super(prismaService, 'role');
   }
@@ -82,7 +82,8 @@ export class RolesService extends PrismaBaseService<'role'> implements Options {
 
   async getOptions(params: GetOptionsParams) {
     const { limit, select, ...searchFields } = params;
-    const fieldsSelect = this.queryUtil.convertFieldsSelectOption<Role>(select);
+    const fieldsSelect =
+      this.queryUtilService.convertFieldsSelectOption<Role>(select);
     const data = await this.extended.findMany({
       select: fieldsSelect,
       where: {
@@ -93,11 +94,16 @@ export class RolesService extends PrismaBaseService<'role'> implements Options {
     return data;
   }
 
-  async exportRoles({ ids }: ExportRolesDto) {
+  async exportRoles({ ids, select }: ExportRolesDto) {
+    const where: Record<string, any> = {};
+    if (ids) {
+      where.id = { in: ids };
+    }
+    const fieldsSelect =
+      this.queryUtilService.convertFieldsSelectOption<Role>(select);
     const roles = await this.extended.export({
-      where: {
-        id: { in: ids },
-      },
+      select: fieldsSelect,
+      where,
     });
 
     const data = this.excelUtilService.generateExcel({

@@ -1,4 +1,11 @@
-import { Controller, Body, UseInterceptors, Get, Res } from '@nestjs/common';
+import {
+  Controller,
+  Body,
+  UseInterceptors,
+  Get,
+  Res,
+  Post,
+} from '@nestjs/common';
 import { OrderPromotionsService } from './order-promotions.service';
 import { ExportOrderPromotionsDto } from './dto/get-order-promotion.dto';
 import { ExcelResponseInterceptor } from '../../common/interceptors/excel-response/excel-response.interceptor';
@@ -15,7 +22,7 @@ export class OrderPromotionsController {
     return this.orderPromotionsService.getOrderPromotions();
   }
 
-  @Get('export')
+  @Post('export')
   @UseInterceptors(ExcelResponseInterceptor)
   async exportOrderPromotions(
     @Body() params: ExportOrderPromotionsDto,

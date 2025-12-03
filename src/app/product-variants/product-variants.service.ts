@@ -34,7 +34,7 @@ export class ProductVariantsService
     private excelUtilService: ExcelUtilService,
     public prismaService: PrismaService,
     private paginationUtilService: PaginationUtilService,
-    private queryUtil: QueryUtilService,
+    private queryUtilService: QueryUtilService,
   ) {
     super(prismaService, 'productVariant');
   }
@@ -97,7 +97,7 @@ export class ProductVariantsService
   async getOptions(params: GetOptionsParams) {
     const { limit, select, ...searchFields } = params;
     const fieldsSelect =
-      this.queryUtil.convertFieldsSelectOption<
+      this.queryUtilService.convertFieldsSelectOption<
         Omit<ProductVariant, 'attributes'>
       >(select);
     const data = await this.extended.findMany({
@@ -110,11 +110,16 @@ export class ProductVariantsService
     return data;
   }
 
-  async exportProductVariants({ ids }: ExportProductVariantsDto) {
+  async exportProductVariants({ ids, select }: ExportProductVariantsDto) {
+    const where: Record<string, any> = {};
+    if (ids) {
+      where.id = { in: ids };
+    }
+    const fieldsSelect =
+      this.queryUtilService.convertFieldsSelectOption<ProductVariant>(select);
     const productVariants = await this.extended.export({
-      where: {
-        id: { in: ids },
-      },
+      select: fieldsSelect,
+      where,
     });
 
     const data = this.excelUtilService.generateExcel({

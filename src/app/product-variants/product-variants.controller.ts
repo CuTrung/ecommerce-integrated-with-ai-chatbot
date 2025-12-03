@@ -18,7 +18,6 @@ import {
   ExportProductVariantsDto,
   GetProductVariantsPaginationDto,
 } from './dto/get-product-variant.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { ExcelResponseInterceptor } from '../../common/interceptors/excel-response/excel-response.interceptor';
 import { ProductVariantsService } from './product-variants.service';
 import { User } from '../../common/decorators/user.decorator';
@@ -28,6 +27,7 @@ import type { File } from '../../common/utils/excel-util/dto/excel-util.interfac
 import { GetOptionsParams } from '../../common/query/options.interface';
 import { ParseParamsPaginationPipe } from '../../common/pipes/parse-params-pagination.pipe';
 import { IDDto } from '../../common/dto/param.dto';
+import { ImportExcel } from '../../common/utils/excel-util/excel-util.decorator';
 
 @Controller('product-variants')
 export class ProductVariantsController {
@@ -68,7 +68,7 @@ export class ProductVariantsController {
     return this.productVariantsService.getOptions(query);
   }
 
-  @Get('export')
+  @Post('export')
   @UseInterceptors(ExcelResponseInterceptor)
   async exportProductVariants(
     @Query() exportProductVariantsDto: ExportProductVariantsDto,
@@ -83,7 +83,7 @@ export class ProductVariantsController {
   }
 
   @Post('import')
-  @UseInterceptors(FileInterceptor('file'))
+  @ImportExcel()
   importProductVariants(@UploadedFile() file: File, @User() user: UserInfo) {
     return this.productVariantsService.importProductVariants({ file, user });
   }

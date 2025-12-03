@@ -28,7 +28,7 @@ export class UsersService extends PrismaBaseService<'user'> implements Options {
     private excelUtilService: ExcelUtilService,
     public prismaService: PrismaService,
     private paginationUtilService: PaginationUtilService,
-    private queryUtil: QueryUtilService,
+    private queryUtilService: QueryUtilService,
   ) {
     super(prismaService, 'user');
   }
@@ -98,7 +98,8 @@ export class UsersService extends PrismaBaseService<'user'> implements Options {
 
   async getOptions(params: GetOptionsParams) {
     const { limit, select, ...searchFields } = params;
-    const fieldsSelect = this.queryUtil.convertFieldsSelectOption<User>(select);
+    const fieldsSelect =
+      this.queryUtilService.convertFieldsSelectOption<User>(select);
     const data = await this.client.findMany({
       select: fieldsSelect,
       where: {
@@ -109,11 +110,16 @@ export class UsersService extends PrismaBaseService<'user'> implements Options {
     return data;
   }
 
-  async exportUsers({ ids }: ExportUsersDto) {
+  async exportUsers({ ids, select }: ExportUsersDto) {
+    const where: Record<string, any> = {};
+    if (ids) {
+      where.id = { in: ids };
+    }
+    const fieldsSelect =
+      this.queryUtilService.convertFieldsSelectOption<User>(select);
     const users = await this.extended.export({
-      where: {
-        id: { in: ids },
-      },
+      select: fieldsSelect,
+      where,
     });
 
     const data = this.excelUtilService.generateExcel({

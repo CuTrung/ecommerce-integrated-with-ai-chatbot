@@ -15,7 +15,6 @@ import {
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { ExportRolesDto, GetRolesPaginationDto } from './dto/get-role.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { ExcelResponseInterceptor } from '../../common/interceptors/excel-response/excel-response.interceptor';
 import { RolesService } from './roles.service';
 import { User } from '../../common/decorators/user.decorator';
@@ -25,6 +24,7 @@ import type { File } from '../../common/utils/excel-util/dto/excel-util.interfac
 import { GetOptionsParams } from '../../common/query/options.interface';
 import { ParseParamsPaginationPipe } from '../../common/pipes/parse-params-pagination.pipe';
 import { IDDto } from '../../common/dto/param.dto';
+import { ImportExcel } from '../../common/utils/excel-util/excel-util.decorator';
 
 @Controller('roles')
 export class RolesController {
@@ -54,7 +54,7 @@ export class RolesController {
     return this.rolesService.getOptions(query);
   }
 
-  @Get('export')
+  @Post('export')
   @UseInterceptors(ExcelResponseInterceptor)
   async exportRoles(
     @Query() exportRolesDto: ExportRolesDto,
@@ -67,7 +67,7 @@ export class RolesController {
   }
 
   @Post('import')
-  @UseInterceptors(FileInterceptor('file'))
+  @ImportExcel()
   importRoles(@UploadedFile() file: File, @User() user: UserInfo) {
     return this.rolesService.importRoles({ file, user });
   }

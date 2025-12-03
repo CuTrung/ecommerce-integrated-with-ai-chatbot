@@ -24,7 +24,7 @@ export class CartsService extends PrismaBaseService<'cart'> implements Options {
     private excelUtilService: ExcelUtilService,
     public prismaService: PrismaService,
     private paginationUtilService: PaginationUtilService,
-    private queryUtil: QueryUtilService,
+    private queryUtilService: QueryUtilService,
   ) {
     super(prismaService, 'cart');
   }
@@ -81,7 +81,8 @@ export class CartsService extends PrismaBaseService<'cart'> implements Options {
 
   async getOptions(params: GetOptionsParams) {
     const { limit, select, ...searchFields } = params;
-    const fieldsSelect = this.queryUtil.convertFieldsSelectOption<Cart>(select);
+    const fieldsSelect =
+      this.queryUtilService.convertFieldsSelectOption<Cart>(select);
     const data = await this.extended.findMany({
       select: fieldsSelect,
       where: {
@@ -92,11 +93,16 @@ export class CartsService extends PrismaBaseService<'cart'> implements Options {
     return data;
   }
 
-  async exportCarts({ ids }: ExportCartsDto) {
+  async exportCarts({ ids, select }: ExportCartsDto) {
+    const where: Record<string, any> = {};
+    if (ids) {
+      where.id = { in: ids };
+    }
+    const fieldsSelect =
+      this.queryUtilService.convertFieldsSelectOption<Cart>(select);
     const carts = await this.extended.export({
-      where: {
-        id: { in: ids },
-      },
+      select: fieldsSelect,
+      where,
     });
 
     const data = this.excelUtilService.generateExcel({

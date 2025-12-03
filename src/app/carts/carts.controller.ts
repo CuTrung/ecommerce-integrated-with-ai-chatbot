@@ -15,7 +15,6 @@ import {
 import { CreateCartDto } from './dto/create-cart.dto';
 import { UpdateCartDto } from './dto/update-cart.dto';
 import { ExportCartsDto, GetCartsPaginationDto } from './dto/get-cart.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { ExcelResponseInterceptor } from '../../common/interceptors/excel-response/excel-response.interceptor';
 import { CartsService } from './carts.service';
 import { User } from '../../common/decorators/user.decorator';
@@ -25,21 +24,25 @@ import type { File } from '../../common/utils/excel-util/dto/excel-util.interfac
 import { GetOptionsParams } from '../../common/query/options.interface';
 import { ParseParamsPaginationPipe } from '../../common/pipes/parse-params-pagination.pipe';
 import { IDDto } from '../../common/dto/param.dto';
+import { SkipAuth } from '../auth/auth.decorator';
+import { ImportExcel } from '../../common/utils/excel-util/excel-util.decorator';
 
 @Controller('carts')
 export class CartsController {
   constructor(private readonly cartsService: CartsService) {}
 
   @Post()
+  @SkipAuth()
   createCart(@Body() createDto: CreateCartDto, @User() user: UserInfo) {
     const userID = user.userID;
     if (userID) {
-      createDto['userID'] = userID;
+      createDto['userID'] ??= userID;
     }
     return this.cartsService.createCart(createDto);
   }
 
   @Patch(':id')
+  @SkipAuth()
   updateCart(@Param() { id }: IDDto, @Body() updateCartDto: UpdateCartDto) {
     return this.cartsService.updateCart({
       data: updateCartDto,
@@ -58,7 +61,7 @@ export class CartsController {
     return this.cartsService.getOptions(query);
   }
 
-  @Get('export')
+  @Post('export')
   @UseInterceptors(ExcelResponseInterceptor)
   async exportCarts(
     @Query() exportCartsDto: ExportCartsDto,
@@ -71,7 +74,7 @@ export class CartsController {
   }
 
   @Post('import')
-  @UseInterceptors(FileInterceptor('file'))
+  @ImportExcel()
   importCarts(@UploadedFile() file: File, @User() user: UserInfo) {
     return this.cartsService.importCarts({ file, user });
   }

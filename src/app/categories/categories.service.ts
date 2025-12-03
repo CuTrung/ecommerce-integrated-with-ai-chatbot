@@ -34,7 +34,7 @@ export class CategoriesService
     private excelUtilService: ExcelUtilService,
     public prismaService: PrismaService,
     private paginationUtilService: PaginationUtilService,
-    private queryUtil: QueryUtilService,
+    private queryUtilService: QueryUtilService,
   ) {
     super(prismaService, 'category');
   }
@@ -92,7 +92,7 @@ export class CategoriesService
   async getOptions(params: GetOptionsParams) {
     const { limit, select, ...searchFields } = params;
     const fieldsSelect =
-      this.queryUtil.convertFieldsSelectOption<Category>(select);
+      this.queryUtilService.convertFieldsSelectOption<Category>(select);
     const data = await this.extended.findMany({
       select: fieldsSelect,
       where: {
@@ -103,11 +103,16 @@ export class CategoriesService
     return data;
   }
 
-  async exportCategories({ ids }: ExportCategoriesDto) {
+  async exportCategories({ ids, select }: ExportCategoriesDto) {
+    const where: Record<string, any> = {};
+    if (ids) {
+      where.id = { in: ids };
+    }
+    const fieldsSelect =
+      this.queryUtilService.convertFieldsSelectOption<Category>(select);
     const categories = await this.extended.export({
-      where: {
-        id: { in: ids },
-      },
+      select: fieldsSelect,
+      where,
     });
 
     const data = this.excelUtilService.generateExcel({

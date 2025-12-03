@@ -18,7 +18,6 @@ import {
   ExportCategoriesDto,
   GetCategoriesPaginationDto,
 } from './dto/get-category.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { ExcelResponseInterceptor } from '../../common/interceptors/excel-response/excel-response.interceptor';
 import { CategoriesService } from './categories.service';
 import { User } from '../../common/decorators/user.decorator';
@@ -28,6 +27,7 @@ import type { File } from '../../common/utils/excel-util/dto/excel-util.interfac
 import { GetOptionsParams } from '../../common/query/options.interface';
 import { ParseParamsPaginationPipe } from '../../common/pipes/parse-params-pagination.pipe';
 import { IDDto } from '../../common/dto/param.dto';
+import { ImportExcel } from '../../common/utils/excel-util/excel-util.decorator';
 
 @Controller('categories')
 export class CategoriesController {
@@ -60,7 +60,7 @@ export class CategoriesController {
     return this.categoriesService.getOptions(query);
   }
 
-  @Get('export')
+  @Post('export')
   @UseInterceptors(ExcelResponseInterceptor)
   async exportCategories(
     @Query() exportCategoriesDto: ExportCategoriesDto,
@@ -74,7 +74,7 @@ export class CategoriesController {
   }
 
   @Post('import')
-  @UseInterceptors(FileInterceptor('file'))
+  @ImportExcel()
   importCategories(@UploadedFile() file: File, @User() user: UserInfo) {
     return this.categoriesService.importCategories({ file, user });
   }

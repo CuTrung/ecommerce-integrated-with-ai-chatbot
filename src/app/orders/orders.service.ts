@@ -28,7 +28,7 @@ export class OrdersService
     private excelUtilService: ExcelUtilService,
     public prismaService: PrismaService,
     private paginationUtilService: PaginationUtilService,
-    private queryUtil: QueryUtilService,
+    private queryUtilService: QueryUtilService,
   ) {
     super(prismaService, 'order');
   }
@@ -86,7 +86,7 @@ export class OrdersService
   async getOptions(params: GetOptionsParams) {
     const { limit, select, ...searchFields } = params;
     const fieldsSelect =
-      this.queryUtil.convertFieldsSelectOption<Order>(select);
+      this.queryUtilService.convertFieldsSelectOption<Order>(select);
     const data = await this.extended.findMany({
       select: fieldsSelect,
       where: {
@@ -97,11 +97,16 @@ export class OrdersService
     return data;
   }
 
-  async exportOrders({ ids }: ExportOrdersDto) {
+  async exportOrders({ ids, select }: ExportOrdersDto) {
+    const where: Record<string, any> = {};
+    if (ids) {
+      where.id = { in: ids };
+    }
+    const fieldsSelect =
+      this.queryUtilService.convertFieldsSelectOption<Order>(select);
     const orders = await this.extended.export({
-      where: {
-        id: { in: ids },
-      },
+      select: fieldsSelect,
+      where,
     });
 
     const data = this.excelUtilService.generateExcel({

@@ -15,7 +15,6 @@ import {
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { ExportOrdersDto, GetOrdersPaginationDto } from './dto/get-order.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { ExcelResponseInterceptor } from '../../common/interceptors/excel-response/excel-response.interceptor';
 import { OrdersService } from './orders.service';
 import { User } from '../../common/decorators/user.decorator';
@@ -25,6 +24,7 @@ import type { File } from '../../common/utils/excel-util/dto/excel-util.interfac
 import { GetOptionsParams } from '../../common/query/options.interface';
 import { ParseParamsPaginationPipe } from '../../common/pipes/parse-params-pagination.pipe';
 import { IDDto } from '../../common/dto/param.dto';
+import { ImportExcel } from '../../common/utils/excel-util/excel-util.decorator';
 
 @Controller('orders')
 export class OrdersController {
@@ -54,7 +54,7 @@ export class OrdersController {
     return this.ordersService.getOptions(query);
   }
 
-  @Get('export')
+  @Post('export')
   @UseInterceptors(ExcelResponseInterceptor)
   async exportOrders(
     @Query() exportOrdersDto: ExportOrdersDto,
@@ -67,7 +67,7 @@ export class OrdersController {
   }
 
   @Post('import')
-  @UseInterceptors(FileInterceptor('file'))
+  @ImportExcel()
   importOrders(@UploadedFile() file: File, @User() user: UserInfo) {
     return this.ordersService.importOrders({ file, user });
   }

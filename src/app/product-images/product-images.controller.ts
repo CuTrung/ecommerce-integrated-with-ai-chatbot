@@ -15,7 +15,7 @@ import {
 import { ProductImagesService } from './product-images.service';
 import { CreateProductImageDto } from './dto/create-product-images.dto';
 import { UpdateProductImageDto } from './dto/update-product-images.dto';
-import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import { ExportProductImagesDto } from './dto/get-product-images.dto';
 import type { File } from '../../common/utils/excel-util/dto/excel-util.interface';
 import type { Response } from 'express';
@@ -23,6 +23,7 @@ import { ExcelResponseInterceptor } from '../../common/interceptors/excel-respon
 import { User } from '../../common/decorators/user.decorator';
 import type { UserInfo } from '../../common/decorators/user.decorator';
 import { IDDto } from '../../common/dto/param.dto';
+import { ImportExcel } from '../../common/utils/excel-util/excel-util.decorator';
 
 @Controller('product-images')
 export class ProductImagesController {
@@ -39,7 +40,7 @@ export class ProductImagesController {
     });
   }
 
-  @Get('export')
+  @Post('export')
   @UseInterceptors(ExcelResponseInterceptor)
   async exportProductImages(
     @Query() exportProductImagesDto: ExportProductImagesDto,
@@ -54,7 +55,7 @@ export class ProductImagesController {
   }
 
   @Post('import')
-  @UseInterceptors(FileInterceptor('file'))
+  @ImportExcel()
   importProductImages(@UploadedFile() file: File, @User() user: UserInfo) {
     return this.productImagesService.importProductImages({
       file,

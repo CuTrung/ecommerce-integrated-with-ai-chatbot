@@ -1,15 +1,13 @@
 import { IntersectionType, PartialType } from '@nestjs/swagger';
-import { Prisma } from '@prisma/client';
 import { Pagination } from '../../../common/utils/pagination-util/pagination-util.interface';
 import { Product } from '../entities/product.entity';
+import { ExportExcelDto } from '../../../common/dto/param.dto';
 
 class GetProductsPaginationDto extends IntersectionType(
   Pagination,
   PartialType(Product),
 ) {}
 
-class ExportProductsDto {
-  ids: NonNullable<Prisma.ProductWhereUniqueInput['id']>[];
-}
+class ExportProductsDto extends ExportExcelDto {}
 
 export { GetProductsPaginationDto, ExportProductsDto };
