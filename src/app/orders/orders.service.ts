@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { CreateOrderDto, ImportOrdersDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { ExportOrdersDto, GetOrdersPaginationDto } from './dto/get-order.dto';
@@ -6,7 +6,7 @@ import { PrismaBaseService } from '../../common/services/prisma-base.service';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import { ExcelUtilService } from '../../common/utils/excel-util/excel-util.service';
 import { Order } from './entities/order.entity';
-import { Prisma } from '@prisma/client';
+import { OrderStatus, Prisma } from '@prisma/client';
 import {
   GetOptionsParams,
   Options,
@@ -138,8 +138,33 @@ export class OrdersService
     return data;
   }
 
-  // @Cron('*/2 * * * * *')
-  // cancelOrderBackground() {
-  //   console.log(">>> cancel order")
-  // }
+  // @Cron(CronExpression.EVERY_MINUTE)
+  async cancelOrderBackground() {
+    const timeExpired = new Date(Date.now() - 10 * 60 * 1000); // >= 10 minutes
+
+    const orders = await this.extended.findMany({
+      where: {
+        status: OrderStatus.pending,
+        createdAt: { lt: timeExpired },
+      },
+    });
+
+    const totalOrders = orders.length;
+    if (totalOrders === 0) return;
+
+    const ids = orders.map((o) => o.id);
+    await this.extended.updateMany({
+      where: {
+        id: { in: ids },
+      },
+      data: {
+        status: OrderStatus.cancelled,
+      },
+    });
+
+    Logger.log({
+      context: OrdersService.name,
+      message: `Canceled ${totalOrders} orders: ${JSON.stringify(ids)}`,
+    });
+  }
 }

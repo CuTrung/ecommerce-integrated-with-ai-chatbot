@@ -3,12 +3,10 @@ import {
   Get,
   Post,
   Body,
-  Delete,
   UsePipes,
   Query,
   Param,
   UseInterceptors,
-  UploadedFile,
   Patch,
   Res,
 } from '@nestjs/common';
@@ -20,11 +18,9 @@ import { OrdersService } from './orders.service';
 import { User } from '../../common/decorators/user.decorator';
 import type { UserInfo } from '../../common/decorators/user.decorator';
 import type { Response } from 'express';
-import type { File } from '../../common/utils/excel-util/dto/excel-util.interface';
 import { GetOptionsParams } from '../../common/query/options.interface';
 import { ParseParamsPaginationPipe } from '../../common/pipes/parse-params-pagination.pipe';
 import { IDDto } from '../../common/dto/param.dto';
-import { ImportExcel } from '../../common/utils/excel-util/excel-util.decorator';
 
 @Controller('orders')
 export class OrdersController {
@@ -66,19 +62,19 @@ export class OrdersController {
     return { message: 'Export success' };
   }
 
-  @Post('import')
-  @ImportExcel()
-  importOrders(@UploadedFile() file: File, @User() user: UserInfo) {
-    return this.ordersService.importOrders({ file, user });
-  }
+  // @Post('import')
+  // @ImportExcel()
+  // importOrders(@UploadedFile() file: File, @User() user: UserInfo) {
+  //   return this.ordersService.importOrders({ file, user });
+  // }
 
   @Get(':id')
   getOrder(@Param() { id }: IDDto) {
     return this.ordersService.getOrder({ id });
   }
 
-  @Delete(':id')
-  deleteOrder(@Param() { id }: IDDto) {
-    return this.ordersService.deleteOrder({ id });
-  }
+  // @Delete(':id')
+  // deleteOrder(@Param() { id }: IDDto) {
+  //   return this.ordersService.deleteOrder({ id });
+  // }
 }

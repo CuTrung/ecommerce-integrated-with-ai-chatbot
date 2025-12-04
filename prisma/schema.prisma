@@ -55,8 +55,10 @@ enum OrderStatus {
 }
 
 enum AddressType {
-  billing
-  shipping
+  shipping // giao hàng
+  return // trả hàng
+  billing // thanh toán
+  pickup // lấy tại cửa hàng
 }
 
 enum PromotionStatus {
@@ -304,7 +306,7 @@ model OrderItem {
 model OrderAddress {
   id          String      @id @default(uuid())
   orderID     String
-  type        AddressType
+  type        AddressType @default(shipping)
   firstName   String
   lastName    String?
   company     String?
