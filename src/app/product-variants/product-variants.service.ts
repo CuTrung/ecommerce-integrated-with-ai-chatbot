@@ -66,7 +66,7 @@ export class ProductVariantsService
     });
     const list = await this.extended.findMany({
       skip: paging.skip,
-      take: itemPerPage,
+      take: paging.itemPerPage,
     });
 
     const data = paging.format(list);
