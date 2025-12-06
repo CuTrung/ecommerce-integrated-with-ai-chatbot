@@ -23,6 +23,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+generator custom_generator {
+  provider = "prisma-generator-fake-data"
+  output   = "../src/generated/faker/data.ts"
+}
+
 enum UserStatus {
   active
   inactive
@@ -77,6 +82,7 @@ enum PromotionType {
 model User {
   id          String     @id @default(uuid())
   email       String     @unique /// @zod.string.email()
+  ///FAKE:faker.internet.password()
   password    String
   firstName   String
   lastName    String?
@@ -252,6 +258,7 @@ model ProductImage {
   productID        String?
   // Nếu productVariantID có giá trị → ảnh gắn với variant.
   productVariantID String?
+  ///FAKE:faker.image.url()
   imageUrl         String
   sortOrder        Int       @default(0)
   createdAt        DateTime  @default(now())
@@ -293,7 +300,7 @@ model OrderItem {
   id                     String  @id @default(uuid())
   orderID                String
   productVariantID       String
-  quantity               Int
+  quantity               Int     @default(1)
   unitPrice              Decimal
   totalPrice             Decimal
   /// [ProductVariantSnapshotType]
@@ -364,7 +371,7 @@ model CartItem {
   id               String   @id @default(uuid())
   cartID           String
   productVariantID String
-  quantity         Int
+  quantity         Int      @default(1)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
