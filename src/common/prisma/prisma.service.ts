@@ -86,46 +86,46 @@ export class PrismaService
     const extended = this.$extends({
       query: {
         $allModels: {
-          findFirst: async ({ args, query }) => {
+          findFirst: ({ args, query }) => {
             args.where = { ...args.where, deletedAt: null };
             return query(args);
           },
-          findMany: async ({ args, query, model }) => {
+          findMany: ({ args, query, model }) => {
             if (!this.JUNCTION_TABLES.includes(model)) {
               args.where = { ...args.where, deletedAt: null };
               args.orderBy = [{ updatedAt: 'desc' }, { createdAt: 'desc' }];
             }
             return query(args);
           },
-          create: async ({ args, query, model }) => {
+          create: ({ args, query, model }) => {
             const generateData = this.generateData(args.data, model);
             const transferData = this.transferDataCreate(generateData);
             args.data = transferData;
             return query(args);
           },
-          createMany: async ({ args, query, model }) => {
+          createMany: ({ args, query, model }) => {
             const generateData = this.generateData(args.data, model);
             const transferData = this.transferDataCreate(generateData);
             args.data = transferData;
             return query(args);
           },
-          createManyAndReturn: async ({ args, query, model }) => {
+          createManyAndReturn: ({ args, query, model }) => {
             const generateData = this.generateData(args.data, model);
             const transferData = this.transferDataCreate(generateData);
             args.data = transferData;
             return query(args);
           },
-          update: async ({ args, query }) => {
+          update: ({ args, query }) => {
             return query(args);
           },
-          updateMany: async ({ args, query }) => {
+          updateMany: ({ args, query }) => {
             return query(args);
           },
-          count: async ({ args, query }) => {
+          count: ({ args, query }) => {
             args.where = { ...args.where, deletedAt: null };
             return query(args);
           },
-          upsert: async ({ args, query, model }) => {
+          upsert: ({ args, query, model }) => {
             const generateCreateData = this.generateData(args.create, model);
             const transferCreateData =
               this.transferDataCreate(generateCreateData);

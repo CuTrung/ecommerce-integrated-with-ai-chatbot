@@ -21,10 +21,10 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "prisma:migrate:dev": "npx prisma migrate dev --name init",
     "prisma:generate": "npx prisma generate",
+    "prisma:generate:prod": "npx prisma generate --schema=prisma/schema.prod.prisma",
     "prisma:generate:zod": "npx prisma generate zod",
     "prisma:seed": "npx prisma db seed",
-    "prepare-husky": "husky",
-    "postinstall": "npm run prisma:generate"
+    "prepare-husky": "husky"
   },
   "dependencies": {
     "@nestjs-modules/mailer": "^2.0.2",
