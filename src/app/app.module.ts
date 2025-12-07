@@ -49,6 +49,8 @@ import { EventsModule } from '../events/events.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ParseParamsPaginationPipe } from '../common/pipes/parse-params-pagination.pipe';
 import { ParseParamsOptionPipe } from '../common/pipes/parse-params-option.pipe';
+import { NotificationsModule } from './notifications/notifications.module';
+import { PaymentsModule } from './payments/payments.module';
 
 @Module({
   imports: [
@@ -91,6 +93,8 @@ import { ParseParamsOptionPipe } from '../common/pipes/parse-params-option.pipe'
     UserVendorRolesModule,
     EventsModule,
     ScheduleModule.forRoot(),
+    NotificationsModule,
+    PaymentsModule,
   ],
   controllers: [AppController],
   providers: [
