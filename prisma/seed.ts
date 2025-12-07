@@ -1,6 +1,11 @@
 import { PrismaClient } from '@prisma/client';
 import { camelCase, isEmpty } from 'es-toolkit/compat';
 import * as faker from '../src/generated/faker/data';
+import { parseArgs, ParseArgsOptionsConfig } from 'node:util';
+
+const options: ParseArgsOptionsConfig = {
+  environment: { type: 'string' },
+};
 
 const prisma = new PrismaClient();
 
@@ -85,21 +90,10 @@ const sortModelsByDependency = () => {
   return data;
 };
 
-async function main() {
+const migrateForDevelopment = async () => {
   const models = sortModelsByDependency();
-
-  const relationModels = new Set([
-    'RolePermission',
-    'OrderPromotion',
-    'UserVendorRole',
-    'ProductCategory',
-  ]);
-  const referenceModelsSkip = new Set(['Category']);
-
-  const modelsData = Object.keys(models);
-  for (const model of modelsData) {
-    if (relationModels.has(model)) continue;
-
+  const fieldsRelationSkip = new Set(['parent']);
+  for (const model of Object.keys(models)) {
     let quantityGenerate = 10;
     while (quantityGenerate > 0) {
       quantityGenerate--;
@@ -110,9 +104,9 @@ async function main() {
       const idsReference = {};
       if (!isEmpty(modelReferences)) {
         for (const field of Object.keys(modelReferences)) {
-          const modelReference = modelReferences[field];
-          if (referenceModelsSkip.has(modelReference)) continue;
+          if (fieldsRelationSkip.has(field)) continue;
 
+          const modelReference = modelReferences[field];
           const modelReferenceCamel = camelCase(modelReference);
           const [rootDataModelFirst] = await prisma[
             modelReferenceCamel
@@ -127,13 +121,30 @@ async function main() {
         }
       }
 
-      const dataCreate = faker[`fake${model}`]();
+      const dataCreate = faker[`fake${model}`]?.() ?? {};
       await prismaModel.create({
         data: { ...dataCreate, ...idsReference },
       });
     }
   }
-}
+};
+
+const main = async () => {
+  const {
+    values: { environment },
+  } = parseArgs({ options });
+
+  switch (environment) {
+    case 'dev':
+      await migrateForDevelopment();
+      break;
+    case 'prod':
+      break;
+    default:
+      break;
+  }
+};
+
 main()
   .then(async () => {
     await prisma.$disconnect();
