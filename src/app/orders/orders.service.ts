@@ -48,14 +48,17 @@ export class OrdersService
     return data;
   }
 
-  async getOrders({ page, itemPerPage }: GetOrdersPaginationDto) {
+  async getOrders({ page, itemPerPage, select }: GetOrdersPaginationDto) {
     const totalItems = await this.extended.count();
     const paging = this.paginationUtilService.paging({
       page,
       itemPerPage,
       totalItems,
     });
+    const fieldsSelect =
+      this.queryUtilService.convertFieldsSelectOption<Order>(select);
     const list = await this.extended.findMany({
+      select: fieldsSelect,
       skip: paging.skip,
       take: paging.itemPerPage,
     });
@@ -92,7 +95,7 @@ export class OrdersService
       where: {
         ...searchFields,
       },
-      take: Number(limit),
+      take: limit,
     });
     return data;
   }

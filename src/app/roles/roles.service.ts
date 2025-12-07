@@ -45,14 +45,17 @@ export class RolesService extends PrismaBaseService<'role'> implements Options {
     return data;
   }
 
-  async getRoles({ page, itemPerPage }: GetRolesPaginationDto) {
+  async getRoles({ page, itemPerPage, select }: GetRolesPaginationDto) {
     const totalItems = await this.extended.count();
     const paging = this.paginationUtilService.paging({
       page,
       itemPerPage,
       totalItems,
     });
+    const fieldsSelect =
+      this.queryUtilService.convertFieldsSelectOption<Role>(select);
     const list = await this.extended.findMany({
+      select: fieldsSelect,
       skip: paging.skip,
       take: paging.itemPerPage,
     });
@@ -89,7 +92,7 @@ export class RolesService extends PrismaBaseService<'role'> implements Options {
       where: {
         ...searchFields,
       },
-      take: Number(limit),
+      take: limit,
     });
     return data;
   }

@@ -3,7 +3,6 @@ import {
   Get,
   Post,
   Body,
-  UsePipes,
   Query,
   Param,
   UseInterceptors,
@@ -19,7 +18,6 @@ import { User } from '../../common/decorators/user.decorator';
 import type { UserInfo } from '../../common/decorators/user.decorator';
 import type { Response } from 'express';
 import { GetOptionsParams } from '../../common/query/options.interface';
-import { ParseParamsPaginationPipe } from '../../common/pipes/parse-params-pagination.pipe';
 import { IDDto } from '../../common/dto/param.dto';
 
 @Controller('orders')
@@ -40,7 +38,6 @@ export class OrdersController {
   }
 
   @Get()
-  @UsePipes(ParseParamsPaginationPipe)
   getOrders(@Query() query: GetOrdersPaginationDto) {
     return this.ordersService.getOrders(query);
   }

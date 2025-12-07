@@ -331,7 +331,7 @@ model Promotion {
   code        String          @unique
   name        String
   description String?
-  type        PromotionType
+  type        PromotionType   @default(percentage)
   value       Decimal
   usageLimit  Int?
   startDate   DateTime        @default(now())

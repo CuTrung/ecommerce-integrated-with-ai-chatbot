@@ -1,6 +1,5 @@
 import { User } from '../entities/user.entity';
 import { Pagination } from '../../../common/utils/pagination-util/pagination-util.interface';
-import { IntersectionType, PartialType } from '@nestjs/swagger';
 import { ExportExcelDto } from '../../../common/dto/param.dto';
 
 class ExportUsersDto extends ExportExcelDto {}
@@ -10,9 +9,6 @@ class IsExistPermissionKeyDto {
   permissionKey: string;
 }
 
-class GetUsersPaginationDto extends IntersectionType(
-  Pagination,
-  PartialType(User),
-) {}
+class GetUsersPaginationDto extends Pagination {}
 
 export { ExportUsersDto, IsExistPermissionKeyDto, GetUsersPaginationDto };

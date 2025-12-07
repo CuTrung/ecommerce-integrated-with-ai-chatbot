@@ -57,6 +57,7 @@ export class ProductVariantsService
   async getProductVariants({
     page,
     itemPerPage,
+    select,
   }: GetProductVariantsPaginationDto) {
     const totalItems = await this.extended.count();
     const paging = this.paginationUtilService.paging({
@@ -64,7 +65,10 @@ export class ProductVariantsService
       itemPerPage,
       totalItems,
     });
+    const fieldsSelect =
+      this.queryUtilService.convertFieldsSelectOption<ProductVariant>(select);
     const list = await this.extended.findMany({
+      select: fieldsSelect,
       skip: paging.skip,
       take: paging.itemPerPage,
     });
@@ -105,7 +109,7 @@ export class ProductVariantsService
       where: {
         ...searchFields,
       },
-      take: Number(limit),
+      take: limit,
     });
     return data;
   }

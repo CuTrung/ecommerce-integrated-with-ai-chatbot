@@ -47,6 +47,8 @@ import { QueryUtilModule } from '../common/utils/query-util/query-util.module';
 import { UserVendorRolesModule } from './user-vendor-roles/user-vendor-roles.module';
 import { EventsModule } from '../events/events.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { ParseParamsPaginationPipe } from '../common/pipes/parse-params-pagination.pipe';
+import { ParseParamsOptionPipe } from '../common/pipes/parse-params-option.pipe';
 
 @Module({
   imports: [
@@ -109,6 +111,14 @@ import { ScheduleModule } from '@nestjs/schedule';
     {
       provide: APP_GUARD,
       useClass: AccessControlGuard,
+    },
+    {
+      provide: APP_PIPE,
+      useClass: ParseParamsPaginationPipe,
+    },
+    {
+      provide: APP_PIPE,
+      useClass: ParseParamsOptionPipe,
     },
     {
       provide: APP_PIPE,

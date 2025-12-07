@@ -54,14 +54,17 @@ export class CartItemsService
     return data;
   }
 
-  async getCartItems({ page, itemPerPage }: GetCartItemsPaginationDto) {
+  async getCartItems({ page, itemPerPage, select }: GetCartItemsPaginationDto) {
     const totalItems = await this.extended.count();
     const paging = this.paginationUtilService.paging({
       page,
       itemPerPage,
       totalItems,
     });
+    const fieldsSelect =
+      this.queryUtilService.convertFieldsSelectOption<CartItem>(select);
     const list = await this.extended.findMany({
+      select: fieldsSelect,
       skip: paging.skip,
       take: paging.itemPerPage,
     });
@@ -98,7 +101,7 @@ export class CartItemsService
       where: {
         ...searchFields,
       },
-      take: Number(limit),
+      take: limit,
     });
     return data;
   }

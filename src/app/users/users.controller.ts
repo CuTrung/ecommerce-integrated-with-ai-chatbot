@@ -16,13 +16,12 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ExportUsersDto } from './dto/get-user.dto';
-import type { GetUsersPaginationDto } from './dto/get-user.dto';
+import { GetUsersPaginationDto } from './dto/get-user.dto';
 import { User } from '../../common/decorators/user.decorator';
 import type { UserInfo } from '../../common/decorators/user.decorator';
 import type { File } from '../../common/utils/excel-util/dto/excel-util.interface';
 import type { Response } from 'express';
 import { ExcelResponseInterceptor } from '../../common/interceptors/excel-response/excel-response.interceptor';
-import { ParseParamsPaginationPipe } from '../../common/pipes/parse-params-pagination.pipe';
 import { GetOptionsParams } from '../../common/query/options.interface';
 import { IDDto } from '../../common/dto/param.dto';
 import { ParseParamsOptionPipe } from '../../common/pipes/parse-params-option.pipe';
@@ -56,7 +55,6 @@ export class UsersController {
   }
 
   @Get()
-  @UsePipes(ParseParamsPaginationPipe)
   getUsers(@Query() query: GetUsersPaginationDto) {
     return this.usersService.getUsers(query);
   }

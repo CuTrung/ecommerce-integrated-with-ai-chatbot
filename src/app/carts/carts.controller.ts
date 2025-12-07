@@ -4,7 +4,6 @@ import {
   Post,
   Body,
   Delete,
-  UsePipes,
   Query,
   Param,
   UseInterceptors,
@@ -22,7 +21,6 @@ import type { UserInfo } from '../../common/decorators/user.decorator';
 import type { Response } from 'express';
 import type { File } from '../../common/utils/excel-util/dto/excel-util.interface';
 import { GetOptionsParams } from '../../common/query/options.interface';
-import { ParseParamsPaginationPipe } from '../../common/pipes/parse-params-pagination.pipe';
 import { IDDto } from '../../common/dto/param.dto';
 import { SkipAuth } from '../auth/auth.decorator';
 import { ImportExcel } from '../../common/utils/excel-util/excel-util.decorator';
@@ -51,7 +49,6 @@ export class CartsController {
   }
 
   @Get()
-  @UsePipes(ParseParamsPaginationPipe)
   getCarts(@Query() query: GetCartsPaginationDto) {
     return this.cartsService.getCarts(query);
   }

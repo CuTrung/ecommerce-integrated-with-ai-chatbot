@@ -4,7 +4,6 @@ import {
   Post,
   Body,
   Delete,
-  UsePipes,
   Query,
   Param,
   UseInterceptors,
@@ -25,7 +24,6 @@ import type { UserInfo } from '../../common/decorators/user.decorator';
 import type { Response } from 'express';
 import type { File } from '../../common/utils/excel-util/dto/excel-util.interface';
 import { GetOptionsParams } from '../../common/query/options.interface';
-import { ParseParamsPaginationPipe } from '../../common/pipes/parse-params-pagination.pipe';
 import { IDDto } from '../../common/dto/param.dto';
 import { ImportExcel } from '../../common/utils/excel-util/excel-util.decorator';
 
@@ -58,7 +56,6 @@ export class ProductVariantsController {
   }
 
   @Get()
-  @UsePipes(ParseParamsPaginationPipe)
   getProductVariants(@Query() query: GetProductVariantsPaginationDto) {
     return this.productVariantsService.getProductVariants(query);
   }

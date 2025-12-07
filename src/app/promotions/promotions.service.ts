@@ -54,14 +54,21 @@ export class PromotionsService
     return data;
   }
 
-  async getPromotions({ page, itemPerPage }: GetPromotionsPaginationDto) {
+  async getPromotions({
+    page,
+    itemPerPage,
+    select,
+  }: GetPromotionsPaginationDto) {
     const totalItems = await this.extended.count();
     const paging = this.paginationUtilService.paging({
       page,
       itemPerPage,
       totalItems,
     });
+    const fieldsSelect =
+      this.queryUtilService.convertFieldsSelectOption<Promotion>(select);
     const list = await this.extended.findMany({
+      select: fieldsSelect,
       skip: paging.skip,
       take: paging.itemPerPage,
     });
@@ -98,7 +105,7 @@ export class PromotionsService
       where: {
         ...searchFields,
       },
-      take: Number(limit),
+      take: limit,
     });
     return data;
   }

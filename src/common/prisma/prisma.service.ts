@@ -11,6 +11,8 @@ import { Vendor } from '../../app/vendors/entities/vendor.entity';
 import { Category } from '../../app/categories/entities/category.entity';
 import { StringUtilService } from '../utils/string-util/string-util.service';
 import { DateUtilService } from '../utils/date-util/date-util.service';
+import { isEmpty } from 'es-toolkit/compat';
+import { Decimal } from '@prisma/client/runtime/library';
 @Injectable()
 export class PrismaService
   extends PrismaClient
@@ -79,6 +81,29 @@ export class PrismaService
     }
     return data;
   }
+  private parseValue(value) {
+    if (isEmpty(value)) return value;
+    if (value instanceof Decimal) return value.toNumber();
+    return value;
+  }
+
+  private convertData(data) {
+    if (isEmpty(data)) return data;
+
+    if (Array.isArray(data)) {
+      const keys = Object.keys(data[0]);
+      const result = data.map((item) => {
+        const newItem = {};
+        for (const key of keys) {
+          newItem[key] = this.parseValue(item[key]);
+        }
+        return { ...item, ...newItem };
+      });
+      return result;
+    }
+
+    return data;
+  }
 
   private readonly JUNCTION_TABLES = ['RolePermission', 'UserVendorRole'];
 
@@ -90,12 +115,14 @@ export class PrismaService
             args.where = { ...args.where, deletedAt: null };
             return query(args);
           },
-          findMany: ({ args, query, model }) => {
+          findMany: async ({ args, query, model }) => {
             if (!this.JUNCTION_TABLES.includes(model)) {
               args.where = { ...args.where, deletedAt: null };
               args.orderBy = [{ updatedAt: 'desc' }, { createdAt: 'desc' }];
             }
-            return query(args);
+            const data = await query(args);
+            const convertData = this.convertData(data);
+            return convertData;
           },
           create: ({ args, query, model }) => {
             const generateData = this.generateData(args.data, model);

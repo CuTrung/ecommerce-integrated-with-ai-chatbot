@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Pagination } from './pagination-util.interface';
+import { Pagination, PagingDefault } from './pagination-util.interface';
 
 @Injectable()
 export class PaginationUtilService extends Pagination {
@@ -20,7 +20,11 @@ export class PaginationUtilService extends Pagination {
   }
   private totalItems: number;
 
-  paging({ page = 1, itemPerPage = 5, totalItems = 0 }) {
+  paging({
+    page = PagingDefault.PAGE,
+    itemPerPage = PagingDefault.ITEM_PER_PAGE,
+    totalItems = 0,
+  }) {
     this.itemPerPage = itemPerPage;
     this.totalItems = totalItems;
     const skip = (page - 1) * itemPerPage;

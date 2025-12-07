@@ -51,14 +51,17 @@ export class VendorsService
     return data;
   }
 
-  async getVendors({ page, itemPerPage }: GetVendorsPaginationDto) {
+  async getVendors({ page, itemPerPage, select }: GetVendorsPaginationDto) {
     const totalItems = await this.extended.count();
     const paging = this.paginationUtilService.paging({
       page,
       itemPerPage,
       totalItems,
     });
+    const fieldsSelect =
+      this.queryUtilService.convertFieldsSelectOption<Vendor>(select);
     const list = await this.extended.findMany({
+      select: fieldsSelect,
       skip: paging.skip,
       take: paging.itemPerPage,
     });
@@ -95,7 +98,7 @@ export class VendorsService
       where: {
         ...searchFields,
       },
-      take: Number(limit),
+      take: limit,
     });
     return data;
   }

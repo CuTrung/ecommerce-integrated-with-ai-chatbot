@@ -48,7 +48,7 @@ export class UsersService extends PrismaBaseService<'user'> implements Options {
     return data;
   }
 
-  async getUsers({ page, itemPerPage }: GetUsersPaginationDto) {
+  async getUsers({ page, itemPerPage, select }: GetUsersPaginationDto) {
     // const usersCacheKey = this.getUsers.name;
     // const usersCached = await this.cacheManager.get(usersCacheKey);
     // if (usersCached) return usersCached;
@@ -59,7 +59,10 @@ export class UsersService extends PrismaBaseService<'user'> implements Options {
       itemPerPage,
       totalItems,
     });
+    const fieldsSelect =
+      this.queryUtilService.convertFieldsSelectOption<User>(select);
     const list = await this.extended.findMany({
+      select: fieldsSelect,
       skip: paging.skip,
       take: paging.itemPerPage,
     });
@@ -105,7 +108,7 @@ export class UsersService extends PrismaBaseService<'user'> implements Options {
       where: {
         ...searchFields,
       },
-      take: Number(limit),
+      take: limit,
     });
     return data;
   }
