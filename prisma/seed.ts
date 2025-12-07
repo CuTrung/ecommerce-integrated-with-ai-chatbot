@@ -14,19 +14,16 @@ const getModelDependencies = () => {
   const models = runtimeDataModel.models;
   const dependencies = {};
 
-  // Duyệt qua từng model
   Object.keys(models).forEach((modelName) => {
     const modelData = models[modelName];
     dependencies[modelName] = {};
 
-    // Kiểm tra các fields của model
     const fields = modelData.fields;
 
     if (fields) {
       fields.forEach((field) => {
         const { name: fieldName } = field;
 
-        // Nếu field có relationName và relationFromFields (là relation field)
         if (
           field.relationName &&
           field.relationFromFields &&
@@ -34,7 +31,6 @@ const getModelDependencies = () => {
         ) {
           const referencedModel = field.type;
 
-          // Sử dụng tên field relation (ví dụ: "user")
           dependencies[modelName][fieldName] = referencedModel;
         }
       });
@@ -52,20 +48,14 @@ const sortModelsByDependency = () => {
   const visiting = new Set<string>();
 
   function visit(modelName: string) {
-    if (visited.has(modelName)) return;
-    if (visiting.has(modelName)) {
-      // Phát hiện circular dependency, thêm vào cuối
-      return;
-    }
+    if (visited.has(modelName) || visiting.has(modelName)) return;
 
     visiting.add(modelName);
 
-    // Lấy tất cả các models được reference
     const referencedModels = new Set(
       Object.values<string>(dependencies[modelName]),
     );
 
-    // Đệ quy visit các models được reference trước
     for (const refModel of referencedModels) {
       if (models.includes(refModel)) {
         visit(refModel);
@@ -77,7 +67,6 @@ const sortModelsByDependency = () => {
     sorted.push(modelName);
   }
 
-  // Visit tất cả models
   for (const model of models) {
     visit(model);
   }
