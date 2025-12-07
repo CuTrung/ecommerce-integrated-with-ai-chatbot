@@ -18,6 +18,8 @@ import {
 } from '../../common/query/options.interface';
 import { PaginationUtilService } from '../../common/utils/pagination-util/pagination-util.service';
 import { QueryUtilService } from '../../common/utils/query-util/query-util.service';
+import { StringUtilService } from '../../common/utils/string-util/string-util.service';
+import { isEmpty } from 'es-toolkit/compat';
 @Injectable()
 export class UsersService extends PrismaBaseService<'user'> implements Options {
   private userEntityName = User.name;
@@ -29,6 +31,7 @@ export class UsersService extends PrismaBaseService<'user'> implements Options {
     public prismaService: PrismaService,
     private paginationUtilService: PaginationUtilService,
     private queryUtilService: QueryUtilService,
+    private stringUtilService: StringUtilService,
   ) {
     super(prismaService, 'user');
   }
@@ -82,8 +85,11 @@ export class UsersService extends PrismaBaseService<'user'> implements Options {
   }
 
   async createUser(createUserDto: CreateUserDto) {
+    const passwordHashed = await this.stringUtilService.hash(
+      createUserDto.password,
+    );
     const data = await this.extended.create({
-      data: createUserDto,
+      data: { ...createUserDto, password: passwordHashed },
     });
     return data;
   }
@@ -93,6 +99,11 @@ export class UsersService extends PrismaBaseService<'user'> implements Options {
     data: UpdateUserDto;
   }) {
     const { where, data: dataUpdate } = params;
+    const password = dataUpdate.password;
+    if (!isEmpty(password)) {
+      const passwordHashed = await this.stringUtilService.hash(password!);
+      dataUpdate.password = passwordHashed;
+    }
     const data = await this.extended.update({
       data: dataUpdate,
       where,
