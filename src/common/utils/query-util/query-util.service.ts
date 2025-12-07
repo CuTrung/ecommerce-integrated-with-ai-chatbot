@@ -1,5 +1,6 @@
 import { Global, Injectable } from '@nestjs/common';
 import { BuildSearchParams, Operator } from './interfaces/query-util.interface';
+import { isEmpty } from 'es-toolkit/compat';
 
 @Global()
 @Injectable()
@@ -36,6 +37,7 @@ export class QueryUtilService {
     search,
     operator = Operator.OR,
   }: BuildSearchParams<T>) {
+    if (isEmpty(search)) return {};
     let data;
     switch (operator) {
       case Operator.OR:
