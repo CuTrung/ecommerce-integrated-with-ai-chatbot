@@ -48,7 +48,12 @@ export class UsersService extends PrismaBaseService<'user'> implements Options {
     return data;
   }
 
-  async getUsers({ page, itemPerPage, select }: GetUsersPaginationDto) {
+  async getUsers({
+    page,
+    itemPerPage,
+    select,
+    ...search
+  }: GetUsersPaginationDto) {
     // const usersCacheKey = this.getUsers.name;
     // const usersCached = await this.cacheManager.get(usersCacheKey);
     // if (usersCached) return usersCached;
@@ -61,10 +66,14 @@ export class UsersService extends PrismaBaseService<'user'> implements Options {
     });
     const fieldsSelect =
       this.queryUtilService.convertFieldsSelectOption<User>(select);
+    const searchQuery = this.queryUtilService.buildSearchQuery<User>({
+      search,
+    });
     const list = await this.extended.findMany({
       select: fieldsSelect,
       skip: paging.skip,
       take: paging.itemPerPage,
+      where: searchQuery,
     });
 
     const data = paging.format(list);
@@ -100,15 +109,16 @@ export class UsersService extends PrismaBaseService<'user'> implements Options {
   }
 
   async getOptions(params: GetOptionsParams) {
-    const { limit, select, ...searchFields } = params;
+    const { limit, select, ...search } = params;
     const fieldsSelect =
       this.queryUtilService.convertFieldsSelectOption<User>(select);
-    const data = await this.client.findMany({
+    const searchQuery = this.queryUtilService.buildSearchQuery<User>({
+      search,
+    });
+    const data = await this.extended.findMany({
       select: fieldsSelect,
-      where: {
-        ...searchFields,
-      },
       take: limit,
+      where: searchQuery,
     });
     return data;
   }

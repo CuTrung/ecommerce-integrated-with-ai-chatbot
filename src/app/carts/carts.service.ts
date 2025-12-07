@@ -44,7 +44,12 @@ export class CartsService extends PrismaBaseService<'cart'> implements Options {
     return data;
   }
 
-  async getCarts({ page, itemPerPage, select }: GetCartsPaginationDto) {
+  async getCarts({
+    page,
+    itemPerPage,
+    select,
+    ...search
+  }: GetCartsPaginationDto) {
     const totalItems = await this.extended.count();
     const paging = this.paginationUtilService.paging({
       page,
@@ -53,10 +58,14 @@ export class CartsService extends PrismaBaseService<'cart'> implements Options {
     });
     const fieldsSelect =
       this.queryUtilService.convertFieldsSelectOption<Cart>(select);
+    const searchQuery = this.queryUtilService.buildSearchQuery<Cart>({
+      search,
+    });
     const list = await this.extended.findMany({
       select: fieldsSelect,
       skip: paging.skip,
       take: paging.itemPerPage,
+      where: searchQuery,
     });
 
     const data = paging.format(list);
@@ -83,15 +92,16 @@ export class CartsService extends PrismaBaseService<'cart'> implements Options {
   }
 
   async getOptions(params: GetOptionsParams) {
-    const { limit, select, ...searchFields } = params;
+    const { limit, select, ...search } = params;
     const fieldsSelect =
       this.queryUtilService.convertFieldsSelectOption<Cart>(select);
+    const searchQuery = this.queryUtilService.buildSearchQuery<Cart>({
+      search,
+    });
     const data = await this.extended.findMany({
       select: fieldsSelect,
-      where: {
-        ...searchFields,
-      },
       take: limit,
+      where: searchQuery,
     });
     return data;
   }

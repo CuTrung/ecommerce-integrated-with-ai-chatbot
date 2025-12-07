@@ -58,6 +58,7 @@ export class OrderItemsService
     page,
     itemPerPage,
     select,
+    ...search
   }: GetOrderItemsPaginationDto) {
     const totalItems = await this.extended.count();
     const paging = this.paginationUtilService.paging({
@@ -67,10 +68,14 @@ export class OrderItemsService
     });
     const fieldsSelect =
       this.queryUtilService.convertFieldsSelectOption<OrderItem>(select);
+    const searchQuery = this.queryUtilService.buildSearchQuery<OrderItem>({
+      search,
+    });
     const list = await this.extended.findMany({
       select: fieldsSelect,
       skip: paging.skip,
       take: paging.itemPerPage,
+      where: searchQuery,
     });
 
     const data = paging.format(list);
@@ -97,17 +102,20 @@ export class OrderItemsService
   }
 
   async getOptions(params: GetOptionsParams) {
-    const { limit, select, ...searchFields } = params;
+    const { limit, select, ...search } = params;
     const fieldsSelect =
       this.queryUtilService.convertFieldsSelectOption<
         Omit<OrderItem, 'productVariantSnapshot'>
       >(select);
+    const searchQuery = this.queryUtilService.buildSearchQuery<
+      Omit<OrderItem, 'productVariantSnapshot'>
+    >({
+      search,
+    });
     const data = await this.extended.findMany({
       select: fieldsSelect,
-      where: {
-        ...searchFields,
-      },
       take: limit,
+      where: searchQuery,
     });
     return data;
   }

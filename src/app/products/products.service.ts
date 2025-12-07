@@ -51,7 +51,12 @@ export class ProductsService
     return data;
   }
 
-  async getProducts({ page, itemPerPage, select }: GetProductsPaginationDto) {
+  async getProducts({
+    page,
+    itemPerPage,
+    select,
+    ...search
+  }: GetProductsPaginationDto) {
     const totalItems = await this.extended.count();
     const paging = this.paginationUtilService.paging({
       page,
@@ -60,10 +65,14 @@ export class ProductsService
     });
     const fieldsSelect =
       this.queryUtilService.convertFieldsSelectOption<Product>(select);
+    const searchQuery = this.queryUtilService.buildSearchQuery<Product>({
+      search,
+    });
     const list = await this.extended.findMany({
       select: fieldsSelect,
       skip: paging.skip,
       take: paging.itemPerPage,
+      where: searchQuery,
     });
 
     const data = paging.format(list);
@@ -90,15 +99,16 @@ export class ProductsService
   }
 
   async getOptions(params: GetOptionsParams) {
-    const { limit, select, ...searchFields } = params;
+    const { limit, select, ...search } = params;
     const fieldsSelect =
       this.queryUtilService.convertFieldsSelectOption<Product>(select);
+    const searchQuery = this.queryUtilService.buildSearchQuery<Product>({
+      search,
+    });
     const data = await this.extended.findMany({
       select: fieldsSelect,
-      where: {
-        ...searchFields,
-      },
       take: limit,
+      where: searchQuery,
     });
     return data;
   }

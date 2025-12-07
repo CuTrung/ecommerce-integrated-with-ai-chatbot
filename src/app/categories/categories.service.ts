@@ -58,6 +58,7 @@ export class CategoriesService
     page,
     itemPerPage,
     select,
+    ...search
   }: GetCategoriesPaginationDto) {
     const totalItems = await this.extended.count();
     const paging = this.paginationUtilService.paging({
@@ -67,10 +68,14 @@ export class CategoriesService
     });
     const fieldsSelect =
       this.queryUtilService.convertFieldsSelectOption<Category>(select);
+    const searchQuery = this.queryUtilService.buildSearchQuery<Category>({
+      search,
+    });
     const list = await this.extended.findMany({
       select: fieldsSelect,
       skip: paging.skip,
       take: paging.itemPerPage,
+      where: searchQuery,
     });
 
     const data = paging.format(list);
@@ -97,15 +102,16 @@ export class CategoriesService
   }
 
   async getOptions(params: GetOptionsParams) {
-    const { limit, select, ...searchFields } = params;
+    const { limit, select, ...search } = params;
     const fieldsSelect =
       this.queryUtilService.convertFieldsSelectOption<Category>(select);
+    const searchQuery = this.queryUtilService.buildSearchQuery<Category>({
+      search,
+    });
     const data = await this.extended.findMany({
       select: fieldsSelect,
-      where: {
-        ...searchFields,
-      },
       take: limit,
+      where: searchQuery,
     });
     return data;
   }

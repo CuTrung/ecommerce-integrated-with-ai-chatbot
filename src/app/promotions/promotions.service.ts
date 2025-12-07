@@ -58,6 +58,7 @@ export class PromotionsService
     page,
     itemPerPage,
     select,
+    ...search
   }: GetPromotionsPaginationDto) {
     const totalItems = await this.extended.count();
     const paging = this.paginationUtilService.paging({
@@ -67,10 +68,14 @@ export class PromotionsService
     });
     const fieldsSelect =
       this.queryUtilService.convertFieldsSelectOption<Promotion>(select);
+    const searchQuery = this.queryUtilService.buildSearchQuery<Promotion>({
+      search,
+    });
     const list = await this.extended.findMany({
       select: fieldsSelect,
       skip: paging.skip,
       take: paging.itemPerPage,
+      where: searchQuery,
     });
 
     const data = paging.format(list);
@@ -97,15 +102,16 @@ export class PromotionsService
   }
 
   async getOptions(params: GetOptionsParams) {
-    const { limit, select, ...searchFields } = params;
+    const { limit, select, ...search } = params;
     const fieldsSelect =
       this.queryUtilService.convertFieldsSelectOption<Promotion>(select);
+    const searchQuery = this.queryUtilService.buildSearchQuery<Promotion>({
+      search,
+    });
     const data = await this.extended.findMany({
       select: fieldsSelect,
-      where: {
-        ...searchFields,
-      },
       take: limit,
+      where: searchQuery,
     });
     return data;
   }

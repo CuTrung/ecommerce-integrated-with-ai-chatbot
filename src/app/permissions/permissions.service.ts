@@ -59,6 +59,7 @@ export class PermissionsService
     page,
     itemPerPage,
     select,
+    ...search
   }: GetPermissionsPaginationDto) {
     const totalItems = await this.extended.count();
     const paging = this.paginationUtilService.paging({
@@ -68,10 +69,14 @@ export class PermissionsService
     });
     const fieldsSelect =
       this.queryUtilService.convertFieldsSelectOption<Permission>(select);
+    const searchQuery = this.queryUtilService.buildSearchQuery<Permission>({
+      search,
+    });
     const list = await this.extended.findMany({
       select: fieldsSelect,
       skip: paging.skip,
       take: paging.itemPerPage,
+      where: searchQuery,
     });
 
     const data = paging.format(list);
@@ -113,15 +118,16 @@ export class PermissionsService
   }
 
   async getOptions(params: GetOptionsParams) {
-    const { limit, select, ...searchFields } = params;
+    const { limit, select, ...search } = params;
     const fieldsSelect =
       this.queryUtilService.convertFieldsSelectOption<Permission>(select);
+    const searchQuery = this.queryUtilService.buildSearchQuery<Permission>({
+      search,
+    });
     const data = await this.extended.findMany({
       select: fieldsSelect,
-      where: {
-        ...searchFields,
-      },
       take: limit,
+      where: searchQuery,
     });
     return data;
   }
