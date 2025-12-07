@@ -102,7 +102,11 @@ export class PrismaService
       return result;
     }
 
-    return data;
+    const parsedValue = {};
+    for (const key of Object.keys(data)) {
+      parsedValue[key] = this.parseValue(data[key]);
+    }
+    return { ...data, ...parsedValue };
   }
 
   private readonly JUNCTION_TABLES = ['RolePermission', 'UserVendorRole'];
@@ -111,9 +115,17 @@ export class PrismaService
     const extended = this.$extends({
       query: {
         $allModels: {
-          findFirst: ({ args, query }) => {
+          findUnique: async ({ args, query }) => {
             args.where = { ...args.where, deletedAt: null };
-            return query(args);
+            const data = await query(args);
+            const convertData = this.convertData(data);
+            return convertData;
+          },
+          findFirst: async ({ args, query }) => {
+            args.where = { ...args.where, deletedAt: null };
+            const data = await query(args);
+            const convertData = this.convertData(data);
+            return convertData;
           },
           findMany: async ({ args, query, model }) => {
             if (!this.JUNCTION_TABLES.includes(model)) {
