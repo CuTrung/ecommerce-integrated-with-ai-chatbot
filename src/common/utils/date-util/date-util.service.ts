@@ -25,4 +25,10 @@ export class DateUtilService {
     const data = new Intl.DateTimeFormat(locales, format).format(date);
     return data;
   }
+
+  getTomorrow() {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return tomorrow;
+  }
 }

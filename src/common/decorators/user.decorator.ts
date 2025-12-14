@@ -4,6 +4,7 @@ import { User as UserEntity } from '../../app/users/entities/user.entity';
 export interface UserInfo {
   userID: UserEntity['id'];
   userEmail: UserEntity['email'];
+  userIpAddress: string;
 }
 
 export const User = createParamDecorator(

@@ -402,9 +402,9 @@ enum PaymentType {
 model Payment {
   id            String        @id @default(uuid())
   orderID       String
-  type          PaymentType
-  status        PaymentStatus
-  amount        Decimal
+  type          PaymentType   @default(bankTransfer)
+  status        PaymentStatus @default(pending)
+  amount        Decimal       @default(0)
   transactionID String?
   createdAt     DateTime      @default(now())
   createdBy     String?

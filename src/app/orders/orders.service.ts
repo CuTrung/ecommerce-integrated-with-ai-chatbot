@@ -14,6 +14,7 @@ import {
 import { PaginationUtilService } from '../../common/utils/pagination-util/pagination-util.service';
 import { QueryUtilService } from '../../common/utils/query-util/query-util.service';
 import { WithUser } from '../../common/decorators/user.decorator';
+import { PaymentsService } from '../payments/payments.service';
 
 @Injectable()
 export class OrdersService
@@ -29,6 +30,7 @@ export class OrdersService
     public prismaService: PrismaService,
     private paginationUtilService: PaginationUtilService,
     private queryUtilService: QueryUtilService,
+    private paymentsService: PaymentsService,
   ) {
     super(prismaService, 'order');
   }
@@ -80,7 +82,15 @@ export class OrdersService
     const data = await this.extended.create({
       data: createOrderDto,
     });
-    return data;
+
+    const { orderNumber, totalAmount, id: orderID } = data;
+    const payment = await this.paymentsService.createPayment({
+      orderNumber,
+      totalAmount,
+      user: createOrderDto.user,
+      orderID,
+    });
+    return { ...data, paymentUrl: payment.paymentUrl };
   }
 
   async updateOrder(params: {

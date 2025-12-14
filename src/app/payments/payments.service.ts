@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { CreatePaymentDto, ImportPaymentsDto } from './dto/create-payment.dto';
-import { UpdatePaymentDto } from './dto/update-payment.dto';
 import {
   ExportPaymentsDto,
   GetPaymentsPaginationDto,
@@ -17,6 +16,12 @@ import {
 import { PaginationUtilService } from '../../common/utils/pagination-util/pagination-util.service';
 import { QueryUtilService } from '../../common/utils/query-util/query-util.service';
 import { WithUser } from '../../common/decorators/user.decorator';
+import { VnpayService } from 'nestjs-vnpay';
+import { ProductCode, VnpLocale, dateFormat } from 'vnpay';
+import { ConfigService } from '@nestjs/config';
+import { EnvVars } from '../../common/envs/validate.env';
+import { DateUtilService } from '../../common/utils/date-util/date-util.service';
+import { UpdatePaymentDto } from './dto/update-payment.dto';
 
 @Injectable()
 export class PaymentsService
@@ -32,6 +37,9 @@ export class PaymentsService
     public prismaService: PrismaService,
     private paginationUtilService: PaginationUtilService,
     private queryUtilService: QueryUtilService,
+    private readonly vnpayService: VnpayService,
+    private configService: ConfigService,
+    private dateUtilService: DateUtilService,
   ) {
     super(prismaService, 'payment');
   }
@@ -79,11 +87,36 @@ export class PaymentsService
     return data;
   }
 
-  async createPayment(createPaymentDto: WithUser<CreatePaymentDto>) {
-    const data = await this.extended.create({
-      data: createPaymentDto,
+  private createPaymentUrl({ orderAmount, orderNumber, userIpAddress }) {
+    const expireDate = dateFormat(this.dateUtilService.getTomorrow());
+    const paymentUrl = this.vnpayService.buildPaymentUrl({
+      vnp_Amount: orderAmount,
+      vnp_IpAddr: userIpAddress,
+      vnp_TxnRef: orderNumber,
+      vnp_OrderInfo: `Payment order ${orderNumber}`,
+      vnp_OrderType: ProductCode.Other,
+      vnp_ReturnUrl: `${this.configService.get<string>(EnvVars.APP_URL)}/payments/vnpay-return`,
+      vnp_Locale: VnpLocale.VN, // 'vn' hoặc 'en'
+      vnp_ExpireDate: expireDate,
     });
-    return data;
+    return paymentUrl;
+  }
+
+  async createPayment(createPaymentDto: WithUser<CreatePaymentDto>) {
+    const { orderNumber, totalAmount, orderID, ...paymentData } =
+      createPaymentDto;
+    const paymentUrl = this.createPaymentUrl({
+      orderAmount: totalAmount,
+      orderNumber,
+      userIpAddress: paymentData.user.userIpAddress,
+    });
+    const data = await this.extended.create({
+      data: {
+        ...paymentData,
+        orderID,
+      },
+    });
+    return { ...data, paymentUrl };
   }
 
   async updatePayment(params: {
@@ -151,6 +184,17 @@ export class PaymentsService
 
   async deletePayment(where: Prisma.PaymentWhereUniqueInput) {
     const data = await this.extended.softDelete(where);
+    return data;
+  }
+
+  async getBankList() {
+    const data = await this.vnpayService.getBankList();
+    return data;
+  }
+
+  vnpayReturn(data) {
+    console.log('>>> data', data);
+    // Emit to FE
     return data;
   }
 }

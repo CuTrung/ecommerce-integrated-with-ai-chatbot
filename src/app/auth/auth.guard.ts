@@ -34,7 +34,13 @@ export class AuthGuard implements CanActivate {
     try {
       const payload = await this.authService.verifyToken(token);
       const { iat, exp, ...user } = payload;
-      req['user'] = user as UserInfo;
+      const userIpAddress =
+        req.headers['x-forwarded-for'] || req.socket.remoteAddress || req.ip;
+      const userData: UserInfo = {
+        ...user,
+        userIpAddress,
+      };
+      req['user'] = userData;
     } catch (err) {
       throw new UnauthorizedException(err.message);
     }
