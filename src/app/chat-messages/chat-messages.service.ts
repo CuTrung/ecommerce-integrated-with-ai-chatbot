@@ -238,15 +238,12 @@ export class ChatMessagesService
       'help',
     ];
 
-    return (
-      question
-        .toLowerCase()
-        .normalize('NFC')
-        // .replace(/[^\p{L}\p{N}\s]/gu, '')
-        .replace(/[^\p{L}\p{N}\s.,?]/gu, ' ')
-        .split(/\s+/)
-        .filter((word) => word.length >= 2 && !STOP_WORDS.includes(word))
-    );
+    return question
+      .toLowerCase()
+      .normalize('NFC')
+      .replace(/[^\p{L}\p{N}\s.,?]/gu, ' ')
+      .split(/\s+/)
+      .filter((word) => word.length >= 2 && !STOP_WORDS.includes(word));
   }
 
   private detectIntent(keywords: string[]) {
