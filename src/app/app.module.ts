@@ -51,6 +51,8 @@ import { ParseParamsPaginationPipe } from '../common/pipes/parse-params-paginati
 import { ParseParamsOptionPipe } from '../common/pipes/parse-params-option.pipe';
 import { NotificationsModule } from './notifications/notifications.module';
 import { PaymentsModule } from './payments/payments.module';
+import { ChatMessagesModule } from './chat-messages/chat-messages.module';
+import { AIModule } from '../common/services/ai/ai.module';
 
 @Module({
   imports: [
@@ -95,6 +97,8 @@ import { PaymentsModule } from './payments/payments.module';
     ScheduleModule.forRoot(),
     NotificationsModule,
     PaymentsModule,
+    ChatMessagesModule,
+    AIModule,
   ],
   controllers: [AppController],
   providers: [

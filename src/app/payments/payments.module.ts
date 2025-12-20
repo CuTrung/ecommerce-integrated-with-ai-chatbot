@@ -6,7 +6,7 @@ import { PaginationUtilService } from '../../common/utils/pagination-util/pagina
 import { VnpayModule } from 'nestjs-vnpay';
 import { ignoreLogger } from 'vnpay';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { VNPAY_ENV } from './consts/env.const';
+import { EnvVars } from '../../common/envs/validate.env';
 
 @Module({
   imports: [
@@ -14,9 +14,9 @@ import { VNPAY_ENV } from './consts/env.const';
     VnpayModule.registerAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
-        tmnCode: configService.get<string>(VNPAY_ENV.VNPAY_TMN_CODE)!,
-        secureSecret: configService.get<string>(VNPAY_ENV.VNPAY_SECURE_SECRET)!,
-        vnpayHost: configService.get<string>(VNPAY_ENV.VNPAY_HOST)!,
+        tmnCode: configService.get<string>(EnvVars.VNPAY_TMN_CODE)!,
+        secureSecret: configService.get<string>(EnvVars.VNPAY_SECURE_SECRET)!,
+        vnpayHost: configService.get<string>(EnvVars.VNPAY_HOST)!,
 
         // Cấu hình tùy chọn
         testMode: true, // Chế độ test (ghi đè vnpayHost thành sandbox nếu là true)

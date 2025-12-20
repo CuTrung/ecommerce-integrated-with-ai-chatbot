@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import { camelCase, isEmpty } from 'es-toolkit/compat';
 import * as faker from '../src/generated/faker/data';
 import { parseArgs, ParseArgsOptionsConfig } from 'node:util';
+import { USER_AI_MODEL_EMAIL } from '../src/common/services/ai/consts/ai.const';
 
 const options: ParseArgsOptionsConfig = {
   environment: { type: 'string' },
@@ -79,6 +80,22 @@ const sortModelsByDependency = () => {
   return data;
 };
 
+const createUserAIModel = async () => {
+  const userModel = await prisma.user.findUnique({
+    where: { email: USER_AI_MODEL_EMAIL },
+  });
+  if (!isEmpty(userModel)) return;
+
+  await prisma.user.create({
+    data: {
+      email: USER_AI_MODEL_EMAIL,
+      firstName: 'User AI Model',
+      fullAddress: '',
+      password: crypto.randomUUID(),
+    },
+  });
+};
+
 const migrateForDevelopment = async () => {
   const models = sortModelsByDependency();
   const fieldsRelationSkip = new Set(['parent']);
@@ -116,6 +133,7 @@ const migrateForDevelopment = async () => {
       });
     }
   }
+  await createUserAIModel();
 };
 
 const main = async () => {
@@ -125,8 +143,7 @@ const main = async () => {
 
   switch (environment) {
     case 'dev':
-      await migrateForDevelopment();
-      break;
+      return await migrateForDevelopment();
     case 'prod':
       break;
     default:

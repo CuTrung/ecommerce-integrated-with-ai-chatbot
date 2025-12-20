@@ -13,6 +13,7 @@ import { StringUtilService } from '../utils/string-util/string-util.service';
 import { DateUtilService } from '../utils/date-util/date-util.service';
 import { isEmpty } from 'es-toolkit/compat';
 import { Decimal } from '@prisma/client/runtime/library';
+import { ChatMessage } from '../../app/chat-messages/entities/chat-message.entity';
 @Injectable()
 export class PrismaService
   extends PrismaClient
@@ -67,8 +68,12 @@ export class PrismaService
     return omit(value, excludeFields);
   }
 
-  private transferDataCreate(value) {
+  private transferDataCreate(value, model?: string) {
+    const modelsWithUserID = [ChatMessage.name];
     const dataCreatedBy = this.setCreatedBy(value);
+    if (model && modelsWithUserID.includes(model)) {
+      dataCreatedBy.userID = dataCreatedBy.user.userID;
+    }
     const data: any = this.omitData(dataCreatedBy, ['user', 'id']);
     return data;
   }
@@ -109,7 +114,11 @@ export class PrismaService
     return { ...data, ...parsedValue };
   }
 
-  private readonly JUNCTION_TABLES = ['RolePermission', 'UserVendorRole'];
+  private readonly JUNCTION_TABLES = [
+    'RolePermission',
+    'UserVendorRole',
+    'ChatMessage',
+  ];
 
   initExtended() {
     const extended = this.$extends({
@@ -128,7 +137,7 @@ export class PrismaService
             return convertData;
           },
           findMany: async ({ args, query, model }) => {
-            if (!this.JUNCTION_TABLES.includes(model)) {
+            if (!this.JUNCTION_TABLES.includes(model) && !args.orderBy) {
               args.where = { ...args.where, deletedAt: null };
               args.orderBy = [{ updatedAt: 'desc' }, { createdAt: 'desc' }];
             }
@@ -138,7 +147,7 @@ export class PrismaService
           },
           create: ({ args, query, model }) => {
             const generateData = this.generateData(args.data, model);
-            const transferData = this.transferDataCreate(generateData);
+            const transferData = this.transferDataCreate(generateData, model);
             args.data = transferData;
             return query(args);
           },
@@ -226,6 +235,32 @@ export class PrismaService
               data: { deletedAt: null },
               where,
             });
+            return result;
+          },
+          async search<T>(
+            this: T,
+            args: Prisma.Args<T, 'findMany'> = {} as any,
+          ) {
+            const context: any = Prisma.getExtensionContext(this);
+            const FIELDS_EXCLUDE = [
+              'id',
+              'createdAt',
+              'updatedAt',
+              'deletedAt',
+              'createdBy',
+            ];
+            args.select ??= Object.keys(context.fields).reduce(
+              (acc, field) => ({
+                ...acc,
+                [field]:
+                  FIELDS_EXCLUDE.includes(field) || field.endsWith('ID')
+                    ? false
+                    : true,
+              }),
+              {},
+            );
+
+            const result = await context.findMany(args);
             return result;
           },
         },

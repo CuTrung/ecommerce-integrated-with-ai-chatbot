@@ -102,6 +102,7 @@ model User {
   orders          Order[]
   cart            Cart?
   notifications   Notification[]
+  chatMessages    ChatMessage[]
 }
 
 model Vendor {
@@ -417,4 +418,21 @@ model Payment {
   deletedAt     DateTime?
 
   order Order @relation(fields: [orderID], references: [id])
+}
+
+model ChatMessage {
+  id        String    @id @default(uuid())
+  userID    String
+  message   String
+  parentID  String?   @unique
+  sessionID String    @default(uuid())
+  context   String?
+  createdAt DateTime  @default(now())
+  createdBy String?
+  deletedAt DateTime?
+
+  parent ChatMessage? @relation("ChatMessageParent", fields: [parentID], references: [id])
+  child  ChatMessage? @relation("ChatMessageParent")
+
+  user User @relation(fields: [userID], references: [id])
 }

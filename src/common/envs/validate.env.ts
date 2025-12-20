@@ -41,6 +41,12 @@ const baseEnvSchema = z.object({
   MAIL_PORT: zodWarnOptional(z.string(), 'MAIL_PORT'),
 
   DATABASE_URL: z.string().url(),
+
+  VNPAY_TMN_CODE: zodWarnOptional(z.string(), 'VNPAY_TMN_CODE'),
+  VNPAY_SECURE_SECRET: zodWarnOptional(z.string(), 'VNPAY_SECURE_SECRET'),
+  VNPAY_HOST: zodWarnOptional(z.string(), 'VNPAY_HOST'),
+
+  GEMINI_API_KEY: zodWarnOptional(z.string(), 'GEMINI_API_KEY'),
 });
 
 const envSchema = baseEnvSchema.transform((data) => {
