@@ -20,6 +20,9 @@ import { PaginationUtilService } from '../../common/utils/pagination-util/pagina
 import { QueryUtilService } from '../../common/utils/query-util/query-util.service';
 import { StringUtilService } from '../../common/utils/string-util/string-util.service';
 import { isEmpty } from 'es-toolkit/compat';
+import { NotificationsModule } from '../notifications/notifications.module';
+import { NotificationsService } from '../notifications/notifications.service';
+import { LazyModuleLoader } from '@nestjs/core';
 @Injectable()
 export class UsersService extends PrismaBaseService<'user'> implements Options {
   private userEntityName = User.name;
@@ -32,6 +35,7 @@ export class UsersService extends PrismaBaseService<'user'> implements Options {
     private paginationUtilService: PaginationUtilService,
     private queryUtilService: QueryUtilService,
     private stringUtilService: StringUtilService,
+    private readonly lazyModuleLoader: LazyModuleLoader,
   ) {
     super(prismaService, 'user');
   }
@@ -42,6 +46,14 @@ export class UsersService extends PrismaBaseService<'user'> implements Options {
 
   get extended() {
     return super.extended;
+  }
+
+  async getNotificationsService() {
+    const notificationsModule = await this.lazyModuleLoader.load(
+      () => NotificationsModule,
+    );
+    const notificationsService = notificationsModule.get(NotificationsService);
+    return notificationsService;
   }
 
   async getUser(where: Prisma.UserWhereUniqueInput) {
@@ -229,5 +241,10 @@ export class UsersService extends PrismaBaseService<'user'> implements Options {
     );
 
     return isExistPermission ? true : false;
+  }
+
+  async getUserNotifications({ userID }) {
+    const notificationsService = await this.getNotificationsService();
+    return notificationsService.getUserNotifications({ userID });
   }
 }

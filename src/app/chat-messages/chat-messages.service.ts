@@ -18,13 +18,15 @@ import {
   GetOptionsParams,
   Options,
 } from '../../common/query/options.interface';
-import { PaginationUtilService } from '../../common/utils/pagination-util/pagination-util.service';
 import { QueryUtilService } from '../../common/utils/query-util/query-util.service';
 import { WithUser } from '../../common/decorators/user.decorator';
 import { AIService } from '../../common/services/ai/ai.service';
 import { UsersService } from '../users/users.service';
 import { ProductsService } from '../products/products.service';
 import { isEmpty, isNil } from 'es-toolkit/compat';
+import { OrdersService } from '../orders/orders.service';
+import { LazyModuleLoader } from '@nestjs/core';
+import { AIModule } from '../../common/services/ai/ai.module';
 import { USER_AI_MODEL_EMAIL } from '../../common/services/ai/consts/ai.const';
 
 @Injectable()
@@ -40,11 +42,11 @@ export class ChatMessagesService
   constructor(
     private excelUtilService: ExcelUtilService,
     public prismaService: PrismaService,
-    private paginationUtilService: PaginationUtilService,
     private queryUtilService: QueryUtilService,
-    private readonly aiService: AIService,
     private usersService: UsersService,
     private productsService: ProductsService,
+    private ordersService: OrdersService,
+    private readonly lazyModuleLoader: LazyModuleLoader,
   ) {
     super(prismaService, 'chatMessage');
   }
@@ -55,6 +57,12 @@ export class ChatMessagesService
 
   get extended() {
     return super.extended;
+  }
+
+  async getAIService() {
+    const aiModule = await this.lazyModuleLoader.load(() => AIModule);
+    const aiService = aiModule.get(AIService);
+    return aiService;
   }
 
   async getChatMessage(where: Prisma.ChatMessageWhereUniqueInput) {
@@ -155,19 +163,6 @@ export class ChatMessagesService
     return data;
   }
 
-  private async searchByIntent(intent: string, keywords: string[]) {
-    switch (intent) {
-      case 'BEST_PRICE':
-        return this.searchBestPrice();
-      case 'PRICE':
-      case 'PRODUCT':
-        return this.searchProduct(keywords);
-
-      default:
-        return [];
-    }
-  }
-
   private async searchBestPrice() {
     const data = await this.productsService.extended.search({
       where: {
@@ -185,6 +180,24 @@ export class ChatMessagesService
       ],
     }));
     const data = await this.productsService.extended.search({
+      where: { OR: search },
+    });
+    return data;
+  }
+
+  private async searchOrder(keywords: string[]) {
+    const search: any = keywords.map((k) => ({
+      OR: [
+        { orderNumber: { contains: k, mode: 'insensitive' } },
+        { status: { contains: k, mode: 'insensitive' } },
+        {
+          orderAddresses: {
+            some: { fullAddress: { contains: k, mode: 'insensitive' } },
+          },
+        },
+      ],
+    }));
+    const data = await this.ordersService.extended.search({
       where: { OR: search },
     });
     return data;
@@ -251,6 +264,7 @@ export class ChatMessagesService
       BEST_PRICE: ['giá tốt nhất', 'rẻ nhất', 'ưu đãi tốt', 'mức giá tốt'],
       PRICE: ['giá', 'sale', 'khuyến', 'mãi'],
       SHIPPING: ['ship', 'vận', 'chuyển'],
+      ORDER: ['đặt', 'hàng', 'mua', 'đơn', 'order', 'đơn hàng', 'thanh toán'],
     };
     const question = keywords.join(' ').toLowerCase();
     for (const intent of Object.keys(intents)) {
@@ -265,28 +279,40 @@ export class ChatMessagesService
     return 'PRODUCT';
   }
 
+  private async searchByIntent(intent: string, keywords: string[]) {
+    switch (intent) {
+      case 'BEST_PRICE':
+        return this.searchBestPrice();
+      case 'PRICE':
+      case 'PRODUCT':
+        return this.searchProduct(keywords);
+      case 'ORDER':
+      case 'SHIPPING':
+        return this.searchOrder(keywords);
+
+      default:
+        return [];
+    }
+  }
+
   private buildContext(intent: string, data: any): string {
     if (!data.length) return '';
 
-    if (['PRODUCT', 'PRICE', 'BEST_PRICE'].includes(intent)) {
-      const keys = Object.keys(data[0]);
+    const keys = Object.keys(data[0]);
 
-      const context = data.map((item) => {
-        return keys
-          .reduce<string[]>((acc, key) => {
-            const value = item[key];
-            if (!isNil(value)) {
-              acc.push(`${key}: ${value}`);
-            }
-            return acc;
-          }, [])
-          .join('\n');
-      });
+    const context = data.map((item) => {
+      return keys
+        .reduce<string[]>((acc, key) => {
+          const value = item[key];
+          if (!isNil(value)) {
+            acc.push(`${key}: ${value}`);
+          }
+          return acc;
+        }, [])
+        .join('\n');
+    });
 
-      return context.join('\n---\n');
-    }
-
-    return data.join('\n---\n');
+    return context.join('\n---\n');
   }
 
   async buildChatContext(question: string) {
@@ -337,7 +363,8 @@ export class ChatMessagesService
       return acc;
     }, []);
 
-    const answer = await this.aiService.ask({
+    const aiService = await this.getAIService();
+    const answer = await aiService.ask({
       context,
       question,
       chatHistory,

@@ -59,6 +59,11 @@ export class UsersController {
     return this.usersService.getUsers(query);
   }
 
+  @Get('notifications')
+  getUserNotifications(@User() user: UserInfo) {
+    return this.usersService.getUserNotifications({ userID: user.userID });
+  }
+
   @Get('options')
   @UsePipes(ParseParamsOptionPipe)
   getUserOptions(@Query() query: GetOptionsParams) {

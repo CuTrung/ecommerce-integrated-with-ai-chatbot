@@ -12,6 +12,8 @@ import { JWTToken, TokenKeys } from './consts/jwt.const';
 import { MailTemplate } from '../../common/utils/mail-util/mail-util.const';
 import { ForgotPasswordDto, ResetPasswordDto } from './dto/password.dto';
 import { MailUtilService } from '../../common/utils/mail-util/mail-util.service';
+import { MailUtilModule } from '../../common/utils/mail-util/mail-util.module';
+import { LazyModuleLoader } from '@nestjs/core';
 
 @Injectable()
 export class AuthService {
@@ -19,8 +21,16 @@ export class AuthService {
     private usersService: UsersService,
     private stringUtilService: StringUtilService,
     private jwtService: JwtService,
-    private mailUtilService: MailUtilService,
+    private readonly lazyModuleLoader: LazyModuleLoader,
   ) {}
+
+  async getMailUtilService() {
+    const mailUtilModule = await this.lazyModuleLoader.load(
+      () => MailUtilModule,
+    );
+    const mailUtilService = mailUtilModule.get(MailUtilService);
+    return mailUtilService;
+  }
 
   async createToken<T extends Record<string, any>>(payload: T) {
     const accessToken = await this.jwtService.signAsync(payload, {
@@ -96,7 +106,8 @@ export class AuthService {
 
     const userEmail = user.email;
     if (userEmail) {
-      await this.mailUtilService.sendMail({
+      const mailUtilService = await this.getMailUtilService();
+      await mailUtilService.sendMail({
         to: userEmail,
         subject: 'Reset password',
         template: MailTemplate.RESET_PASSWORD,

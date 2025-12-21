@@ -6,7 +6,6 @@ import { ConfigService } from '@nestjs/config';
 import { StringUtilService } from '../../common/utils/string-util/string-util.service';
 import { UsersModule } from '../users/users.module';
 import { JWTEnvs } from './consts/jwt.const';
-import { MailUtilService } from '../../common/utils/mail-util/mail-util.service';
 
 @Module({
   imports: [
@@ -20,7 +19,7 @@ import { MailUtilService } from '../../common/utils/mail-util/mail-util.service'
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, StringUtilService, MailUtilService],
+  providers: [AuthService, StringUtilService],
   exports: [AuthService],
 })
 export class AuthModule {}

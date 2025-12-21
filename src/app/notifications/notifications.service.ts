@@ -158,4 +158,13 @@ export class NotificationsService
     const data = await this.extended.softDelete(where);
     return data;
   }
+
+  async getUserNotifications({ userID }) {
+    const data = await this.extended.findMany({
+      where: {
+        userID,
+      },
+    });
+    return data;
+  }
 }

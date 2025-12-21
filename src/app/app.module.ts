@@ -18,13 +18,11 @@ import { ZodExceptionFilter } from '../catch-everything/zod-exception/zod-except
 import { ApiUtilModule } from '../common/utils/api-util/api-util.module';
 import { FormatResponseInterceptor } from '../common/interceptors/format-response/format-response.interceptor';
 import { ExcelUtilModule } from '../common/utils/excel-util/excel-util.module';
-import { FileUtilModule } from '../common/utils/file-util/file-util.module';
 import { ProductImagesModule } from './product-images/product-images.module';
 import { CacheInterceptor } from '@nestjs/cache-manager';
 import { CacheUtilModule } from '../common/utils/cache-util/cache-util.module';
 import { RateLimitModule } from '../common/security/rate-limit/rate-limit.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
-import { MailUtilModule } from '../common/utils/mail-util/mail-util.module';
 import { AccessControlGuard } from '../common/guards/access-control/access-control.guard';
 import { PaginationUtilModule } from '../common/utils/pagination-util/pagination-util.module';
 import { PermissionsModule } from './permissions/permissions.module';
@@ -49,10 +47,7 @@ import { EventsModule } from '../events/events.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ParseParamsPaginationPipe } from '../common/pipes/parse-params-pagination.pipe';
 import { ParseParamsOptionPipe } from '../common/pipes/parse-params-option.pipe';
-import { NotificationsModule } from './notifications/notifications.module';
-import { PaymentsModule } from './payments/payments.module';
 import { ChatMessagesModule } from './chat-messages/chat-messages.module';
-import { AIModule } from '../common/services/ai/ai.module';
 
 @Module({
   imports: [
@@ -61,6 +56,8 @@ import { AIModule } from '../common/services/ai/ai.module';
       expandVariables: true,
       validate: validate,
     }),
+    EventEmitterModule.forRoot(),
+    CacheUtilModule,
     PrismaModule,
     LoggerModule,
     RateLimitModule,
@@ -70,11 +67,7 @@ import { AIModule } from '../common/services/ai/ai.module';
     DateUtilModule,
     ApiUtilModule,
     ExcelUtilModule,
-    FileUtilModule,
     ProductImagesModule,
-    CacheUtilModule,
-    EventEmitterModule.forRoot(),
-    MailUtilModule,
     PaginationUtilModule,
     PermissionsModule,
     RolesModule,
@@ -95,10 +88,7 @@ import { AIModule } from '../common/services/ai/ai.module';
     UserVendorRolesModule,
     EventsModule,
     ScheduleModule.forRoot(),
-    NotificationsModule,
-    PaymentsModule,
     ChatMessagesModule,
-    AIModule,
   ],
   controllers: [AppController],
   providers: [

@@ -2,15 +2,14 @@ import { Module } from '@nestjs/common';
 import { ExcelUtilModule } from '../../common/utils/excel-util/excel-util.module';
 import { ChatMessagesController } from './chat-messages.controller';
 import { ChatMessagesService } from './chat-messages.service';
-import { PaginationUtilService } from '../../common/utils/pagination-util/pagination-util.service';
-import { AIModule } from '../../common/services/ai/ai.module';
 import { UsersModule } from '../users/users.module';
 import { ProductsModule } from '../products/products.module';
+import { OrdersModule } from '../orders/orders.module';
 
 @Module({
-  imports: [ExcelUtilModule, AIModule, UsersModule, ProductsModule],
+  imports: [ExcelUtilModule, UsersModule, ProductsModule, OrdersModule],
   controllers: [ChatMessagesController],
-  providers: [ChatMessagesService, PaginationUtilService],
+  providers: [ChatMessagesService],
   exports: [ChatMessagesService],
 })
 export class ChatMessagesModule {}

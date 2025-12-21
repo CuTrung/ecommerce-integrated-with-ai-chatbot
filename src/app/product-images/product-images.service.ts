@@ -16,6 +16,8 @@ import { PrismaBaseService } from '../../common/services/prisma-base.service';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { WithUser } from '../../common/decorators/user.decorator';
 import { QueryUtilService } from '../../common/utils/query-util/query-util.service';
+import { LazyModuleLoader } from '@nestjs/core';
+import { FileUtilModule } from '../../common/utils/file-util/file-util.module';
 
 @Injectable()
 export class ProductImagesService extends PrismaBaseService<'productImage'> {
@@ -26,11 +28,19 @@ export class ProductImagesService extends PrismaBaseService<'productImage'> {
   constructor(
     public prismaService: PrismaService,
     private excelUtilService: ExcelUtilService,
-    private fileUtilService: FileUtilService,
     private eventEmitter: EventEmitter2,
     private queryUtilService: QueryUtilService,
+    private readonly lazyModuleLoader: LazyModuleLoader,
   ) {
     super(prismaService, 'productImage');
+  }
+
+  async getFileUtilService() {
+    const fileUtilModule = await this.lazyModuleLoader.load(
+      () => FileUtilModule,
+    );
+    const fileUtilService = fileUtilModule.get(FileUtilService);
+    return fileUtilService;
   }
 
   async getProductImage(
@@ -139,17 +149,16 @@ export class ProductImagesService extends PrismaBaseService<'productImage'> {
   @OnEvent('product-images.upload')
   async uploadProductImagesEvent(payload) {
     const { file, user } = payload;
-    const fileName = this.fileUtilService.removeFileExtension(
-      file.originalname,
-    );
+    const fileUtilService = await this.getFileUtilService();
+    const fileName = fileUtilService.removeFileExtension(file.originalname);
     const productImageExist = await this.getProductImage({
       name: fileName,
     });
     if (productImageExist) {
-      await this.fileUtilService.removeImage(file);
+      await fileUtilService.removeImage(file);
     }
     const { url, secure_url, display_name, created_at } =
-      await this.fileUtilService.uploadImage<UploadApiResponse>(file);
+      await fileUtilService.uploadImage<UploadApiResponse>(file);
     const dataUpsert = {
       name: display_name,
       description: display_name,

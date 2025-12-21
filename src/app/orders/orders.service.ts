@@ -15,6 +15,8 @@ import { PaginationUtilService } from '../../common/utils/pagination-util/pagina
 import { QueryUtilService } from '../../common/utils/query-util/query-util.service';
 import { WithUser } from '../../common/decorators/user.decorator';
 import { PaymentsService } from '../payments/payments.service';
+import { PaymentsModule } from '../payments/payments.module';
+import { LazyModuleLoader } from '@nestjs/core';
 
 @Injectable()
 export class OrdersService
@@ -30,7 +32,7 @@ export class OrdersService
     public prismaService: PrismaService,
     private paginationUtilService: PaginationUtilService,
     private queryUtilService: QueryUtilService,
-    private paymentsService: PaymentsService,
+    private readonly lazyModuleLoader: LazyModuleLoader,
   ) {
     super(prismaService, 'order');
   }
@@ -41,6 +43,14 @@ export class OrdersService
 
   get extended() {
     return super.extended;
+  }
+
+  async getPaymentsService() {
+    const paymentsModule = await this.lazyModuleLoader.load(
+      () => PaymentsModule,
+    );
+    const paymentsService = paymentsModule.get(PaymentsService);
+    return paymentsService;
   }
 
   async getOrder(where: Prisma.OrderWhereUniqueInput) {
@@ -84,7 +94,8 @@ export class OrdersService
     });
 
     const { orderNumber, totalAmount, id: orderID } = data;
-    const payment = await this.paymentsService.createPayment({
+    const paymentsService = await this.getPaymentsService();
+    const payment = await paymentsService.createPayment({
       orderNumber,
       totalAmount,
       user: createOrderDto.user,
