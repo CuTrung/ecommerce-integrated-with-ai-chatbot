@@ -69,7 +69,7 @@ const initApp = (app: INestApplication) => {
   const { APP_PREFIX = '/api', FE_URL } = process.env;
   app.setGlobalPrefix(APP_PREFIX);
   app.enableCors({
-    origin: FE_URL ? FE_URL : ['*'],
+    origin: FE_URL ? JSON.parse(FE_URL) : ['*'],
   });
   // app.enableVersioning({
   //   type: VersioningType.HEADER,
