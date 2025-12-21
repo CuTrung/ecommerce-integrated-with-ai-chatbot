@@ -4,45 +4,42 @@ import { INestApplication } from '@nestjs/common';
 import { applyMiddlewares } from './common/middlewares/common.middleware';
 
 const removeFieldsAndRelations = (document: any) => {
-  const otherFields = ['id', 'userID'];
   const auditFields = new Set([
-    ...otherFields,
+    'id',
+    'userID',
     'createdAt',
     'updatedAt',
     'createdBy',
     'deletedAt',
+    'data',
   ]);
 
   const schemas = document?.components?.schemas;
   if (!schemas) return document;
 
   for (const schema of Object.values<any>(schemas)) {
-    const props = schema.properties;
-    if (!props) continue;
+    if (!schema.properties) continue;
 
     const newProps: Record<string, any> = {};
-    for (const [propName, prop] of Object.entries<any>(props)) {
-      if (auditFields.has(propName) || propName === 'data') continue;
 
-      const isRelation = prop?.type === 'object';
-      if (!isRelation) {
-        newProps[propName] = prop;
-        continue;
-      }
+    for (const [propName, prop] of Object.entries<any>(schema.properties)) {
+      if (auditFields.has(propName)) continue;
 
-      if (!propName.endsWith('s')) {
+      // If it's a relation (object type) and singular (doesn't end with 's')
+      if (prop?.type === 'object' && !propName.endsWith('s')) {
         newProps[`${propName}ID`] = { type: 'string' };
+      } else if (prop?.type !== 'object') {
+        // Keep non-relation fields
+        newProps[propName] = prop;
       }
     }
 
     schema.properties = newProps;
 
-    auditFields.forEach((k) => delete schema.properties[k]);
-
-    const schemaRequired = schema.required;
-    if (Array.isArray(schemaRequired)) {
-      schema.required = schemaRequired.filter(
-        (field) => !auditFields.has(field) && field !== 'data',
+    // Filter required fields
+    if (Array.isArray(schema.required)) {
+      schema.required = schema.required.filter(
+        (field) => !auditFields.has(field),
       );
     }
   }
