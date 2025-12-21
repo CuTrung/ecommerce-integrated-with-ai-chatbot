@@ -2,7 +2,8 @@ import { PrismaClient } from '@prisma/client';
 import { camelCase, isEmpty } from 'es-toolkit/compat';
 import * as faker from '../src/generated/faker/data';
 import { parseArgs, ParseArgsOptionsConfig } from 'node:util';
-import { USER_AI_MODEL_EMAIL } from '../src/common/services/ai/consts/ai.const';
+import { AI_MODEL_USER_EMAIL } from '../src/common/services/ai/consts/ai.const';
+import { SYSTEM_USER_GMAIL } from '../src/app/users/consts/user.const';
 
 const options: ParseArgsOptionsConfig = {
   environment: { type: 'string' },
@@ -80,16 +81,32 @@ const sortModelsByDependency = () => {
   return data;
 };
 
-const createUserAIModel = async () => {
+const createAIModelUser = async () => {
   const userModel = await prisma.user.findUnique({
-    where: { email: USER_AI_MODEL_EMAIL },
+    where: { email: AI_MODEL_USER_EMAIL },
   });
   if (!isEmpty(userModel)) return;
 
   await prisma.user.create({
     data: {
-      email: USER_AI_MODEL_EMAIL,
+      email: AI_MODEL_USER_EMAIL,
       firstName: 'User AI Model',
+      fullAddress: '',
+      password: crypto.randomUUID(),
+    },
+  });
+};
+
+const createSystemUser = async () => {
+  const systemUser = await prisma.user.findUnique({
+    where: { email: SYSTEM_USER_GMAIL },
+  });
+  if (!isEmpty(systemUser)) return;
+
+  await prisma.user.create({
+    data: {
+      email: SYSTEM_USER_GMAIL,
+      firstName: 'System User',
       fullAddress: '',
       password: crypto.randomUUID(),
     },
@@ -133,7 +150,8 @@ const migrateForDevelopment = async () => {
       });
     }
   }
-  await createUserAIModel();
+  await createAIModelUser();
+  await createSystemUser();
 };
 
 const main = async () => {

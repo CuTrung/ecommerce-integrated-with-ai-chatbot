@@ -16,7 +16,7 @@ import { Server } from 'socket.io';
 })
 export class EventsGateway {
   @WebSocketServer()
-  server: Server;
+  private server: Server;
 
   @SubscribeMessage('events')
   findAll(): Observable<WsResponse<number>> {
@@ -28,5 +28,9 @@ export class EventsGateway {
   @SubscribeMessage('identity')
   identity(@MessageBody() data: number): number {
     return data;
+  }
+
+  emitEvent(event: string, payload) {
+    this.server.emit(event, payload);
   }
 }

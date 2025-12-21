@@ -27,7 +27,7 @@ import { isEmpty, isNil } from 'es-toolkit/compat';
 import { OrdersService } from '../orders/orders.service';
 import { LazyModuleLoader } from '@nestjs/core';
 import { AIModule } from '../../common/services/ai/ai.module';
-import { USER_AI_MODEL_EMAIL } from '../../common/services/ai/consts/ai.const';
+import { AI_MODEL_USER_EMAIL } from '../../common/services/ai/consts/ai.const';
 
 @Injectable()
 export class ChatMessagesService
@@ -329,7 +329,7 @@ export class ChatMessagesService
 
   async chat({ user, question, sessionID }: WithUser<ChatDto>) {
     const userModel = await this.usersService.getUser({
-      email: USER_AI_MODEL_EMAIL,
+      email: AI_MODEL_USER_EMAIL,
     });
     if (isEmpty(userModel)) throw new Error('AI Model user not create yet!');
 

@@ -55,7 +55,7 @@ enum OrderStatus {
   processing
   shipped
   delivered
-  cancelled
+  canceled
   refunded
 }
 

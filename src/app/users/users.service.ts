@@ -23,6 +23,7 @@ import { isEmpty } from 'es-toolkit/compat';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { NotificationsService } from '../notifications/notifications.service';
 import { LazyModuleLoader } from '@nestjs/core';
+import { SYSTEM_USER_GMAIL } from './consts/user.const';
 @Injectable()
 export class UsersService extends PrismaBaseService<'user'> implements Options {
   private userEntityName = User.name;
@@ -246,5 +247,12 @@ export class UsersService extends PrismaBaseService<'user'> implements Options {
   async getUserNotifications({ userID }) {
     const notificationsService = await this.getNotificationsService();
     return notificationsService.getUserNotifications({ userID });
+  }
+
+  getSystemUser() {
+    const data = this.extended.findFirstOrThrow({
+      where: { email: SYSTEM_USER_GMAIL },
+    });
+    return data;
   }
 }

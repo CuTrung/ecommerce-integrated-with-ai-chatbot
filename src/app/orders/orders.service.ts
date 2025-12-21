@@ -17,6 +17,11 @@ import { WithUser } from '../../common/decorators/user.decorator';
 import { PaymentsService } from '../payments/payments.service';
 import { PaymentsModule } from '../payments/payments.module';
 import { LazyModuleLoader } from '@nestjs/core';
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
+import { OrderEvents } from './events/order.event';
+import { NotificationsService } from '../notifications/notifications.service';
+import { EventsGateway } from '../../events/events.gateway';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Injectable()
 export class OrdersService
@@ -27,12 +32,15 @@ export class OrdersService
   private excelSheets = {
     [this.orderEntityName]: this.orderEntityName,
   };
+  private notificationsService: NotificationsService;
   constructor(
     private excelUtilService: ExcelUtilService,
     public prismaService: PrismaService,
     private paginationUtilService: PaginationUtilService,
     private queryUtilService: QueryUtilService,
     private readonly lazyModuleLoader: LazyModuleLoader,
+    private eventEmitter: EventEmitter2,
+    private readonly eventsGateway: EventsGateway,
   ) {
     super(prismaService, 'order');
   }
@@ -51,6 +59,16 @@ export class OrdersService
     );
     const paymentsService = paymentsModule.get(PaymentsService);
     return paymentsService;
+  }
+
+  async getNotificationsService() {
+    if (this.notificationsService) return this.notificationsService;
+    const notificationsModule = await this.lazyModuleLoader.load(
+      () => NotificationsModule,
+    );
+    const notificationsService = notificationsModule.get(NotificationsService);
+    this.notificationsService = notificationsService;
+    return notificationsService;
   }
 
   async getOrder(where: Prisma.OrderWhereUniqueInput) {
@@ -89,11 +107,11 @@ export class OrdersService
   }
 
   async createOrder(createOrderDto: WithUser<CreateOrderDto>) {
-    const data = await this.extended.create({
+    const orderCreated = await this.extended.create({
       data: createOrderDto,
     });
 
-    const { orderNumber, totalAmount, id: orderID } = data;
+    const { orderNumber, totalAmount, id: orderID } = orderCreated;
     const paymentsService = await this.getPaymentsService();
     const payment = await paymentsService.createPayment({
       orderNumber,
@@ -101,7 +119,12 @@ export class OrdersService
       user: createOrderDto.user,
       orderID,
     });
-    return { ...data, paymentUrl: payment.paymentUrl };
+    const data = { ...orderCreated, paymentUrl: payment.paymentUrl };
+    this.eventEmitter.emit(OrderEvents.CREATED, {
+      ...data,
+      user: createOrderDto.user,
+    });
+    return data;
   }
 
   async updateOrder(params: {
@@ -192,13 +215,38 @@ export class OrdersService
         id: { in: ids },
       },
       data: {
-        status: OrderStatus.cancelled,
+        status: OrderStatus.canceled,
       },
     });
 
+    const notificationsService = await this.getNotificationsService();
+    const notificationsCanceled = orders.map((order) => ({
+      userID: order.userID,
+      title: `Order canceled by system`,
+      message: `Your order ${order.orderNumber} has been canceled due to non-payment within the required time frame.`,
+    }));
+    await notificationsService.extended.createMany({
+      data: notificationsCanceled,
+    });
+
+    // this.eventsGateway.emitEvent(OrderEvents.CANCELED, { message });
     Logger.log({
       context: OrdersService.name,
       message: `Canceled ${totalOrders} orders: ${JSON.stringify(ids)}`,
     });
+  }
+
+  @OnEvent(OrderEvents.CREATED)
+  async orderCreated(payload) {
+    const { user, orderNumber } = payload;
+    const message = `Your order ${orderNumber} has been created successfully.`;
+    const notificationsService = await this.getNotificationsService();
+    await notificationsService.createNotification({
+      user,
+      title: `Order ${orderNumber} Created`,
+      message,
+    });
+
+    // this.eventsGateway.emitEvent(OrderEvents.CREATED, { message });
   }
 }
