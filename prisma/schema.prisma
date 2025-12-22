@@ -121,7 +121,7 @@ model Vendor {
   updatedAt     DateTime     @updatedAt
   deletedAt     DateTime?
 
-  user            User             @relation(fields: [userID], references: [id])
+  user            User?            @relation(fields: [userID], references: [id])
   products        Product[]
   userVendorRoles UserVendorRole[]
 }
