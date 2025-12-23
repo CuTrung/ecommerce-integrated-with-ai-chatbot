@@ -12,6 +12,7 @@ const removeFieldsAndRelations = (document: any) => {
     'createdBy',
     'deletedAt',
     'data',
+    'user',
   ]);
 
   const schemas = document?.components?.schemas;

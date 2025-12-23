@@ -14,6 +14,8 @@ import { DateUtilService } from '../utils/date-util/date-util.service';
 import { isEmpty } from 'es-toolkit/compat';
 import { Decimal } from '@prisma/client/runtime/library';
 import { ChatMessage } from '../../app/chat-messages/entities/chat-message.entity';
+import { Cart } from '../../app/carts/entities/cart.entity';
+import { Order } from '../../app/orders/entities/order.entity';
 @Injectable()
 export class PrismaService
   extends PrismaClient
@@ -69,7 +71,12 @@ export class PrismaService
   }
 
   private transferDataCreate(value, model?: string) {
-    const modelsWithUserID = [ChatMessage.name];
+    const modelsWithUserID = [
+      ChatMessage.name,
+      Vendor.name,
+      Cart.name,
+      Order.name,
+    ];
     const dataCreatedBy = this.setCreatedBy(value);
     if (model && modelsWithUserID.includes(model)) {
       dataCreatedBy.userID = dataCreatedBy.user.userID;

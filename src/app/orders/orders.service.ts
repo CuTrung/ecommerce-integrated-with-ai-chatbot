@@ -120,10 +120,10 @@ export class OrdersService
       orderID,
     });
     const data = { ...orderCreated, paymentUrl: payment.paymentUrl };
-    this.eventEmitter.emit(OrderEvents.CREATED, {
-      ...data,
-      user: createOrderDto.user,
-    });
+    // this.eventEmitter.emit(OrderEvents.CREATED, {
+    //   ...data,
+    //   user: createOrderDto.user,
+    // });
     return data;
   }
 
