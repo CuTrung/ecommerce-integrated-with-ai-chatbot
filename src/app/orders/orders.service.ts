@@ -13,7 +13,6 @@ import {
 } from '../../common/query/options.interface';
 import { PaginationUtilService } from '../../common/utils/pagination-util/pagination-util.service';
 import { QueryUtilService } from '../../common/utils/query-util/query-util.service';
-import { WithUser } from '../../common/decorators/user.decorator';
 import { PaymentsService } from '../payments/payments.service';
 import { PaymentsModule } from '../payments/payments.module';
 import { LazyModuleLoader } from '@nestjs/core';
@@ -106,7 +105,7 @@ export class OrdersService
     return data;
   }
 
-  async createOrder(createOrderDto: WithUser<CreateOrderDto>) {
+  async createOrder(createOrderDto: CreateOrderDto) {
     const orderCreated = await this.extended.create({
       data: createOrderDto,
     });
@@ -116,8 +115,8 @@ export class OrdersService
     const payment = await paymentsService.createPayment({
       orderNumber,
       totalAmount,
-      user: createOrderDto.user,
       orderID,
+      user: (<any>createOrderDto).user,
     });
     const data = { ...orderCreated, paymentUrl: payment.paymentUrl };
     // this.eventEmitter.emit(OrderEvents.CREATED, {
@@ -245,6 +244,7 @@ export class OrdersService
       user,
       title: `Order ${orderNumber} Created`,
       message,
+      userID: user.userID,
     });
 
     // this.eventsGateway.emitEvent(OrderEvents.CREATED, { message });

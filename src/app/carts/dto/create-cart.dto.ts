@@ -1,8 +1,8 @@
 import { ImportExcel } from '../../../common/utils/excel-util/excel-util.const';
 import { createZodDto } from 'nestjs-zod';
-import { CartCreateInputSchema } from '../../../generated/zod';
+import { CartUncheckedCreateInputSchema } from '../../../generated/zod';
 
-class CreateCartDto extends createZodDto(CartCreateInputSchema) {}
+class CreateCartDto extends createZodDto(CartUncheckedCreateInputSchema) {}
 
 class ImportCartsDto extends ImportExcel {}
 

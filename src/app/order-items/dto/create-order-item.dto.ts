@@ -1,8 +1,10 @@
 import { ImportExcel } from '../../../common/utils/excel-util/excel-util.const';
 import { createZodDto } from 'nestjs-zod';
-import { OrderItemCreateInputSchema } from '../../../generated/zod';
+import { OrderItemUncheckedCreateInputSchema } from '../../../generated/zod';
 
-class CreateOrderItemDto extends createZodDto(OrderItemCreateInputSchema) {}
+class CreateOrderItemDto extends createZodDto(
+  OrderItemUncheckedCreateInputSchema,
+) {}
 
 class ImportOrderItemsDto extends ImportExcel {}
 

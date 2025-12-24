@@ -1,9 +1,11 @@
 import { ImportExcel } from '../../../common/utils/excel-util/excel-util.const';
 import { createZodDto } from 'nestjs-zod';
-import { ChatMessageCreateInputSchema } from '../../../generated/zod';
+import { ChatMessageUncheckedCreateInputSchema } from '../../../generated/zod';
 import { z } from 'zod';
 
-class CreateChatMessageDto extends createZodDto(ChatMessageCreateInputSchema) {}
+class CreateChatMessageDto extends createZodDto(
+  ChatMessageUncheckedCreateInputSchema,
+) {}
 
 class ImportChatMessagesDto extends ImportExcel {}
 

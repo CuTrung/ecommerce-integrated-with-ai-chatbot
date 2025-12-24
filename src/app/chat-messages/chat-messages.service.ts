@@ -88,9 +88,7 @@ export class ChatMessagesService
     return list;
   }
 
-  async createChatMessage(
-    createChatMessageDto: WithUser<CreateChatMessageDto>,
-  ) {
+  async createChatMessage(createChatMessageDto: CreateChatMessageDto) {
     const data = await this.extended.create({
       data: createChatMessageDto,
     });
@@ -346,6 +344,7 @@ export class ChatMessagesService
       parentID: historyMessages[0]?.child?.id,
       sessionID,
       context,
+      userID: user.userID,
     };
     const userMessageQuestion = await this.createChatMessage(userMessageCreate);
 
@@ -380,6 +379,7 @@ export class ChatMessagesService
       sessionID: userMessageQuestion.sessionID,
       parentID: userMessageQuestion.id,
       context: userMessageQuestion.context,
+      userID: user.userID,
     };
     await this.createChatMessage(messageModelCreate);
 

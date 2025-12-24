@@ -16,7 +16,6 @@ import {
 } from '../../common/query/options.interface';
 import { PaginationUtilService } from '../../common/utils/pagination-util/pagination-util.service';
 import { QueryUtilService } from '../../common/utils/query-util/query-util.service';
-import { WithUser } from '../../common/decorators/user.decorator';
 
 @Injectable()
 export class VendorsService
@@ -79,7 +78,7 @@ export class VendorsService
     return data;
   }
 
-  async createVendor(createVendorDto: WithUser<CreateVendorDto>) {
+  async createVendor(createVendorDto: CreateVendorDto) {
     const data = await this.extended.create({
       data: createVendorDto,
     });

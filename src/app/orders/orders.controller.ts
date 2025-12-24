@@ -26,7 +26,8 @@ export class OrdersController {
 
   @Post()
   createOrder(@Body() createDto: CreateOrderDto, @User() user: UserInfo) {
-    return this.ordersService.createOrder({ ...createDto, user });
+    createDto['user'] = user;
+    return this.ordersService.createOrder(createDto);
   }
 
   @Patch(':id')
