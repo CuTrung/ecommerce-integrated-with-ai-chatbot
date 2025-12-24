@@ -48,6 +48,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { ParseParamsPaginationPipe } from '../common/pipes/parse-params-pagination.pipe';
 import { ParseParamsOptionPipe } from '../common/pipes/parse-params-option.pipe';
 import { ChatMessagesModule } from './chat-messages/chat-messages.module';
+import { PaymentsModule } from './payments/payments.module';
 
 @Module({
   imports: [
@@ -89,6 +90,7 @@ import { ChatMessagesModule } from './chat-messages/chat-messages.module';
     EventsModule,
     ScheduleModule.forRoot(),
     ChatMessagesModule,
+    PaymentsModule,
   ],
   controllers: [AppController],
   providers: [

@@ -107,7 +107,7 @@ model User {
 
 model Vendor {
   id            String       @id @default(uuid())
-  userID        String
+  userID        String?
   name          String
   slug          String       @unique
   description   String?
@@ -170,14 +170,14 @@ model RolePermission {
 
 model UserVendorRole {
   id        String               @id @default(uuid())
-  userID    String
+  userID    String?
   vendorID  String
   roleID    String
   status    UserVendorRoleStatus @default(active)
   createdAt DateTime             @default(now())
   createdBy String?
 
-  user   User   @relation(fields: [userID], references: [id])
+  user   User?  @relation(fields: [userID], references: [id])
   vendor Vendor @relation(fields: [vendorID], references: [id])
   role   Role   @relation(fields: [roleID], references: [id])
 
@@ -274,7 +274,7 @@ model ProductImage {
 model Order {
   id             String      @id @default(uuid())
   orderNumber    String      @unique
-  userID         String
+  userID         String?
   status         OrderStatus @default(pending)
   subtotal       Decimal
   taxAmount      Decimal     @default(0)
@@ -290,7 +290,7 @@ model Order {
   updatedAt      DateTime    @updatedAt
   deletedAt      DateTime?
 
-  user            User             @relation(fields: [userID], references: [id])
+  user            User?            @relation(fields: [userID], references: [id])
   orderItems      OrderItem[]
   orderAddresses  OrderAddress[]
   orderPromotions OrderPromotion[]
@@ -360,11 +360,11 @@ model OrderPromotion {
 
 model Cart {
   id        String   @id @default(uuid())
-  userID    String   @unique
+  userID    String?  @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user      User       @relation(fields: [userID], references: [id])
+  user      User?      @relation(fields: [userID], references: [id])
   cartItems CartItem[]
 }
 
@@ -384,7 +384,7 @@ model CartItem {
 
 model Notification {
   id      String  @id @default(uuid())
-  userID  String
+  userID  String?
   title   String
   message String
   isRead  Boolean @default(false)
@@ -422,7 +422,7 @@ model Payment {
 
 model ChatMessage {
   id        String    @id @default(uuid())
-  userID    String
+  userID    String?
   message   String
   parentID  String?   @unique
   sessionID String    @default(uuid())
@@ -434,5 +434,5 @@ model ChatMessage {
   parent ChatMessage? @relation("ChatMessageParent", fields: [parentID], references: [id])
   child  ChatMessage? @relation("ChatMessageParent")
 
-  user User @relation(fields: [userID], references: [id])
+  user User? @relation(fields: [userID], references: [id])
 }
