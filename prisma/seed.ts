@@ -4,6 +4,7 @@ import * as faker from '../src/generated/faker/data';
 import { parseArgs, ParseArgsOptionsConfig } from 'node:util';
 import { AI_MODEL_USER_EMAIL } from '../src/common/services/ai/consts/ai.const';
 import { SYSTEM_USER_GMAIL } from '../src/app/users/consts/user.const';
+import { createProdData } from './seed.prod';
 
 const options: ParseArgsOptionsConfig = {
   environment: { type: 'string' },
@@ -113,11 +114,11 @@ const createSystemUser = async () => {
   });
 };
 
-const migrateForDevelopment = async () => {
+const createDevData = async () => {
   const models = sortModelsByDependency();
   const fieldsRelationSkip = new Set(['parent']);
   for (const model of Object.keys(models)) {
-    let quantityGenerate = 10;
+    let quantityGenerate = 30;
     while (quantityGenerate > 0) {
       quantityGenerate--;
       const prismaModel = prisma[camelCase(model)];
@@ -161,9 +162,9 @@ const main = async () => {
 
   switch (environment) {
     case 'dev':
-      return await migrateForDevelopment();
+      return await createDevData();
     case 'prod':
-      break;
+      return await createProdData();
     default:
       break;
   }

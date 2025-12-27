@@ -25,7 +25,7 @@
     "prisma:generate:zod": "npx prisma generate zod",
     "prisma:seed": "npx prisma db seed -- --environment dev",
     "prisma:seed:prod": "npx prisma db seed -- --environment prod",
-    "prisma:reset": "npx prisma migrate reset",
+    "prisma:reset": "npx prisma migrate reset --force",
     "prepare-husky": "husky"
   },
   "dependencies": {
