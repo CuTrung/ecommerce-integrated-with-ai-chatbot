@@ -1,5 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { CreateRoleDto, ImportRolesDto } from './dto/create-role.dto';
+import {
+  CreateRoleDto,
+  CreateRolePermissionsDto,
+  ImportRolesDto,
+} from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { ExportRolesDto, GetRolesPaginationDto } from './dto/get-role.dto';
 import { PrismaBaseService } from '../../common/services/prisma-base.service';
@@ -73,18 +77,59 @@ export class RolesService extends PrismaBaseService<'role'> implements Options {
     return data;
   }
 
-  async createRole(createRoleDto: WithUser<CreateRoleDto>) {
+  async createRolePermissions({
+    roleID,
+    permissionIDs,
+    user,
+  }: WithUser<CreateRolePermissionsDto>) {
+    await this.prismaService.rolePermission.deleteMany({ where: { roleID } });
+    if (permissionIDs.length === 0) return;
+    const dataCreate = permissionIDs.map((permissionID) => ({
+      roleID,
+      permissionID,
+      user,
+    }));
+    await this.prismaService.extended.rolePermission.createMany({
+      data: dataCreate,
+    });
+  }
+
+  async createRole({
+    permissionIDs,
+    ...createRoleDto
+  }: WithUser<CreateRoleDto>) {
     const data = await this.extended.create({
       data: createRoleDto,
     });
+
+    if (permissionIDs) {
+      const roleID = data.id;
+      await this.createRolePermissions({
+        roleID,
+        permissionIDs,
+        user: createRoleDto.user,
+      });
+    }
+
     return data;
   }
 
   async updateRole(params: {
     where: Prisma.RoleWhereUniqueInput;
-    data: UpdateRoleDto;
+    data: WithUser<UpdateRoleDto>;
   }) {
-    const { where, data: dataUpdate } = params;
+    const {
+      where,
+      data: { permissionIDs, user, ...dataUpdate },
+    } = params;
+    if (permissionIDs) {
+      const roleID = where.id!;
+      await this.createRolePermissions({
+        roleID,
+        permissionIDs,
+        user,
+      });
+    }
     const data = await this.extended.update({
       data: dataUpdate,
       where,

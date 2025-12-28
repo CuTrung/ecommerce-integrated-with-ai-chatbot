@@ -4,10 +4,9 @@ import { Role } from '../../roles/entities/role.entity';
 import { User } from '../../users/entities/user.entity';
 import { Vendor } from '../../vendors/entities/vendor.entity';
 
-export class ExportUserVendorRolesDto extends createZodDto(
+export class ExportUserRolesDto extends createZodDto(
   z.object({
     userIDs: z.array(z.string().uuid()).optional().nullish().default(null),
-    vendorIDs: z.array(z.string().uuid()).optional().nullish().default(null),
     roleIDs: z.array(z.string().uuid()).optional().nullish().default(null),
   }),
 ) {}

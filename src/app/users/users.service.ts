@@ -187,7 +187,7 @@ export class UsersService extends PrismaBaseService<'user'> implements Options {
     const data = await this.extended.findFirst({
       where: {
         id: userID,
-        userVendorRoles: {
+        userRoles: {
           some: {
             role: {
               isSystemRole: true,
@@ -205,7 +205,7 @@ export class UsersService extends PrismaBaseService<'user'> implements Options {
   }: IsExistPermissionKeyDto) {
     const user = await this.extended.findFirst({
       include: {
-        userVendorRoles: {
+        userRoles: {
           select: {
             role: {
               select: {
@@ -225,7 +225,7 @@ export class UsersService extends PrismaBaseService<'user'> implements Options {
       },
       where: {
         id: userID,
-        userVendorRoles: {
+        userRoles: {
           some: { status: VendorStatus.active },
         },
       },
@@ -233,7 +233,7 @@ export class UsersService extends PrismaBaseService<'user'> implements Options {
     if (!user) return false;
 
     const [route] = permissionKey.split('_');
-    const isExistPermission = user.userVendorRoles?.some((item) =>
+    const isExistPermission = user.userRoles?.some((item) =>
       item.role?.rolePermissions?.some(
         (rp) =>
           rp.permission?.key?.includes(permissionKey) ||

@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import {
-  ExportUserVendorRolesDto,
+  ExportUserRolesDto,
   RolesData,
   RolesImportCreate,
   UsersData,
   VendorsData,
-} from './dto/get-user-vendor-role.dto';
-import { ImportUserVendorRolesDto } from './dto/create-user-vendor-role.dto';
+} from './dto/get-user-role.dto';
+import { ImportUserRolesDto } from './dto/create-user-role.dto';
 import { PrismaBaseService } from '../../common/services/prisma-base.service';
-import { UserVendorRole } from './entities/user-vendor-role.entity';
+import { UserRole } from './entities/user-role.entity';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import { ExcelUtilService } from '../../common/utils/excel-util/excel-util.service';
 import { Prisma } from '@prisma/client';
@@ -17,10 +17,10 @@ import { UsersService } from '../users/users.service';
 import { VendorsService } from '../vendors/vendors.service';
 
 @Injectable()
-export class UserVendorRolesService extends PrismaBaseService<'userVendorRole'> {
-  private userVendorRoleEntityName = UserVendorRole.name;
+export class UserRolesService extends PrismaBaseService<'userRole'> {
+  private userRoleEntityName = UserRole.name;
   private excelSheets = {
-    [this.userVendorRoleEntityName]: this.userVendorRoleEntityName,
+    [this.userRoleEntityName]: this.userRoleEntityName,
   };
   constructor(
     public prismaService: PrismaService,
@@ -29,7 +29,7 @@ export class UserVendorRolesService extends PrismaBaseService<'userVendorRole'> 
     private rolesService: RolesService,
     private vendorsService: VendorsService,
   ) {
-    super(prismaService, 'userVendorRole');
+    super(prismaService, 'userRole');
   }
 
   get client() {
@@ -40,32 +40,23 @@ export class UserVendorRolesService extends PrismaBaseService<'userVendorRole'> 
     return super.extended;
   }
 
-  async exportUserVendorRoles(params: ExportUserVendorRolesDto) {
-    const { userIDs, roleIDs, vendorIDs } = params ?? {};
-    const where: Prisma.UserVendorRoleWhereInput = {};
+  async exportUserRoles(params: ExportUserRolesDto) {
+    const { userIDs, roleIDs } = params ?? {};
+    const where: Prisma.UserRoleWhereInput = {};
 
     if (userIDs) {
       where.userID = { in: userIDs };
-    }
-
-    if (vendorIDs) {
-      where.vendorID = { in: vendorIDs };
     }
 
     if (roleIDs) {
       where.roleID = { in: roleIDs };
     }
 
-    const userVendorRoles = await this.extended.export({
+    const userRoles = await this.extended.export({
       select: {
         user: {
           select: {
             email: true,
-          },
-        },
-        vendor: {
-          select: {
-            name: true,
           },
         },
         role: {
@@ -80,16 +71,14 @@ export class UserVendorRolesService extends PrismaBaseService<'userVendorRole'> 
     const data = this.excelUtilService.generateExcel({
       worksheets: [
         {
-          sheetName: this.excelSheets[this.userVendorRoleEntityName],
+          sheetName: this.excelSheets[this.userRoleEntityName],
           fieldsMapping: {
             userID: 'userEmail',
-            vendorID: 'vendorName',
           },
           fieldsExtend: ['roleName'],
           fieldsExclude: ['createdAt', 'createdBy'],
-          data: userVendorRoles.map(({ user, role, vendor }) => ({
+          data: userRoles.map(({ user, role }) => ({
             userEmail: user.email,
-            vendorName: vendor.name,
             roleName: role.name,
           })),
         },
@@ -99,11 +88,10 @@ export class UserVendorRolesService extends PrismaBaseService<'userVendorRole'> 
     return data;
   }
 
-  async importUserVendorRoles({ file, user }: ImportUserVendorRolesDto) {
-    const userVendorRoleSheetName =
-      this.excelSheets[this.userVendorRoleEntityName];
+  async importUserRoles({ file, user }: ImportUserRolesDto) {
+    const userRoleSheetName = this.excelSheets[this.userRoleEntityName];
     const dataCreated = await this.excelUtilService.read(file);
-    const dataImport = dataCreated[userVendorRoleSheetName];
+    const dataImport = dataCreated[userRoleSheetName];
     const { usersImport, vendorsImport, rolesImport } = dataImport.reduce(
       (acc, item) => {
         const { userEmail, vendorName, roleName } = item ?? {};
@@ -220,20 +208,13 @@ export class UserVendorRolesService extends PrismaBaseService<'userVendorRole'> 
     return data;
   }
 
-  async getUserVendorRoles() {
+  async getUserRoles() {
     const data = await this.extended.findMany({
       select: {
         user: {
           select: {
             id: true,
             email: true,
-          },
-        },
-        vendor: {
-          select: {
-            id: true,
-            name: true,
-            description: true,
           },
         },
         role: {

@@ -38,7 +38,7 @@ enum VendorStatus {
   inactive
 }
 
-enum UserVendorRoleStatus {
+enum UserRoleStatus {
   active
   inactive
 }
@@ -97,12 +97,12 @@ model User {
   updatedAt   DateTime   @updatedAt
   deletedAt   DateTime?
 
-  vendors         Vendor[]
-  userVendorRoles UserVendorRole[]
-  orders          Order[]
-  cart            Cart?
-  notifications   Notification[]
-  chatMessages    ChatMessage[]
+  vendors       Vendor[]
+  userRoles     UserRole[]
+  orders        Order[]
+  cart          Cart?
+  notifications Notification[]
+  chatMessages  ChatMessage[]
 }
 
 model Vendor {
@@ -121,9 +121,8 @@ model Vendor {
   updatedAt     DateTime     @updatedAt
   deletedAt     DateTime?
 
-  user            User?            @relation(fields: [userID], references: [id])
-  products        Product[]
-  userVendorRoles UserVendorRole[]
+  user     User?     @relation(fields: [userID], references: [id])
+  products Product[]
 }
 
 model Role {
@@ -136,7 +135,7 @@ model Role {
   updatedAt    DateTime  @updatedAt
   deletedAt    DateTime?
 
-  userVendorRoles UserVendorRole[]
+  userRoles       UserRole[]
   rolePermissions RolePermission[]
 }
 
@@ -168,20 +167,21 @@ model RolePermission {
   @@id([roleID, permissionID])
 }
 
-model UserVendorRole {
-  id        String               @id @default(uuid())
+model UserRole {
+  id        String         @id @default(uuid())
   userID    String?
-  vendorID  String
+  // vendorID  String
   roleID    String
-  status    UserVendorRoleStatus @default(active)
-  createdAt DateTime             @default(now())
+  status    UserRoleStatus @default(active)
+  createdAt DateTime       @default(now())
   createdBy String?
 
-  user   User?  @relation(fields: [userID], references: [id])
-  vendor Vendor @relation(fields: [vendorID], references: [id])
-  role   Role   @relation(fields: [roleID], references: [id])
+  user User? @relation(fields: [userID], references: [id])
+  // vendor Vendor @relation(fields: [vendorID], references: [id])
+  role Role  @relation(fields: [roleID], references: [id])
 
-  @@unique([userID, vendorID])
+  // @@unique([userID, vendorID])
+  @@unique([userID, roleID])
 }
 
 model Category {

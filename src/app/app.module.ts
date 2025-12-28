@@ -42,13 +42,13 @@ import { ProductsModule } from './products/products.module';
 import { PromotionsModule } from './promotions/promotions.module';
 import { VendorsModule } from './vendors/vendors.module';
 import { QueryUtilModule } from '../common/utils/query-util/query-util.module';
-import { UserVendorRolesModule } from './user-vendor-roles/user-vendor-roles.module';
 import { EventsModule } from '../events/events.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ParseParamsPaginationPipe } from '../common/pipes/parse-params-pagination.pipe';
 import { ParseParamsOptionPipe } from '../common/pipes/parse-params-option.pipe';
 import { ChatMessagesModule } from './chat-messages/chat-messages.module';
 import { PaymentsModule } from './payments/payments.module';
+import { UserRolesModule } from './user-roles/user-roles.module';
 
 @Module({
   imports: [
@@ -86,7 +86,7 @@ import { PaymentsModule } from './payments/payments.module';
     PromotionsModule,
     VendorsModule,
     QueryUtilModule,
-    UserVendorRolesModule,
+    UserRolesModule,
     EventsModule,
     ScheduleModule.forRoot(),
     ChatMessagesModule,

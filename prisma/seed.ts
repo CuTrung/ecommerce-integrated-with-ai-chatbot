@@ -118,7 +118,7 @@ const createDevData = async () => {
   const models = sortModelsByDependency();
   const fieldsRelationSkip = new Set(['parent']);
   for (const model of Object.keys(models)) {
-    let quantityGenerate = 30;
+    let quantityGenerate = 5;
     while (quantityGenerate > 0) {
       quantityGenerate--;
       const prismaModel = prisma[camelCase(model)];
