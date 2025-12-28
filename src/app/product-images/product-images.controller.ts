@@ -24,6 +24,7 @@ import { User } from '../../common/decorators/user.decorator';
 import type { UserInfo } from '../../common/decorators/user.decorator';
 import { IDDto } from '../../common/dto/param.dto';
 import { ImportExcel } from '../../common/utils/excel-util/excel-util.decorator';
+import { ApiBody, ApiConsumes } from '@nestjs/swagger';
 
 @Controller('product-images')
 export class ProductImagesController {
@@ -64,6 +65,21 @@ export class ProductImagesController {
   }
 
   @Post('upload')
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        files: {
+          type: 'array',
+          items: {
+            type: 'string',
+            format: 'binary',
+          },
+        },
+      },
+    },
+  })
   @UseInterceptors(FilesInterceptor('files'))
   uploadProductImages(@UploadedFiles() files: File[], @User() user: UserInfo) {
     return this.productImagesService.uploadProductImages({
