@@ -104,7 +104,7 @@ model Vendor {
   id            String       @id @default(uuid())
   userID        String?
   name          String
-  slug          String       @unique
+  slug          String?      @unique
   description   String?
   logoUrl       String?
   taxCode       String?
@@ -182,7 +182,7 @@ model UserRole {
 model Category {
   id          String    @id @default(uuid())
   name        String
-  slug        String    @unique
+  slug        String?   @unique
   description String?
   parentID    String?
   imageUrl    String?
@@ -200,7 +200,7 @@ model Product {
   id            String        @id @default(uuid())
   vendorID      String
   name          String
-  slug          String        @unique
+  slug          String?       @unique
   description   String?
   sku           String?       @unique
   price         Decimal
