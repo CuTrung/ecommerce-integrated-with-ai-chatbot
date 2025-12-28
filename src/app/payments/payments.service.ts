@@ -8,7 +8,7 @@ import { PrismaBaseService } from '../../common/services/prisma-base.service';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import { ExcelUtilService } from '../../common/utils/excel-util/excel-util.service';
 import { Payment } from './entities/payment.entity';
-import { Prisma } from '@prisma/client';
+import { PaymentStatus, Prisma } from '@prisma/client';
 import {
   GetOptionsParams,
   Options,
@@ -105,14 +105,22 @@ export class PaymentsService
   async createPayment(createPaymentDto: WithUser<CreatePaymentDto>) {
     const { orderNumber, totalAmount, orderID, ...paymentData } =
       createPaymentDto;
-    const paymentUrl = this.createPaymentUrl({
-      orderAmount: totalAmount,
-      orderNumber,
-      userIpAddress: paymentData.user.userIpAddress,
-    });
+
+    let paymentUrl = '';
+    const orderAmount = parseFloat(<string>totalAmount);
+    const isZeroOrder = orderAmount <= 0;
+    if (!isZeroOrder) {
+      paymentUrl = this.createPaymentUrl({
+        orderAmount: totalAmount,
+        orderNumber,
+        userIpAddress: paymentData.user.userIpAddress,
+      });
+    }
+
     const data = await this.extended.create({
       data: {
         ...paymentData,
+        status: isZeroOrder ? PaymentStatus.completed : PaymentStatus.pending,
         orderID,
       },
     });
