@@ -4,10 +4,9 @@ import { UserRolesController } from './user-roles.controller';
 import { ExcelUtilModule } from '../../common/utils/excel-util/excel-util.module';
 import { RolesModule } from '../roles/roles.module';
 import { UsersModule } from '../users/users.module';
-import { VendorsModule } from '../vendors/vendors.module';
 
 @Module({
-  imports: [ExcelUtilModule, UsersModule, VendorsModule, RolesModule],
+  imports: [ExcelUtilModule, UsersModule, RolesModule],
   controllers: [UserRolesController],
   providers: [UserRolesService],
 })

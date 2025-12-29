@@ -4,7 +4,6 @@ import {
   RolesData,
   RolesImportCreate,
   UsersData,
-  VendorsData,
 } from './dto/get-user-role.dto';
 import { ImportUserRolesDto } from './dto/create-user-role.dto';
 import { PrismaBaseService } from '../../common/services/prisma-base.service';
@@ -14,7 +13,6 @@ import { ExcelUtilService } from '../../common/utils/excel-util/excel-util.servi
 import { Prisma } from '@prisma/client';
 import { RolesService } from '../roles/roles.service';
 import { UsersService } from '../users/users.service';
-import { VendorsService } from '../vendors/vendors.service';
 
 @Injectable()
 export class UserRolesService extends PrismaBaseService<'userRole'> {
@@ -27,7 +25,6 @@ export class UserRolesService extends PrismaBaseService<'userRole'> {
     private excelUtilService: ExcelUtilService,
     private usersService: UsersService,
     private rolesService: RolesService,
-    private vendorsService: VendorsService,
   ) {
     super(prismaService, 'userRole');
   }
@@ -92,18 +89,16 @@ export class UserRolesService extends PrismaBaseService<'userRole'> {
     const userRoleSheetName = this.excelSheets[this.userRoleEntityName];
     const dataCreated = await this.excelUtilService.read(file);
     const dataImport = dataCreated[userRoleSheetName];
-    const { usersImport, vendorsImport, rolesImport } = dataImport.reduce(
+    const { usersImport, rolesImport } = dataImport.reduce(
       (acc, item) => {
-        const { userEmail, vendorName, roleName } = item ?? {};
+        const { userEmail, roleName } = item ?? {};
         acc.usersImport.add({ email: userEmail });
-        acc.vendorsImport.add({ vendorName });
         acc.rolesImport.add({ roleName });
         return acc;
       },
       {
         usersImport: new Set(),
         rolesImport: new Set(),
-        vendorsImport: new Set(),
       },
     );
 
@@ -122,25 +117,6 @@ export class UserRolesService extends PrismaBaseService<'userRole'> {
         const userCurrent = userEmailListData.get(userEmail);
         if (userCurrent) {
           usersData.push(userCurrent);
-        }
-      }
-    }
-
-    const vendorsData: VendorsData = [];
-    if (vendorsImport.size > 0) {
-      const vendors = await this.vendorsService.client.findMany({
-        select: { id: true, name: true },
-      });
-      const vendorNameListData = new Map();
-      for (const vendor of vendors) {
-        vendorNameListData.set(vendor.name, vendor);
-      }
-
-      for (const vendorImport of vendorsImport) {
-        const { vendorName } = vendorImport;
-        const vendorCurrent = vendorNameListData.get(vendorName);
-        if (vendorCurrent) {
-          vendorsData.push(vendorCurrent);
         }
       }
     }
@@ -182,11 +158,6 @@ export class UserRolesService extends PrismaBaseService<'userRole'> {
       userNameListData.set(user.email, user.id);
     }
 
-    const vendorNameListData = new Map();
-    for (const vendor of vendorsData) {
-      vendorNameListData.set(vendor.name, vendor.id);
-    }
-
     const roleNameListData = new Map();
     for (const role of rolesData) {
       roleNameListData.set(role.name, role.id);
@@ -195,7 +166,6 @@ export class UserRolesService extends PrismaBaseService<'userRole'> {
     const idsMapping = dataImport.map((item) => ({
       userID: userNameListData.get(item.userEmail),
       roleID: roleNameListData.get(item.roleName),
-      vendorID: vendorNameListData.get(item.vendorName),
     }));
 
     await this.extended.deleteMany({
