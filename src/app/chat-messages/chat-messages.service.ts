@@ -23,7 +23,7 @@ import { WithUser } from '../../common/decorators/user.decorator';
 import { AIService } from '../../common/services/ai/ai.service';
 import { UsersService } from '../users/users.service';
 import { ProductsService } from '../products/products.service';
-import { isEmpty, isNil } from 'es-toolkit/compat';
+import { isArray, isEmpty, isNil, isNumber, isObject } from 'es-toolkit/compat';
 import { OrdersService } from '../orders/orders.service';
 import { LazyModuleLoader } from '@nestjs/core';
 import { AIModule } from '../../common/services/ai/ai.module';
@@ -171,33 +171,61 @@ export class ChatMessagesService
   }
 
   private async searchProduct(keywords: string[]) {
-    const search: any = keywords.map((k) => ({
-      OR: [
-        { name: { contains: k, mode: 'insensitive' } },
-        { description: { contains: k, mode: 'insensitive' } },
-      ],
-    }));
-    const data = await this.productsService.extended.search({
-      where: { OR: search },
-    });
+    const isSearchAll = keywords.some((item) => ['mua'].includes(item));
+    const conditions = {};
+    if (!isSearchAll) {
+      const search: any = keywords.map((k) => ({
+        OR: [
+          { name: { contains: k, mode: 'insensitive' } },
+          { description: { contains: k, mode: 'insensitive' } },
+        ],
+      }));
+      conditions['where'] = { OR: search };
+    }
+
+    const data = await this.productsService.extended.search(conditions);
     return data;
   }
 
   private async searchOrder(keywords: string[]) {
-    const search: any = keywords.map((k) => ({
-      OR: [
-        { orderNumber: { contains: k, mode: 'insensitive' } },
-        { status: { contains: k, mode: 'insensitive' } },
-        {
-          orderAddresses: {
-            some: { fullAddress: { contains: k, mode: 'insensitive' } },
+    const question = keywords.join(' ');
+    const isSearchAll = ['bán chạy', 'nhiều', 'mua nhiều'].some((item) =>
+      question.includes(item),
+    );
+    const conditions = {};
+    if (!isSearchAll) {
+      const search: any = keywords.map((k) => ({
+        OR: [
+          { orderNumber: { contains: k, mode: 'insensitive' } },
+          // { status: { contains: k, mode: 'insensitive' } },
+          {
+            orderAddresses: {
+              some: { fullAddress: { contains: k, mode: 'insensitive' } },
+            },
+          },
+        ],
+      }));
+      conditions['where'] = { OR: search };
+    } else {
+      conditions['select'] = {
+        orderItems: {
+          select: {
+            productVariant: {
+              select: {
+                product: {
+                  select: {
+                    name: true,
+                  },
+                },
+              },
+            },
           },
         },
-      ],
-    }));
-    const data = await this.ordersService.extended.search({
-      where: { OR: search },
-    });
+      };
+    }
+
+    const data = await this.ordersService.extended.search({ ...conditions });
+
     return data;
   }
 
@@ -252,9 +280,13 @@ export class ChatMessagesService
     return question
       .toLowerCase()
       .normalize('NFC')
-      .replace(/[^\p{L}\p{N}\s.,?]/gu, ' ')
+      .replace(/[^\p{L}\p{N}\s.,]/gu, ' ')
       .split(/\s+/)
-      .filter((word) => word.length >= 2 && !STOP_WORDS.includes(word));
+      .filter((word) => {
+        const parseWord = parseFloat(word);
+        if (isNumber(parseWord) && !isNaN(parseWord)) return true;
+        return word.length >= 2 && !STOP_WORDS.includes(word);
+      });
   }
 
   private detectIntent(keywords: string[]) {
@@ -262,7 +294,18 @@ export class ChatMessagesService
       BEST_PRICE: ['giá tốt nhất', 'rẻ nhất', 'ưu đãi tốt', 'mức giá tốt'],
       PRICE: ['giá', 'sale', 'khuyến', 'mãi'],
       SHIPPING: ['ship', 'vận', 'chuyển'],
-      ORDER: ['đặt', 'hàng', 'mua', 'đơn', 'order', 'đơn hàng', 'thanh toán'],
+      ORDER: [
+        'đặt',
+        'hàng',
+        'đơn',
+        'order',
+        'đơn hàng',
+        'thanh toán',
+        'bán chạy',
+        'nhiều',
+        'mua nhiều',
+      ],
+      PRODUCT: ['sản', 'phẩm', 'product'],
     };
     const question = keywords.join(' ').toLowerCase();
     for (const intent of Object.keys(intents)) {
@@ -297,14 +340,16 @@ export class ChatMessagesService
     if (!data.length) return '';
 
     const keys = Object.keys(data[0]);
-
     const context = data.map((item) => {
       return keys
         .reduce<string[]>((acc, key) => {
           const value = item[key];
-          if (!isNil(value)) {
+          if (isObject(value) || isArray(value)) {
+            acc.push(JSON.stringify(value));
+          } else if (!isNil(value)) {
             acc.push(`${key}: ${value}`);
           }
+
           return acc;
         }, [])
         .join('\n');
