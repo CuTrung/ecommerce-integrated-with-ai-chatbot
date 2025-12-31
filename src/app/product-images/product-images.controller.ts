@@ -16,7 +16,10 @@ import { ProductImagesService } from './product-images.service';
 import { CreateProductImageDto } from './dto/create-product-images.dto';
 import { UpdateProductImageDto } from './dto/update-product-images.dto';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { ExportProductImagesDto } from './dto/get-product-images.dto';
+import {
+  ExportProductImagesDto,
+  GetProductImagesPaginationDto,
+} from './dto/get-product-images.dto';
 import type { File } from '../../common/utils/excel-util/dto/excel-util.interface';
 import type { Response } from 'express';
 import { ExcelResponseInterceptor } from '../../common/interceptors/excel-response/excel-response.interceptor';
@@ -89,8 +92,8 @@ export class ProductImagesController {
   }
 
   @Get()
-  getProductImages() {
-    return this.productImagesService.getProductImages();
+  getProductImages(@Query() query: GetProductImagesPaginationDto) {
+    return this.productImagesService.getProductImages(query);
   }
 
   @Get(':id')

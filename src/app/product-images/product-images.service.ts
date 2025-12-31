@@ -1,12 +1,15 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Permission, Prisma } from '@prisma/client';
 import { PrismaService } from '../../common/prisma/prisma.service';
 import { ExcelUtilService } from '../../common/utils/excel-util/excel-util.service';
 import {
   CreateProductImageDto,
   ImportProductImagesDto,
 } from './dto/create-product-images.dto';
-import { ExportProductImagesDto } from './dto/get-product-images.dto';
+import {
+  ExportProductImagesDto,
+  GetProductImagesPaginationDto,
+} from './dto/get-product-images.dto';
 import { ProductImage } from './entities/product-images.entity';
 import { UpdateProductImageDto } from './dto/update-product-images.dto';
 import { UploadProductImagesDto } from './dto/create-product-images.dto';
@@ -18,6 +21,7 @@ import { WithUser } from '../../common/decorators/user.decorator';
 import { QueryUtilService } from '../../common/utils/query-util/query-util.service';
 import { LazyModuleLoader } from '@nestjs/core';
 import { FileUtilModule } from '../../common/utils/file-util/file-util.module';
+import { PaginationUtilService } from '../../common/utils/pagination-util/pagination-util.service';
 
 @Injectable()
 export class ProductImagesService extends PrismaBaseService<'productImage'> {
@@ -30,6 +34,7 @@ export class ProductImagesService extends PrismaBaseService<'productImage'> {
     private excelUtilService: ExcelUtilService,
     private eventEmitter: EventEmitter2,
     private queryUtilService: QueryUtilService,
+    private paginationUtilService: PaginationUtilService,
     private readonly lazyModuleLoader: LazyModuleLoader,
   ) {
     super(prismaService, 'productImage');
@@ -52,23 +57,31 @@ export class ProductImagesService extends PrismaBaseService<'productImage'> {
     return data;
   }
 
-  async getProductImages(
-    params: {
-      skip?: number;
-      take?: number;
-      cursor?: Prisma.ProductImageWhereUniqueInput;
-      where?: Prisma.ProductImageWhereInput;
-      orderBy?: Prisma.ProductImageOrderByWithRelationInput;
-    } = {},
-  ) {
-    const { skip, take, cursor, where, orderBy } = params;
-    const data = await this.extended.findMany({
-      skip,
-      take,
-      cursor,
-      where,
-      orderBy,
+  async getProductImages({
+    page,
+    itemPerPage,
+    select,
+    ...search
+  }: GetProductImagesPaginationDto) {
+    const totalItems = await this.extended.count();
+    const paging = this.paginationUtilService.paging({
+      page,
+      itemPerPage,
+      totalItems,
     });
+    const fieldsSelect =
+      this.queryUtilService.convertFieldsSelectOption<Permission>(select);
+    const searchQuery = this.queryUtilService.buildSearchQuery<Permission>({
+      search,
+    });
+    const list = await this.extended.findMany({
+      select: fieldsSelect,
+      skip: paging.skip,
+      take: paging.itemPerPage,
+      where: searchQuery,
+    });
+
+    const data = paging.format(list);
     return data;
   }
 
