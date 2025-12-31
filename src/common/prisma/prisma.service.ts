@@ -88,6 +88,12 @@ export class PrismaService
   private generateData(data: Record<string, any>, model: string) {
     const modelsGenSlug = [Product.name, Vendor.name, Category.name];
     if (modelsGenSlug.includes(model)) {
+      if (Array.isArray(data)) {
+        return data.map((item) => ({
+          ...item,
+          slug: this.stringUtilService.toSlug(item.name),
+        }));
+      }
       const slug = this.stringUtilService.toSlug(data.name);
       return { ...data, slug };
     }
