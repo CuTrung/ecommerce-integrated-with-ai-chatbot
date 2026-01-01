@@ -16,6 +16,8 @@ import { Decimal } from '@prisma/client/runtime/library';
 import { ChatMessage } from '../../app/chat-messages/entities/chat-message.entity';
 import { Cart } from '../../app/carts/entities/cart.entity';
 import { Order } from '../../app/orders/entities/order.entity';
+import { RolePermission } from '../../app/role-permissions/entities/role-permission.entity';
+import { UserRole } from '../../app/user-roles/entities/user-role.entity';
 @Injectable()
 export class PrismaService
   extends PrismaClient
@@ -128,9 +130,9 @@ export class PrismaService
   }
 
   private readonly JUNCTION_TABLES = [
-    'RolePermission',
-    'UserRole',
-    'ChatMessage',
+    RolePermission.name,
+    UserRole.name,
+    ChatMessage.name,
   ];
 
   initExtended() {
