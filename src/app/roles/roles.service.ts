@@ -122,18 +122,19 @@ export class RolesService extends PrismaBaseService<'role'> implements Options {
       where,
       data: { permissionIDs, user, ...dataUpdate },
     } = params;
-    if (permissionIDs) {
-      const roleID = where.id!;
-      await this.createRolePermissions({
-        roleID,
-        permissionIDs,
-        user,
-      });
-    }
+
     const data = await this.extended.update({
       data: dataUpdate,
       where,
     });
+
+    if (permissionIDs) {
+      await this.createRolePermissions({
+        roleID: data.id,
+        permissionIDs,
+        user,
+      });
+    }
     return data;
   }
 

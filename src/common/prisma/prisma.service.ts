@@ -129,7 +129,7 @@ export class PrismaService
 
   private readonly JUNCTION_TABLES = [
     'RolePermission',
-    'UserVendorRole',
+    'UserRole',
     'ChatMessage',
   ];
 

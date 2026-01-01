@@ -6,4 +6,9 @@ export class CreateUserDto extends createZodDto(
   UserUncheckedCreateInputSchema,
 ) {}
 
+export class CreateUserRolesDto {
+  userID: string;
+  roleIDs: string[];
+}
+
 export class ImportUsersDto extends ImportExcel {}

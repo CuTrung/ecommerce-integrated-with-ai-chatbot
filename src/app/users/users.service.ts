@@ -1,7 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma, VendorStatus } from '@prisma/client';
 import { ExcelUtilService } from '../../common/utils/excel-util/excel-util.service';
-import { CreateUserDto, ImportUsersDto } from './dto/create-user.dto';
+import {
+  CreateUserDto,
+  CreateUserRolesDto,
+  ImportUsersDto,
+} from './dto/create-user.dto';
 import {
   ExportUsersDto,
   GetUsersPaginationDto,
@@ -24,6 +28,7 @@ import { NotificationsModule } from '../notifications/notifications.module';
 import { NotificationsService } from '../notifications/notifications.service';
 import { LazyModuleLoader } from '@nestjs/core';
 import { SYSTEM_USER_GMAIL } from './consts/user.const';
+import { WithUser } from '../../common/decorators/user.decorator';
 @Injectable()
 export class UsersService extends PrismaBaseService<'user'> implements Options {
   private userEntityName = User.name;
@@ -107,11 +112,32 @@ export class UsersService extends PrismaBaseService<'user'> implements Options {
     return data;
   }
 
+  async createUserRoles({
+    roleIDs,
+    userID,
+    user,
+  }: WithUser<CreateUserRolesDto>) {
+    await this.prismaService.userRole.deleteMany({
+      where: { userID },
+    });
+    if (roleIDs.length === 0) return;
+    const dataCreate = roleIDs.map((roleID) => ({
+      roleID,
+      user,
+    }));
+    await this.prismaService.extended.userRole.createMany({
+      data: dataCreate,
+    });
+  }
+
   async updateUser(params: {
     where: Prisma.UserWhereUniqueInput;
-    data: UpdateUserDto;
+    data: WithUser<UpdateUserDto>;
   }) {
-    const { where, data: dataUpdate } = params;
+    const {
+      where,
+      data: { roleIDs, user, ...dataUpdate },
+    } = params;
     const password = dataUpdate.password;
     if (!isEmpty(password)) {
       const passwordHashed = await this.stringUtilService.hash(password!);
@@ -121,6 +147,14 @@ export class UsersService extends PrismaBaseService<'user'> implements Options {
       data: dataUpdate,
       where,
     });
+
+    if (roleIDs) {
+      await this.createUserRoles({
+        roleIDs,
+        userID: data.id,
+        user,
+      });
+    }
     return data;
   }
 
