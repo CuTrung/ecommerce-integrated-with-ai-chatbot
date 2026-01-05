@@ -124,7 +124,23 @@ export class CartItemsService
     const fieldsSelect =
       this.queryUtilService.convertFieldsSelectOption<CartItem>(select);
     const cartItems = await this.extended.export({
-      select: fieldsSelect,
+      select: {
+        ...fieldsSelect,
+        cart: {
+          select: {
+            user: {
+              select: {
+                email: true,
+              },
+            },
+          },
+        },
+        productVariant: {
+          select: {
+            name: true,
+          },
+        },
+      },
       where,
     });
 
@@ -132,7 +148,15 @@ export class CartItemsService
       worksheets: [
         {
           sheetName: this.excelSheets[this.cartItemEntityName],
-          data: cartItems,
+          data: cartItems.map(({ cart, cartItem, productVariant }) => ({
+            ...cartItem,
+            email: cart.user?.email,
+            productVariantName: productVariant.name,
+          })),
+          fieldsMapping: {
+            cartID: 'email',
+            productVariantID: 'productVariantName',
+          },
         },
       ],
     });

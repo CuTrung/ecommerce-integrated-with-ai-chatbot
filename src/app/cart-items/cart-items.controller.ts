@@ -7,7 +7,6 @@ import {
   Query,
   Param,
   UseInterceptors,
-  UploadedFile,
   Patch,
   Res,
 } from '@nestjs/common';
@@ -22,10 +21,7 @@ import { CartItemsService } from './cart-items.service';
 import { User } from '../../common/decorators/user.decorator';
 import type { UserInfo } from '../../common/decorators/user.decorator';
 import type { Response } from 'express';
-import type { File } from '../../common/utils/excel-util/dto/excel-util.interface';
-import { GetOptionsParams } from '../../common/query/options.interface';
 import { IDDto } from '../../common/dto/param.dto';
-import { ImportExcel } from '../../common/utils/excel-util/excel-util.decorator';
 
 @Controller('cart-items')
 export class CartItemsController {
@@ -52,10 +48,10 @@ export class CartItemsController {
     return this.cartItemsService.getCartItems(query);
   }
 
-  @Get('options')
-  getCartItemOptions(@Query() query: GetOptionsParams) {
-    return this.cartItemsService.getOptions(query);
-  }
+  // @Get('options')
+  // getCartItemOptions(@Query() query: GetOptionsParams) {
+  //   return this.cartItemsService.getOptions(query);
+  // }
 
   @Post('export')
   @UseInterceptors(ExcelResponseInterceptor)
@@ -70,11 +66,11 @@ export class CartItemsController {
     return { message: 'Export success' };
   }
 
-  @Post('import')
-  @ImportExcel()
-  importCartItems(@UploadedFile() file: File, @User() user: UserInfo) {
-    return this.cartItemsService.importCartItems({ file, user });
-  }
+  // @Post('import')
+  // @ImportExcel()
+  // importCartItems(@UploadedFile() file: File, @User() user: UserInfo) {
+  //   return this.cartItemsService.importCartItems({ file, user });
+  // }
 
   @Get(':id')
   getCartItem(@Param() { id }: IDDto) {
