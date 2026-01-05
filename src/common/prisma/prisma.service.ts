@@ -141,22 +141,26 @@ export class PrismaService
     ChatMessage.name,
     ProductCategory.name,
     Cart.name,
-    Notification.name,
     CartItem.name,
+    Notification.name,
   ];
 
   initExtended() {
     const extended = this.$extends({
       query: {
         $allModels: {
-          findUnique: async ({ args, query }) => {
-            args.where = { ...args.where, deletedAt: null };
+          findUnique: async ({ args, query, model }) => {
+            if (!this.JUNCTION_TABLES.includes(model)) {
+              args.where = { ...args.where, deletedAt: null };
+            }
             const data = await query(args);
             const convertData = this.convertData(data);
             return convertData;
           },
-          findFirst: async ({ args, query }) => {
-            args.where = { ...args.where, deletedAt: null };
+          findFirst: async ({ args, query, model }) => {
+            if (!this.JUNCTION_TABLES.includes(model)) {
+              args.where = { ...args.where, deletedAt: null };
+            }
             const data = await query(args);
             const convertData = this.convertData(data);
             return convertData;
@@ -194,8 +198,10 @@ export class PrismaService
           updateMany: ({ args, query }) => {
             return query(args);
           },
-          count: ({ args, query }) => {
-            args.where = { ...args.where, deletedAt: null };
+          count: ({ args, query, model }) => {
+            if (!this.JUNCTION_TABLES.includes(model)) {
+              args.where = { ...args.where, deletedAt: null };
+            }
             return query(args);
           },
           upsert: ({ args, query, model }) => {

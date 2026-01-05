@@ -50,7 +50,7 @@ export class CartsService extends PrismaBaseService<'cart'> implements Options {
     select,
     ...search
   }: GetCartsPaginationDto) {
-    const totalItems = await this.client.count();
+    const totalItems = await this.extended.count();
     const paging = this.paginationUtilService.paging({
       page,
       itemPerPage,
