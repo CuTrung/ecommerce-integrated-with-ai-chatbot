@@ -177,7 +177,7 @@ export class CartItemsService
   }
 
   async deleteCartItem(where: Prisma.CartItemWhereUniqueInput) {
-    const data = await this.extended.softDelete(where);
+    const data = await this.extended.delete({ where });
     return data;
   }
 }

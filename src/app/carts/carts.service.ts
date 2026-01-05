@@ -157,7 +157,7 @@ export class CartsService extends PrismaBaseService<'cart'> implements Options {
   }
 
   async deleteCart(where: Prisma.CartWhereUniqueInput) {
-    const data = await this.client.delete({ where });
+    const data = await this.extended.delete({ where });
     return data;
   }
 }
