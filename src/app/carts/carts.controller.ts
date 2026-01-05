@@ -7,56 +7,46 @@ import {
   Query,
   Param,
   UseInterceptors,
-  UploadedFile,
-  Patch,
   Res,
+  BadRequestException,
 } from '@nestjs/common';
 import { CreateCartDto } from './dto/create-cart.dto';
-import { UpdateCartDto } from './dto/update-cart.dto';
 import { ExportCartsDto, GetCartsPaginationDto } from './dto/get-cart.dto';
 import { ExcelResponseInterceptor } from '../../common/interceptors/excel-response/excel-response.interceptor';
 import { CartsService } from './carts.service';
 import { User } from '../../common/decorators/user.decorator';
 import type { UserInfo } from '../../common/decorators/user.decorator';
 import type { Response } from 'express';
-import type { File } from '../../common/utils/excel-util/dto/excel-util.interface';
-import { GetOptionsParams } from '../../common/query/options.interface';
 import { IDDto } from '../../common/dto/param.dto';
-import { SkipAuth } from '../auth/auth.decorator';
-import { ImportExcel } from '../../common/utils/excel-util/excel-util.decorator';
+import { isEmpty } from 'es-toolkit/compat';
 
 @Controller('carts')
 export class CartsController {
   constructor(private readonly cartsService: CartsService) {}
 
   @Post()
-  @SkipAuth()
   createCart(@Body() createDto: CreateCartDto, @User() user: UserInfo) {
-    const userID = user.userID;
-    if (userID) {
-      createDto['userID'] ??= userID;
-    }
+    createDto['user'] = user;
     return this.cartsService.createCart(createDto);
   }
 
-  @Patch(':id')
-  @SkipAuth()
-  updateCart(@Param() { id }: IDDto, @Body() updateCartDto: UpdateCartDto) {
-    return this.cartsService.updateCart({
-      data: updateCartDto,
-      where: { id },
-    });
-  }
+  // @Patch(':id')
+  // updateCart(@Param() { id }: IDDto, @Body() updateCartDto: UpdateCartDto) {
+  //   return this.cartsService.updateCart({
+  //     data: updateCartDto,
+  //     where: { id },
+  //   });
+  // }
 
   @Get()
   getCarts(@Query() query: GetCartsPaginationDto) {
     return this.cartsService.getCarts(query);
   }
 
-  @Get('options')
-  getCartOptions(@Query() query: GetOptionsParams) {
-    return this.cartsService.getOptions(query);
-  }
+  // @Get('options')
+  // getCartOptions(@Query() query: GetOptionsParams) {
+  //   return this.cartsService.getOptions(query);
+  // }
 
   @Post('export')
   @UseInterceptors(ExcelResponseInterceptor)
@@ -70,11 +60,11 @@ export class CartsController {
     return { message: 'Export success' };
   }
 
-  @Post('import')
-  @ImportExcel()
-  importCarts(@UploadedFile() file: File, @User() user: UserInfo) {
-    return this.cartsService.importCarts({ file, user });
-  }
+  // @Post('import')
+  // @ImportExcel()
+  // importCarts(@UploadedFile() file: File, @User() user: UserInfo) {
+  //   return this.cartsService.importCarts({ file, user });
+  // }
 
   @Get(':id')
   getCart(@Param() { id }: IDDto) {
@@ -83,6 +73,8 @@ export class CartsController {
 
   @Delete(':id')
   deleteCart(@Param() { id }: IDDto) {
+    const cartDelete = this.getCart({ id });
+    if (isEmpty(cartDelete)) throw new BadRequestException('Cart not found!');
     return this.cartsService.deleteCart({ id });
   }
 }

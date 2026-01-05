@@ -50,7 +50,7 @@ export class CartsService extends PrismaBaseService<'cart'> implements Options {
     select,
     ...search
   }: GetCartsPaginationDto) {
-    const totalItems = await this.extended.count();
+    const totalItems = await this.client.count();
     const paging = this.paginationUtilService.paging({
       page,
       itemPerPage,
@@ -114,7 +114,15 @@ export class CartsService extends PrismaBaseService<'cart'> implements Options {
     const fieldsSelect =
       this.queryUtilService.convertFieldsSelectOption<Cart>(select);
     const carts = await this.extended.export({
-      select: fieldsSelect,
+      select: {
+        ...fieldsSelect,
+        createdAt: true,
+        user: {
+          select: {
+            email: true,
+          },
+        },
+      },
       where,
     });
 
@@ -122,7 +130,13 @@ export class CartsService extends PrismaBaseService<'cart'> implements Options {
       worksheets: [
         {
           sheetName: this.excelSheets[this.cartEntityName],
-          data: carts,
+          data: carts.map(({ user, ...cart }) => ({
+            email: user.email,
+            ...cart,
+          })),
+          fieldsMapping: {
+            userID: 'email',
+          },
         },
       ],
     });
@@ -143,7 +157,7 @@ export class CartsService extends PrismaBaseService<'cart'> implements Options {
   }
 
   async deleteCart(where: Prisma.CartWhereUniqueInput) {
-    const data = await this.extended.softDelete(where);
+    const data = await this.client.delete({ where });
     return data;
   }
 }

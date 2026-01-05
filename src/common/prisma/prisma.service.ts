@@ -18,6 +18,7 @@ import { Cart } from '../../app/carts/entities/cart.entity';
 import { Order } from '../../app/orders/entities/order.entity';
 import { RolePermission } from '../../app/role-permissions/entities/role-permission.entity';
 import { UserRole } from '../../app/user-roles/entities/user-role.entity';
+import { ProductCategory } from '../../app/product-categories/entities/product-category.entity';
 @Injectable()
 export class PrismaService
   extends PrismaClient
@@ -79,11 +80,14 @@ export class PrismaService
       Cart.name,
       Order.name,
     ];
-    const dataCreatedBy = this.setCreatedBy(value);
-    if (model && modelsWithUserID.includes(model)) {
-      dataCreatedBy.userID = dataCreatedBy.user.userID;
+    let dataTransfer = value;
+    if (model !== Cart.name) {
+      dataTransfer = this.setCreatedBy(value);
     }
-    const data: any = this.omitData(dataCreatedBy, ['user', 'id']);
+    if (model && modelsWithUserID.includes(model)) {
+      dataTransfer.userID = dataTransfer.user.userID;
+    }
+    const data: any = this.omitData(dataTransfer, ['user', 'id']);
     return data;
   }
 
@@ -133,6 +137,8 @@ export class PrismaService
     RolePermission.name,
     UserRole.name,
     ChatMessage.name,
+    ProductCategory.name,
+    Cart.name,
   ];
 
   initExtended() {
