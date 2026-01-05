@@ -60,7 +60,7 @@ export class CartItemsService
     select,
     ...search
   }: GetCartItemsPaginationDto) {
-    const totalItems = await this.extended.count();
+    const totalItems = await this.client.count();
     const paging = this.paginationUtilService.paging({
       page,
       itemPerPage,

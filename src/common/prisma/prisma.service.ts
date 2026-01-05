@@ -19,6 +19,8 @@ import { Order } from '../../app/orders/entities/order.entity';
 import { RolePermission } from '../../app/role-permissions/entities/role-permission.entity';
 import { UserRole } from '../../app/user-roles/entities/user-role.entity';
 import { ProductCategory } from '../../app/product-categories/entities/product-category.entity';
+import { Notification } from '../../app/notifications/entities/notification.entity';
+import { CartItem } from '../../app/cart-items/entities/cart-item.entity';
 @Injectable()
 export class PrismaService
   extends PrismaClient
@@ -50,7 +52,10 @@ export class PrismaService
     );
   }
 
-  private setCreatedBy(value: any): any {
+  private setCreatedBy(value: any, model?: string): any {
+    const modelsBypass = [Cart.name, CartItem.name];
+    if (modelsBypass.includes(model!)) return value;
+
     const isArray = Array.isArray(value);
     if (isArray) {
       const result = value.map((value: Record<string, any>) => {
@@ -80,10 +85,7 @@ export class PrismaService
       Cart.name,
       Order.name,
     ];
-    let dataTransfer = value;
-    if (model !== Cart.name) {
-      dataTransfer = this.setCreatedBy(value);
-    }
+    const dataTransfer = this.setCreatedBy(value, model);
     if (model && modelsWithUserID.includes(model)) {
       dataTransfer.userID = dataTransfer.user.userID;
     }
@@ -139,6 +141,8 @@ export class PrismaService
     ChatMessage.name,
     ProductCategory.name,
     Cart.name,
+    Notification.name,
+    CartItem.name,
   ];
 
   initExtended() {

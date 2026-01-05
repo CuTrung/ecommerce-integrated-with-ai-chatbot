@@ -161,9 +161,9 @@ export class NotificationsService
 
   async getUserNotifications({ userID }) {
     const data = await this.extended.findMany({
-      where: {
-        userID,
-      },
+      // where: {
+      //   userID,
+      // },
     });
     return data;
   }
