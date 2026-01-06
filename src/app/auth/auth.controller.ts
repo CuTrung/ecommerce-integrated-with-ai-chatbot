@@ -1,7 +1,7 @@
 import { Controller, Post, Body, Get, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignInDto, SignInResponseDto, SignUpDto } from './dto/sign.dto';
-import { SkipAuth, SkipAuth } from './auth.decorator';
+import { SkipAuth } from './auth.decorator';
 import { Cookies } from '../../common/decorators/cookie/cookie.decorator';
 import type { Response } from 'express';
 import ms from 'ms';
