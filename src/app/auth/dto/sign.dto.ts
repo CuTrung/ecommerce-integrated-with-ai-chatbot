@@ -14,6 +14,7 @@ const SignInResponseSchema = withResponse(
   z.object({
     [TokenKeys.ACCESS_TOKEN_KEY]: z.string(),
     [TokenKeys.REFRESH_TOKEN_KEY]: z.string(),
+    isSupperAdmin: z.boolean().default(false),
   }),
 );
 
