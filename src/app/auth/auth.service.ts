@@ -81,7 +81,9 @@ export class AuthService {
     );
     if (!isMatch) throw new UnauthorizedException();
     const { id: userID, email: userEmail } = user;
-    return await this.createToken({ userID, userEmail });
+    const token = await this.createToken({ userID, userEmail });
+    const isSupperAdmin = this.usersService.isSupperAdmin(userID);
+    return { ...token, isSupperAdmin };
   }
 
   async refreshToken(refreshToken: string) {
