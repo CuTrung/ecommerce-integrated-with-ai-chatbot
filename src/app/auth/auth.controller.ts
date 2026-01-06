@@ -1,7 +1,7 @@
 import { Controller, Post, Body, Get, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { SignInDto, SignUpDto } from './dto/sign.dto';
-import { SkipAuth } from './auth.decorator';
+import { SignInDto, SignInResponseDto, SignUpDto } from './dto/sign.dto';
+import { SkipAuth, SkipAuth } from './auth.decorator';
 import { Cookies } from '../../common/decorators/cookie/cookie.decorator';
 import type { Response } from 'express';
 import ms from 'ms';
@@ -13,6 +13,7 @@ import { TokenKeys } from './consts/jwt.const';
 import { ForgotPasswordDto, ResetPasswordDto } from './dto/password.dto';
 import { User } from '../../common/decorators/user.decorator';
 import type { UserInfo } from '../../common/decorators/user.decorator';
+import { ZodResponse } from 'nestjs-zod';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -25,7 +26,7 @@ export class AuthController {
 
   @Post('sign-in')
   @SkipAuth()
-  // @ZodResponse({ type: SignInResponseDto })
+  @ZodResponse({ type: SignInResponseDto })
   async signIn(
     @Body() signInDto: SignInDto,
     @Res({ passthrough: true }) res: Response,

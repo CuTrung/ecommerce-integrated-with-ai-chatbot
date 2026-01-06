@@ -82,7 +82,7 @@ export class AuthService {
     if (!isMatch) throw new UnauthorizedException();
     const { id: userID, email: userEmail } = user;
     const token = await this.createToken({ userID, userEmail });
-    const isSupperAdmin = this.usersService.isSupperAdmin(userID);
+    const isSupperAdmin = await this.usersService.isSupperAdmin(userID);
     return { ...token, isSupperAdmin };
   }
 
