@@ -244,6 +244,8 @@ model ProductVariant {
 model ProductCategory {
   productID  String
   categoryID String
+  createdAt  DateTime @default(now())
+  createdBy  String?
 
   product  Product  @relation(fields: [productID], references: [id])
   category Category @relation(fields: [categoryID], references: [id])

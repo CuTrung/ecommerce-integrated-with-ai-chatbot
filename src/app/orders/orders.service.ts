@@ -73,6 +73,9 @@ export class OrdersService
   async getOrder(where: Prisma.OrderWhereUniqueInput) {
     const data = await this.extended.findUnique({
       where,
+      include: {
+        user: true,
+      },
     });
     return data;
   }

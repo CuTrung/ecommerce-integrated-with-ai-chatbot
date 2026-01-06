@@ -43,10 +43,17 @@ export class RolesService extends PrismaBaseService<'role'> implements Options {
   }
 
   async getRole(where: Prisma.RoleWhereUniqueInput) {
-    const data = await this.extended.findUnique({
+    const roleData = await this.extended.findUnique({
       where,
+      include: {
+        rolePermissions: {
+          include: {
+            permission: true,
+          },
+        },
+      },
     });
-    return data;
+    return roleData;
   }
 
   async getRoles({

@@ -40,6 +40,17 @@ export class CartsService extends PrismaBaseService<'cart'> implements Options {
   async getCart(where: Prisma.CartWhereUniqueInput) {
     const data = await this.extended.findUnique({
       where,
+      include: {
+        cartItems: {
+          include: {
+            productVariant: {
+              include: {
+                product: true,
+              },
+            },
+          },
+        },
+      },
     });
     return data;
   }

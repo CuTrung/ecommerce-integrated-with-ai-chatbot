@@ -40,9 +40,10 @@ export class ProductsController {
   updateProduct(
     @Param() { id }: IDDto,
     @Body() updateProductDto: UpdateProductDto,
+    @User() user: UserInfo,
   ) {
     return this.productsService.updateProduct({
-      data: updateProductDto,
+      data: { ...updateProductDto, user },
       where: { id },
     });
   }

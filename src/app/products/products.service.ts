@@ -1,5 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { CreateProductDto, ImportProductsDto } from './dto/create-product.dto';
+import {
+  CreateProductCategoriesDto,
+  CreateProductDto,
+  ImportProductsDto,
+} from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import {
   ExportProductsDto,
@@ -47,6 +51,16 @@ export class ProductsService
   async getProduct(where: Prisma.ProductWhereUniqueInput) {
     const data = await this.extended.findUnique({
       where,
+      include: {
+        productImages: true,
+        productCategories: {
+          include: {
+            category: true,
+          },
+        },
+        productVariants: true,
+        vendor: true,
+      },
     });
     return data;
   }
@@ -79,22 +93,63 @@ export class ProductsService
     return data;
   }
 
-  async createProduct(createProductDto: WithUser<CreateProductDto>) {
+  async createProductCategories({
+    productID,
+    categoryIDs,
+    user,
+  }: WithUser<CreateProductCategoriesDto>) {
+    await this.prismaService.productCategory.deleteMany({
+      where: { productID },
+    });
+    if (categoryIDs.length === 0) return;
+    const dataCreate = categoryIDs.map((categoryID) => ({
+      productID,
+      categoryID,
+      user,
+    }));
+    await this.prismaService.extended.productCategory.createMany({
+      data: dataCreate,
+    });
+  }
+
+  async createProduct({
+    categoryIDs,
+    ...createProductDto
+  }: WithUser<CreateProductDto>) {
     const data = await this.extended.create({
       data: createProductDto,
     });
+    if (categoryIDs) {
+      const productID = data.id;
+      await this.createProductCategories({
+        productID,
+        categoryIDs,
+        user: createProductDto.user,
+      });
+    }
     return data;
   }
 
   async updateProduct(params: {
     where: Prisma.ProductWhereUniqueInput;
-    data: UpdateProductDto;
+    data: WithUser<UpdateProductDto>;
   }) {
-    const { where, data: dataUpdate } = params;
+    const {
+      where,
+      data: { categoryIDs, user, ...dataUpdate },
+    } = params;
     const data = await this.extended.update({
       data: dataUpdate,
       where,
     });
+
+    if (categoryIDs) {
+      await this.createProductCategories({
+        productID: data.id,
+        categoryIDs,
+        user,
+      });
+    }
     return data;
   }
 
