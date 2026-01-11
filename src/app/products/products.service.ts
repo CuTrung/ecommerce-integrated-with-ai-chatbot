@@ -83,10 +83,13 @@ export class ProductsService
       search,
     });
     const list = await this.extended.findMany({
-      select: fieldsSelect,
+      // select: fieldsSelect,
       skip: paging.skip,
       take: paging.itemPerPage,
       where: searchQuery,
+      include: {
+        productCategories: true,
+      },
     });
 
     const data = paging.format(list);
