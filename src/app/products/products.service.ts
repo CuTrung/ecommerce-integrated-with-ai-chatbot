@@ -88,7 +88,11 @@ export class ProductsService
       take: paging.itemPerPage,
       where: searchQuery,
       include: {
-        productCategories: true,
+        productCategories: {
+          include: {
+            category: true,
+          },
+        },
       },
     });
 
