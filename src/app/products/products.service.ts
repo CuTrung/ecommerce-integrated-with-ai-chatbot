@@ -50,16 +50,13 @@ export class ProductsService
 
   async getProduct(where: Prisma.ProductWhereUniqueInput) {
     const data = await this.extended.findUnique({
-      where: {
-        ...where,
+      where,
+      include: {
         productImages: {
-          every: {
+          where: {
             deletedAt: { not: null },
           },
         },
-      },
-      include: {
-        productImages: true,
         productCategories: {
           include: {
             category: true,
