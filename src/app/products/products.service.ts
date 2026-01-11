@@ -54,7 +54,7 @@ export class ProductsService
       include: {
         productImages: {
           where: {
-            deletedAt: { not: null },
+            deletedAt: null,
           },
         },
         productCategories: {
