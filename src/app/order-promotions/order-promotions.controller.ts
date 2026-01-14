@@ -1,15 +1,7 @@
-import {
-  Controller,
-  Body,
-  UseInterceptors,
-  Get,
-  Res,
-  Post,
-} from '@nestjs/common';
+import { Controller, Body, UseInterceptors, Get, Post } from '@nestjs/common';
 import { OrderPromotionsService } from './order-promotions.service';
 import { ExportOrderPromotionsDto } from './dto/get-order-promotion.dto';
 import { ExcelResponseInterceptor } from '../../common/interceptors/excel-response/excel-response.interceptor';
-import type { Response } from 'express';
 
 @Controller('order-promotions')
 export class OrderPromotionsController {
@@ -24,14 +16,7 @@ export class OrderPromotionsController {
 
   @Post('export')
   @UseInterceptors(ExcelResponseInterceptor)
-  async exportOrderPromotions(
-    @Body() params: ExportOrderPromotionsDto,
-    @Res() res: Response,
-  ) {
-    const workbook =
-      await this.orderPromotionsService.exportOrderPromotions(params);
-    await workbook.xlsx.write(res);
-    res.end();
-    return { message: 'Export success' };
+  async exportOrderPromotions(@Body() params: ExportOrderPromotionsDto) {
+    return this.orderPromotionsService.exportOrderPromotions(params);
   }
 }

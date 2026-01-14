@@ -274,7 +274,6 @@ export class PrismaService
           ) {
             const context: any = Prisma.getExtensionContext(this);
             const FIELDS_EXCLUDE = [
-              'id',
               'createdAt',
               'updatedAt',
               'deletedAt',

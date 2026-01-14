@@ -9,7 +9,6 @@ import {
   UseInterceptors,
   UploadedFile,
   Patch,
-  Res,
 } from '@nestjs/common';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
@@ -18,7 +17,6 @@ import { ExcelResponseInterceptor } from '../../common/interceptors/excel-respon
 import { RolesService } from './roles.service';
 import { User } from '../../common/decorators/user.decorator';
 import type { UserInfo } from '../../common/decorators/user.decorator';
-import type { Response } from 'express';
 import type { File } from '../../common/utils/excel-util/dto/excel-util.interface';
 import { GetOptionsParams } from '../../common/query/options.interface';
 import { IDDto } from '../../common/dto/param.dto';
@@ -57,14 +55,8 @@ export class RolesController {
 
   @Post('export')
   @UseInterceptors(ExcelResponseInterceptor)
-  async exportRoles(
-    @Query() exportRolesDto: ExportRolesDto,
-    @Res() res: Response,
-  ) {
-    const workbook = await this.rolesService.exportRoles(exportRolesDto);
-    await workbook.xlsx.write(res);
-    res.end();
-    return { message: 'Export success' };
+  async exportRoles(@Query() exportRolesDto: ExportRolesDto) {
+    return this.rolesService.exportRoles(exportRolesDto);
   }
 
   @Post('import')

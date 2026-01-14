@@ -6,12 +6,10 @@ import {
   UploadedFile,
   UseInterceptors,
   Get,
-  Res,
 } from '@nestjs/common';
 import { UserRolesService } from './user-roles.service';
 import { ExportUserRolesDto } from './dto/get-user-role.dto';
 import { ExcelResponseInterceptor } from '../../common/interceptors/excel-response/excel-response.interceptor';
-import type { Response } from 'express';
 import { ImportExcel } from '../../common/utils/excel-util/excel-util.decorator';
 
 @Controller('user-roles')
@@ -25,14 +23,8 @@ export class UserRolesController {
 
   @Post('export')
   @UseInterceptors(ExcelResponseInterceptor)
-  async exportUserRoles(
-    @Body() params: ExportUserRolesDto,
-    @Res() res: Response,
-  ) {
-    const workbook = await this.userRolesService.exportUserRoles(params);
-    await workbook.xlsx.write(res);
-    res.end();
-    return { message: 'Export success' };
+  async exportUserRoles(@Body() params: ExportUserRolesDto) {
+    return this.userRolesService.exportUserRoles(params);
   }
 
   @Post('import')

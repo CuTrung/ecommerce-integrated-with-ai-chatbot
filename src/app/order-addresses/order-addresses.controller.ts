@@ -9,7 +9,6 @@ import {
   UseInterceptors,
   UploadedFile,
   Patch,
-  Res,
 } from '@nestjs/common';
 import { CreateOrderAddressDto } from './dto/create-order-address.dto';
 import { UpdateOrderAddressDto } from './dto/update-order-address.dto';
@@ -21,7 +20,6 @@ import { ExcelResponseInterceptor } from '../../common/interceptors/excel-respon
 import { OrderAddressesService } from './order-addresses.service';
 import { User } from '../../common/decorators/user.decorator';
 import type { UserInfo } from '../../common/decorators/user.decorator';
-import type { Response } from 'express';
 import type { File } from '../../common/utils/excel-util/dto/excel-util.interface';
 import { GetOptionsParams } from '../../common/query/options.interface';
 import { IDDto } from '../../common/dto/param.dto';
@@ -67,14 +65,10 @@ export class OrderAddressesController {
   @UseInterceptors(ExcelResponseInterceptor)
   async exportOrderAddresses(
     @Query() exportOrderAddressesDto: ExportOrderAddressesDto,
-    @Res() res: Response,
   ) {
-    const workbook = await this.orderAddressesService.exportOrderAddresses(
+    return this.orderAddressesService.exportOrderAddresses(
       exportOrderAddressesDto,
     );
-    await workbook.xlsx.write(res);
-    res.end();
-    return { message: 'Export success' };
   }
 
   @Post('import')

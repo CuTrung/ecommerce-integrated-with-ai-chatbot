@@ -191,7 +191,7 @@ export class ProductsService
       where,
     });
 
-    const data = this.excelUtilService.generateExcel({
+    const data = await this.excelUtilService.generateExcel({
       worksheets: [
         {
           sheetName: this.excelSheets[this.productEntityName],

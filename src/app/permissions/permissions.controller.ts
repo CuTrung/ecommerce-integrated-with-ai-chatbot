@@ -9,7 +9,6 @@ import {
   UseInterceptors,
   UploadedFile,
   Patch,
-  Res,
 } from '@nestjs/common';
 import { CreatePermissionDto } from './dto/create-permission.dto';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
@@ -21,7 +20,6 @@ import { ExcelResponseInterceptor } from '../../common/interceptors/excel-respon
 import { PermissionsService } from './permissions.service';
 import { User } from '../../common/decorators/user.decorator';
 import type { UserInfo } from '../../common/decorators/user.decorator';
-import type { Response } from 'express';
 import type { File } from '../../common/utils/excel-util/dto/excel-util.interface';
 import { GetOptionsParams } from '../../common/query/options.interface';
 import { IDDto } from '../../common/dto/param.dto';
@@ -62,15 +60,8 @@ export class PermissionsController {
 
   @Post('export')
   @UseInterceptors(ExcelResponseInterceptor)
-  async exportPermissions(
-    @Query() exportPermissionsDto: ExportPermissionsDto,
-    @Res() res: Response,
-  ) {
-    const workbook =
-      await this.permissionsService.exportPermissions(exportPermissionsDto);
-    await workbook.xlsx.write(res);
-    res.end();
-    return { message: 'Export success' };
+  async exportPermissions(@Query() exportPermissionsDto: ExportPermissionsDto) {
+    return this.permissionsService.exportPermissions(exportPermissionsDto);
   }
 
   @Post('import')

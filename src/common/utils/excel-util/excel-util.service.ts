@@ -4,6 +4,9 @@ import { startCase } from 'lodash';
 import { File, GenerateExcelParams } from './dto/excel-util.interface';
 import { camelCase } from 'es-toolkit';
 import { PrismaService } from '../../prisma/prisma.service';
+import { join } from 'node:path';
+import fs from 'node:fs/promises';
+import { existsSync } from 'node:fs';
 
 @Injectable()
 export class ExcelUtilService {
@@ -27,7 +30,7 @@ export class ExcelUtilService {
     });
   }
 
-  generateExcel({ worksheets = [] }: GenerateExcelParams) {
+  async generateExcel({ worksheets = [] }: GenerateExcelParams) {
     if (worksheets.length === 0)
       throw new BadRequestException('Worksheets is empty!');
 
@@ -64,8 +67,8 @@ export class ExcelUtilService {
 
       this.customHeaders({ worksheet });
     }
-
-    return workbook;
+    const buffer = await workbook.xlsx.writeBuffer();
+    return Buffer.from(buffer);
   }
 
   private convertHyperlinkToString(value) {
@@ -107,5 +110,16 @@ export class ExcelUtilService {
       const sheetName = service.replace(`Service`, '');
       return { ...acc, [service]: sheetName };
     }, {});
+  }
+
+  async saveExcel(buffer: Buffer, fileName: string): Promise<string> {
+    const fullFileName = `${fileName}_${crypto.randomUUID()}.xlsx`;
+    const basePath = join(process.cwd(), 'downloads/excels');
+    if (!existsSync(basePath)) {
+      await fs.mkdir(basePath, { recursive: true });
+    }
+    const filePath = join(basePath, fullFileName);
+    await fs.writeFile(filePath, buffer);
+    return fullFileName;
   }
 }

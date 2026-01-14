@@ -8,7 +8,6 @@ import {
   Delete,
   UseInterceptors,
   Query,
-  Res,
   UploadedFiles,
   UploadedFile,
 } from '@nestjs/common';
@@ -21,7 +20,6 @@ import {
   GetProductImagesPaginationDto,
 } from './dto/get-product-images.dto';
 import type { File } from '../../common/utils/excel-util/dto/excel-util.interface';
-import type { Response } from 'express';
 import { ExcelResponseInterceptor } from '../../common/interceptors/excel-response/excel-response.interceptor';
 import { User } from '../../common/decorators/user.decorator';
 import type { UserInfo } from '../../common/decorators/user.decorator';
@@ -48,14 +46,10 @@ export class ProductImagesController {
   @UseInterceptors(ExcelResponseInterceptor)
   async exportProductImages(
     @Query() exportProductImagesDto: ExportProductImagesDto,
-    @Res() res: Response,
   ) {
-    const workbook = await this.productImagesService.exportProductImages(
+    return this.productImagesService.exportProductImages(
       exportProductImagesDto,
     );
-    await workbook.xlsx.write(res);
-    res.end();
-    return { message: 'Export productImages success' };
   }
 
   @Post('import')

@@ -9,7 +9,6 @@ import {
   UseInterceptors,
   UploadedFile,
   Patch,
-  Res,
 } from '@nestjs/common';
 import { CreateOrderItemDto } from './dto/create-order-item.dto';
 import { UpdateOrderItemDto } from './dto/update-order-item.dto';
@@ -21,7 +20,6 @@ import { ExcelResponseInterceptor } from '../../common/interceptors/excel-respon
 import { OrderItemsService } from './order-items.service';
 import { User } from '../../common/decorators/user.decorator';
 import type { UserInfo } from '../../common/decorators/user.decorator';
-import type { Response } from 'express';
 import type { File } from '../../common/utils/excel-util/dto/excel-util.interface';
 import { GetOptionsParams } from '../../common/query/options.interface';
 import { IDDto } from '../../common/dto/param.dto';
@@ -62,15 +60,8 @@ export class OrderItemsController {
 
   @Post('export')
   @UseInterceptors(ExcelResponseInterceptor)
-  async exportOrderItems(
-    @Query() exportOrderItemsDto: ExportOrderItemsDto,
-    @Res() res: Response,
-  ) {
-    const workbook =
-      await this.orderItemsService.exportOrderItems(exportOrderItemsDto);
-    await workbook.xlsx.write(res);
-    res.end();
-    return { message: 'Export success' };
+  async exportOrderItems(@Query() exportOrderItemsDto: ExportOrderItemsDto) {
+    return this.orderItemsService.exportOrderItems(exportOrderItemsDto);
   }
 
   @Post('import')

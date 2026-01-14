@@ -23,11 +23,19 @@ import { WithUser } from '../../common/decorators/user.decorator';
 import { AIService } from '../../common/services/ai/ai.service';
 import { UsersService } from '../users/users.service';
 import { ProductsService } from '../products/products.service';
-import { isArray, isEmpty, isNil, isNumber, isObject } from 'es-toolkit/compat';
+import {
+  capitalize,
+  isArray,
+  isEmpty,
+  isNil,
+  isNumber,
+  isObject,
+} from 'es-toolkit/compat';
 import { OrdersService } from '../orders/orders.service';
 import { LazyModuleLoader } from '@nestjs/core';
 import { AIModule } from '../../common/services/ai/ai.module';
 import { AI_MODEL_USER_EMAIL } from '../../common/services/ai/consts/ai.const';
+import { Intents } from './consts/intents.const';
 
 @Injectable()
 export class ChatMessagesService
@@ -164,14 +172,21 @@ export class ChatMessagesService
   private async searchBestPrice() {
     const data = await this.productsService.extended.search({
       where: {
-        price: { gt: 0 },
+        price: { gte: 0 },
       },
     });
     return data;
   }
 
   private async searchProduct(keywords: string[]) {
-    const isSearchAll = keywords.some((item) => ['mua'].includes(item));
+    const question = keywords.join(' ');
+    const isSearchAll = [
+      'bán chạy',
+      'nhiều',
+      'mua',
+      'danh sách',
+      'tất cả',
+    ].some((item) => question.includes(item));
     const conditions = {};
     if (!isSearchAll) {
       const search: any = keywords.map((k) => ({
@@ -189,9 +204,13 @@ export class ChatMessagesService
 
   private async searchOrder(keywords: string[]) {
     const question = keywords.join(' ');
-    const isSearchAll = ['bán chạy', 'nhiều', 'mua nhiều'].some((item) =>
-      question.includes(item),
-    );
+    const isSearchAll = [
+      'bán chạy',
+      'nhiều',
+      'mua nhiều',
+      'danh sách',
+      'tất cả',
+    ].some((item) => question.includes(item));
     const conditions = {};
     if (!isSearchAll) {
       const search: any = keywords.map((k) => ({
@@ -291,10 +310,15 @@ export class ChatMessagesService
 
   private detectIntent(keywords: string[]) {
     const intents = {
-      BEST_PRICE: ['giá tốt nhất', 'rẻ nhất', 'ưu đãi tốt', 'mức giá tốt'],
-      PRICE: ['giá', 'sale', 'khuyến', 'mãi'],
-      SHIPPING: ['ship', 'vận', 'chuyển'],
-      ORDER: [
+      [Intents.BEST_PRICE]: [
+        'giá tốt nhất',
+        'rẻ nhất',
+        'ưu đãi tốt',
+        'mức giá tốt',
+      ],
+      [Intents.PRICE]: ['giá', 'sale', 'khuyến', 'mãi'],
+      [Intents.SHIPPING]: ['ship', 'vận', 'chuyển'],
+      [Intents.ORDER]: [
         'đặt',
         'hàng',
         'đơn',
@@ -305,10 +329,11 @@ export class ChatMessagesService
         'nhiều',
         'mua nhiều',
       ],
-      PRODUCT: ['sản', 'phẩm', 'product'],
+      [Intents.PRODUCT]: ['sản', 'phẩm', 'product'],
     };
     const question = keywords.join(' ').toLowerCase();
-    for (const intent of Object.keys(intents)) {
+    const keys = Object.keys(intents) as Intents[];
+    for (const intent of keys) {
       const matchQuestion = intents[intent].some((k) => question.includes(k));
       if (matchQuestion) return intent;
 
@@ -317,18 +342,18 @@ export class ChatMessagesService
       }
     }
 
-    return 'PRODUCT';
+    return Intents.PRODUCT;
   }
 
-  private async searchByIntent(intent: string, keywords: string[]) {
+  private async searchByIntent(intent: Intents, keywords: string[]) {
     switch (intent) {
-      case 'BEST_PRICE':
+      case Intents.BEST_PRICE:
         return this.searchBestPrice();
-      case 'PRICE':
-      case 'PRODUCT':
+      case Intents.PRICE:
+      case Intents.PRODUCT:
         return this.searchProduct(keywords);
-      case 'ORDER':
-      case 'SHIPPING':
+      case Intents.ORDER:
+      case Intents.SHIPPING:
         return this.searchOrder(keywords);
 
       default:
@@ -360,14 +385,13 @@ export class ChatMessagesService
 
   async buildChatContext(question: string) {
     const keywords = this.extractKeywords(question);
-    if (keywords.length === 0) return '';
 
     const intent = this.detectIntent(keywords);
 
     const data = await this.searchByIntent(intent, keywords);
 
     const context = this.buildContext(intent, data);
-    return context;
+    return { context, intent };
   }
 
   async chat({ user, question, sessionID }: WithUser<ChatDto>) {
@@ -376,7 +400,9 @@ export class ChatMessagesService
     });
     if (isEmpty(userModel)) throw new Error('AI Model user not create yet!');
 
-    const context = await this.buildChatContext(question);
+    if (isEmpty(question)) throw new Error('Question is required!');
+
+    const { context, intent } = await this.buildChatContext(question);
 
     const historyMessages = await this.getLastMessages({
       userID: user.userID,
@@ -400,19 +426,49 @@ export class ChatMessagesService
         parts: [{ text: message.message }],
       });
 
-      acc.push({
-        role: message.child?.createdBy === userModelEmail ? 'model' : 'user',
-        parts: [{ text: message.child?.message }],
-      });
+      const messageChild = message.child?.message;
+      if (messageChild) {
+        acc.push({
+          role: message.child?.createdBy === userModelEmail ? 'model' : 'user',
+          parts: [{ text: messageChild }],
+        });
+      }
+
       return acc;
     }, []);
 
     const aiService = await this.getAIService();
-    const answer = await aiService.ask({
+    let answer = await aiService.ask({
       context,
       question,
       chatHistory,
     });
+
+    const isExportExcel = ['xuất', 'excel'].some((word) =>
+      question.toLowerCase().includes(word),
+    );
+    if (isExportExcel) {
+      const ids = JSON.parse(answer);
+      const mappingEntityName = {
+        [Intents.BEST_PRICE]: 'product',
+        [Intents.PRICE]: 'product',
+        [Intents.SHIPPING]: 'order',
+      };
+      const entityNameRoot = intent.toLowerCase();
+      const entityName = `${mappingEntityName[entityNameRoot] ?? entityNameRoot}s`;
+
+      const buffer: Buffer = await this[`${entityName}Service`][
+        `export${capitalize(entityName)}`
+      ]({
+        ids,
+        select: null,
+      });
+      const fileName = await this.excelUtilService.saveExcel(
+        buffer,
+        entityName,
+      );
+      answer = `Bạn có thể tải file excel tại đường link sau: ${process.env.APP_URL}/chat-messages/files/exports/${fileName}`;
+    }
 
     const messageModelCreate = {
       user: {

@@ -7,7 +7,6 @@ import {
   Query,
   Param,
   UseInterceptors,
-  Res,
   BadRequestException,
 } from '@nestjs/common';
 import { CreateCartDto } from './dto/create-cart.dto';
@@ -16,7 +15,6 @@ import { ExcelResponseInterceptor } from '../../common/interceptors/excel-respon
 import { CartsService } from './carts.service';
 import { User } from '../../common/decorators/user.decorator';
 import type { UserInfo } from '../../common/decorators/user.decorator';
-import type { Response } from 'express';
 import { IDDto } from '../../common/dto/param.dto';
 import { isEmpty } from 'es-toolkit/compat';
 
@@ -50,14 +48,8 @@ export class CartsController {
 
   @Post('export')
   @UseInterceptors(ExcelResponseInterceptor)
-  async exportCarts(
-    @Query() exportCartsDto: ExportCartsDto,
-    @Res() res: Response,
-  ) {
-    const workbook = await this.cartsService.exportCarts(exportCartsDto);
-    await workbook.xlsx.write(res);
-    res.end();
-    return { message: 'Export success' };
+  async exportCarts(@Query() exportCartsDto: ExportCartsDto) {
+    return this.cartsService.exportCarts(exportCartsDto);
   }
 
   // @Post('import')

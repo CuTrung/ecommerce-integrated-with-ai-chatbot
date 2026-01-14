@@ -9,7 +9,6 @@ import {
   UseInterceptors,
   UploadedFile,
   Patch,
-  Res,
 } from '@nestjs/common';
 import { CreateProductVariantDto } from './dto/create-product-variant.dto';
 import { UpdateProductVariantDto } from './dto/update-product-variant.dto';
@@ -21,7 +20,6 @@ import { ExcelResponseInterceptor } from '../../common/interceptors/excel-respon
 import { ProductVariantsService } from './product-variants.service';
 import { User } from '../../common/decorators/user.decorator';
 import type { UserInfo } from '../../common/decorators/user.decorator';
-import type { Response } from 'express';
 import type { File } from '../../common/utils/excel-util/dto/excel-util.interface';
 import { GetOptionsParams } from '../../common/query/options.interface';
 import { IDDto } from '../../common/dto/param.dto';
@@ -69,14 +67,10 @@ export class ProductVariantsController {
   @UseInterceptors(ExcelResponseInterceptor)
   async exportProductVariants(
     @Query() exportProductVariantsDto: ExportProductVariantsDto,
-    @Res() res: Response,
   ) {
-    const workbook = await this.productVariantsService.exportProductVariants(
+    return this.productVariantsService.exportProductVariants(
       exportProductVariantsDto,
     );
-    await workbook.xlsx.write(res);
-    res.end();
-    return { message: 'Export success' };
   }
 
   @Post('import')

@@ -9,7 +9,6 @@ import {
   UseInterceptors,
   UploadedFile,
   Patch,
-  Res,
 } from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
@@ -21,7 +20,6 @@ import { ExcelResponseInterceptor } from '../../common/interceptors/excel-respon
 import { CategoriesService } from './categories.service';
 import { User } from '../../common/decorators/user.decorator';
 import type { UserInfo } from '../../common/decorators/user.decorator';
-import type { Response } from 'express';
 import type { File } from '../../common/utils/excel-util/dto/excel-util.interface';
 import { GetOptionsParams } from '../../common/query/options.interface';
 import { IDDto } from '../../common/dto/param.dto';
@@ -59,15 +57,8 @@ export class CategoriesController {
 
   @Post('export')
   @UseInterceptors(ExcelResponseInterceptor)
-  async exportCategories(
-    @Query() exportCategoriesDto: ExportCategoriesDto,
-    @Res() res: Response,
-  ) {
-    const workbook =
-      await this.categoriesService.exportCategories(exportCategoriesDto);
-    await workbook.xlsx.write(res);
-    res.end();
-    return { message: 'Export success' };
+  async exportCategories(@Query() exportCategoriesDto: ExportCategoriesDto) {
+    return this.categoriesService.exportCategories(exportCategoriesDto);
   }
 
   @Post('import')

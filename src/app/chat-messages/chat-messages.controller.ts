@@ -1,9 +1,21 @@
-import { Controller, Post, Body, Query, Get } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Query,
+  Get,
+  NotFoundException,
+  Param,
+  Res,
+} from '@nestjs/common';
 import { ChatDto } from './dto/create-chat-message.dto';
 import { ChatMessagesService } from './chat-messages.service';
 import { User } from '../../common/decorators/user.decorator';
 import type { UserInfo } from '../../common/decorators/user.decorator';
 import { GetChatMessagesDto } from './dto/get-chat-message.dto';
+import { join } from 'node:path';
+import { existsSync, createReadStream } from 'node:fs';
+import type { Response } from 'express';
 
 @Controller('chat-messages')
 export class ChatMessagesController {
@@ -41,7 +53,7 @@ export class ChatMessagesController {
   //   @Query() exportChatMessagesDto: ExportChatMessagesDto,
   //   @Res() res: Response,
   // ) {
-  //   const workbook = await this.chatMessagesService.exportChatMessages(
+  //   return this.chatMessagesService.exportChatMessages(
   //     exportChatMessagesDto,
   //   );
   //   await workbook.xlsx.write(res);
@@ -64,4 +76,22 @@ export class ChatMessagesController {
   // deleteChatMessage(@Param() { id }: IDDto) {
   //   return this.chatMessagesService.deleteChatMessage({ id });
   // }
+
+  @Get('files/exports/:fileName')
+  download(@Param('fileName') fileName: string, @Res() res: Response) {
+    const filePath = join(process.cwd(), 'downloads/excels', fileName);
+
+    if (!existsSync(filePath)) {
+      throw new NotFoundException('File expired');
+    }
+
+    res.set({
+      'Content-Type':
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'Content-Disposition': `attachment; filename="${fileName}"`,
+    });
+
+    const stream = createReadStream(filePath);
+    stream.pipe(res);
+  }
 }

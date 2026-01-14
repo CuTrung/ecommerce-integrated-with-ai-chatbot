@@ -9,7 +9,6 @@ import {
   UseInterceptors,
   UploadedFile,
   Patch,
-  Res,
 } from '@nestjs/common';
 import { CreateVendorDto } from './dto/create-vendor.dto';
 import { UpdateVendorDto } from './dto/update-vendor.dto';
@@ -21,7 +20,6 @@ import { ExcelResponseInterceptor } from '../../common/interceptors/excel-respon
 import { VendorsService } from './vendors.service';
 import { User } from '../../common/decorators/user.decorator';
 import type { UserInfo } from '../../common/decorators/user.decorator';
-import type { Response } from 'express';
 import type { File } from '../../common/utils/excel-util/dto/excel-util.interface';
 import { GetOptionsParams } from '../../common/query/options.interface';
 import { IDDto } from '../../common/dto/param.dto';
@@ -60,14 +58,8 @@ export class VendorsController {
 
   @Post('export')
   @UseInterceptors(ExcelResponseInterceptor)
-  async exportVendors(
-    @Query() exportVendorsDto: ExportVendorsDto,
-    @Res() res: Response,
-  ) {
-    const workbook = await this.vendorsService.exportVendors(exportVendorsDto);
-    await workbook.xlsx.write(res);
-    res.end();
-    return { message: 'Export success' };
+  async exportVendors(@Query() exportVendorsDto: ExportVendorsDto) {
+    return this.vendorsService.exportVendors(exportVendorsDto);
   }
 
   @Post('import')

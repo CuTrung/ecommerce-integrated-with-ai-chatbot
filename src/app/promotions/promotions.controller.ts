@@ -9,7 +9,6 @@ import {
   UseInterceptors,
   UploadedFile,
   Patch,
-  Res,
 } from '@nestjs/common';
 import { CreatePromotionDto } from './dto/create-promotion.dto';
 import { UpdatePromotionDto } from './dto/update-promotion.dto';
@@ -21,7 +20,6 @@ import { ExcelResponseInterceptor } from '../../common/interceptors/excel-respon
 import { PromotionsService } from './promotions.service';
 import { User } from '../../common/decorators/user.decorator';
 import type { UserInfo } from '../../common/decorators/user.decorator';
-import type { Response } from 'express';
 import type { File } from '../../common/utils/excel-util/dto/excel-util.interface';
 import { GetOptionsParams } from '../../common/query/options.interface';
 import { IDDto } from '../../common/dto/param.dto';
@@ -62,15 +60,8 @@ export class PromotionsController {
 
   @Post('export')
   @UseInterceptors(ExcelResponseInterceptor)
-  async exportPromotions(
-    @Query() exportPromotionsDto: ExportPromotionsDto,
-    @Res() res: Response,
-  ) {
-    const workbook =
-      await this.promotionsService.exportPromotions(exportPromotionsDto);
-    await workbook.xlsx.write(res);
-    res.end();
-    return { message: 'Export success' };
+  async exportPromotions(@Query() exportPromotionsDto: ExportPromotionsDto) {
+    return this.promotionsService.exportPromotions(exportPromotionsDto);
   }
 
   @Post('import')

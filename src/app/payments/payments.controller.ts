@@ -1,18 +1,10 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Query,
-  UseInterceptors,
-  Res,
-} from '@nestjs/common';
+import { Controller, Get, Post, Query, UseInterceptors } from '@nestjs/common';
 import {
   ExportPaymentsDto,
   GetPaymentsPaginationDto,
 } from './dto/get-payment.dto';
 import { ExcelResponseInterceptor } from '../../common/interceptors/excel-response/excel-response.interceptor';
 import { PaymentsService } from './payments.service';
-import type { Response } from 'express';
 
 @Controller('payments')
 export class PaymentsController {
@@ -56,15 +48,8 @@ export class PaymentsController {
 
   @Post('export')
   @UseInterceptors(ExcelResponseInterceptor)
-  async exportPayments(
-    @Query() exportPaymentsDto: ExportPaymentsDto,
-    @Res() res: Response,
-  ) {
-    const workbook =
-      await this.paymentsService.exportPayments(exportPaymentsDto);
-    await workbook.xlsx.write(res);
-    res.end();
-    return { message: 'Export success' };
+  async exportPayments(@Query() exportPaymentsDto: ExportPaymentsDto) {
+    return this.paymentsService.exportPayments(exportPaymentsDto);
   }
 
   // @Post('import')
