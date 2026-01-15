@@ -34,8 +34,9 @@ import {
 import { OrdersService } from '../orders/orders.service';
 import { LazyModuleLoader } from '@nestjs/core';
 import { AIModule } from '../../common/services/ai/ai.module';
-import { AI_MODEL_USER_EMAIL } from '../../common/services/ai/consts/ai.const';
 import { Intents } from './consts/intents.const';
+import { AI_MODEL_USER_EMAIL } from '../../common/services/ai/consts/ai.const';
+import { ProductVariantsService } from '../product-variants/product-variants.service';
 
 @Injectable()
 export class ChatMessagesService
@@ -55,6 +56,7 @@ export class ChatMessagesService
     private productsService: ProductsService,
     private ordersService: OrdersService,
     private readonly lazyModuleLoader: LazyModuleLoader,
+    private productVariantsService: ProductVariantsService,
   ) {
     super(prismaService, 'chatMessage');
   }
@@ -170,7 +172,7 @@ export class ChatMessagesService
   }
 
   private async searchBestPrice() {
-    const data = await this.productsService.extended.search({
+    const data = await this.productVariantsService.extended.search({
       where: {
         price: { gte: 0 },
       },
@@ -178,72 +180,67 @@ export class ChatMessagesService
     return data;
   }
 
-  private async searchProduct(keywords: string[]) {
+  private async searchProductVariant(keywords: string[]) {
     const question = keywords.join(' ');
-    const isSearchAll = [
-      'bán chạy',
-      'nhiều',
-      'mua',
-      'danh sách',
-      'tất cả',
-    ].some((item) => question.includes(item));
-    const conditions = {};
-    if (!isSearchAll) {
-      const search: any = keywords.map((k) => ({
-        OR: [
-          { name: { contains: k, mode: 'insensitive' } },
-          { description: { contains: k, mode: 'insensitive' } },
-        ],
-      }));
-      conditions['where'] = { OR: search };
+    const search: any = keywords.map((k) => ({
+      OR: [{ name: { contains: k, mode: 'insensitive' } }],
+    }));
+
+    let data = await this.productVariantsService.extended.search({
+      where: { OR: search },
+    });
+
+    const isSearchAll =
+      ['bán chạy', 'nhiều', 'mua', 'danh sách', 'tất cả'].some((item) =>
+        question.includes(item),
+      ) || data.length === 0;
+    if (isSearchAll) {
+      data = await this.productVariantsService.extended.search({});
     }
 
-    const data = await this.productsService.extended.search(conditions);
     return data;
   }
 
   private async searchOrder(keywords: string[]) {
     const question = keywords.join(' ');
-    const isSearchAll = [
-      'bán chạy',
-      'nhiều',
-      'mua nhiều',
-      'danh sách',
-      'tất cả',
-    ].some((item) => question.includes(item));
-    const conditions = {};
-    if (!isSearchAll) {
-      const search: any = keywords.map((k) => ({
-        OR: [
-          { orderNumber: { contains: k, mode: 'insensitive' } },
-          // { status: { contains: k, mode: 'insensitive' } },
-          {
-            orderAddresses: {
-              some: { fullAddress: { contains: k, mode: 'insensitive' } },
-            },
+    const search: any = keywords.map((k) => ({
+      OR: [
+        { orderNumber: { contains: k, mode: 'insensitive' } },
+        // { status: { contains: k, mode: 'insensitive' } },
+        {
+          orderAddresses: {
+            some: { fullAddress: { contains: k, mode: 'insensitive' } },
           },
-        ],
-      }));
-      conditions['where'] = { OR: search };
-    } else {
-      conditions['select'] = {
-        orderItems: {
-          select: {
-            productVariant: {
-              select: {
-                product: {
-                  select: {
-                    name: true,
+        },
+      ],
+    }));
+    let data = await this.ordersService.extended.search({
+      where: { OR: search },
+    });
+
+    const isSearchAll =
+      ['bán chạy', 'nhiều', 'mua nhiều', 'danh sách', 'tất cả'].some((item) =>
+        question.includes(item),
+      ) || data.length === 0;
+    if (isSearchAll) {
+      data = await this.ordersService.extended.search({
+        select: {
+          orderItems: {
+            select: {
+              productVariant: {
+                select: {
+                  product: {
+                    select: {
+                      name: true,
+                    },
                   },
                 },
               },
             },
           },
         },
-      };
+      });
     }
-
-    const data = await this.ordersService.extended.search({ ...conditions });
 
     return data;
   }
@@ -318,6 +315,7 @@ export class ChatMessagesService
       ],
       [Intents.PRICE]: ['giá', 'sale', 'khuyến', 'mãi'],
       [Intents.SHIPPING]: ['ship', 'vận', 'chuyển'],
+      [Intents.PRODUCT_VARIANT]: ['sản', 'phẩm', 'product'],
       [Intents.ORDER]: [
         'đặt',
         'hàng',
@@ -329,7 +327,6 @@ export class ChatMessagesService
         'nhiều',
         'mua nhiều',
       ],
-      [Intents.PRODUCT]: ['sản', 'phẩm', 'product'],
     };
     const question = keywords.join(' ').toLowerCase();
     const keys = Object.keys(intents) as Intents[];
@@ -342,7 +339,7 @@ export class ChatMessagesService
       }
     }
 
-    return Intents.PRODUCT;
+    return Intents.PRODUCT_VARIANT;
   }
 
   private async searchByIntent(intent: Intents, keywords: string[]) {
@@ -350,8 +347,8 @@ export class ChatMessagesService
       case Intents.BEST_PRICE:
         return this.searchBestPrice();
       case Intents.PRICE:
-      case Intents.PRODUCT:
-        return this.searchProduct(keywords);
+      case Intents.PRODUCT_VARIANT:
+        return this.searchProductVariant(keywords);
       case Intents.ORDER:
       case Intents.SHIPPING:
         return this.searchOrder(keywords);
@@ -408,17 +405,6 @@ export class ChatMessagesService
       userID: user.userID,
       sessionID,
     });
-
-    const userMessageCreate = {
-      user,
-      message: question,
-      parentID: historyMessages[0]?.child?.id,
-      sessionID,
-      context,
-      userID: user.userID,
-    };
-    const userMessageQuestion = await this.createChatMessage(userMessageCreate);
-
     const userModelEmail = userModel.email;
     const chatHistory = historyMessages.reduceRight<any>((acc, message) => {
       acc.push({
@@ -436,6 +422,16 @@ export class ChatMessagesService
 
       return acc;
     }, []);
+
+    const userMessageCreate = {
+      user,
+      message: question,
+      parentID: historyMessages[0]?.child?.id,
+      sessionID,
+      context,
+      userID: user.userID,
+    };
+    const userMessageQuestion = await this.createChatMessage(userMessageCreate);
 
     const aiService = await this.getAIService();
     let answer = await aiService.ask({
@@ -468,6 +464,18 @@ export class ChatMessagesService
         entityName,
       );
       answer = `Bạn có thể tải file excel tại đường link sau: ${process.env.APP_URL}/chat-messages/files/exports/${fileName}`;
+    }
+
+    const isAutoCreateOrder = ['tạo đơn hàng', 'lên đơn hàng'].some((word) =>
+      question.toLowerCase().includes(word),
+    );
+    if (isAutoCreateOrder) {
+      const productVariantIDs = JSON.parse(answer);
+      const order = await this.ordersService.createOrderFromChatbot({
+        user,
+        productVariantIDs,
+      });
+      answer = `Đơn hàng của bạn đã được tạo thành công với mã đơn hàng: ${order.orderNumber}.`;
     }
 
     const messageModelCreate = {

@@ -21,6 +21,7 @@ import { OrderEvents } from './events/order.event';
 import { NotificationsService } from '../notifications/notifications.service';
 import { EventsGateway } from '../../events/events.gateway';
 import { NotificationsModule } from '../notifications/notifications.module';
+import { ProductVariantsService } from '../product-variants/product-variants.service';
 
 @Injectable()
 export class OrdersService
@@ -40,6 +41,7 @@ export class OrdersService
     private readonly lazyModuleLoader: LazyModuleLoader,
     private eventEmitter: EventEmitter2,
     private readonly eventsGateway: EventsGateway,
+    private readonly productVariantsService: ProductVariantsService,
   ) {
     super(prismaService, 'order');
   }
@@ -251,5 +253,32 @@ export class OrdersService
     });
 
     // this.eventsGateway.emitEvent(OrderEvents.CREATED, { message });
+  }
+
+  async createOrderFromChatbot({ user, productVariantIDs }) {
+    const productVariants = await this.productVariantsService.extended.findMany(
+      { where: { id: { in: productVariantIDs } } },
+    );
+    const subtotal = productVariants.reduce(
+      (sum, pv: any) => sum + pv.price,
+      0,
+    );
+    const orderItems = productVariants.map((productVariant) => ({
+      productVariantID: productVariant.id,
+      unitPrice: productVariant.price,
+      totalPrice: productVariant.price,
+    }));
+    const data = await this.extended.create({
+      data: {
+        user,
+        subtotal,
+        totalAmount: subtotal,
+        orderNumber: `ORD-${Date.now()}`,
+        orderItems: {
+          create: orderItems,
+        },
+      },
+    });
+    return data;
   }
 }
