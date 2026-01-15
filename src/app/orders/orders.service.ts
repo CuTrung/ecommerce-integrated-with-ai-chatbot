@@ -273,7 +273,7 @@ export class OrdersService
         user,
         subtotal,
         totalAmount: subtotal,
-        orderNumber: `ORD-${Date.now()}`,
+        orderNumber: `ORD${Date.now()}`,
         orderItems: {
           create: orderItems,
         },
