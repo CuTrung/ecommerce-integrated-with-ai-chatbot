@@ -252,28 +252,25 @@ export const createProdData = async () => {
 
   console.log('✅ Đã gán permissions cho roles');
 
-  // 6. Tạo UserVendorRole
+  // 6. Tạo UserRole
   await Promise.all([
-    prisma.userVendorRole.create({
+    prisma.userRole.create({
       data: {
         userID: users[0].id,
-        vendorID: vendors[0].id,
         roleID: roles[1].id,
         status: 'active',
       },
     }),
-    prisma.userVendorRole.create({
+    prisma.userRole.create({
       data: {
         userID: users[1].id,
-        vendorID: vendors[1].id,
         roleID: roles[1].id,
         status: 'active',
       },
     }),
-    prisma.userVendorRole.create({
+    prisma.userRole.create({
       data: {
         userID: users[2].id,
-        vendorID: vendors[2].id,
         roleID: roles[1].id,
         status: 'active',
       },
