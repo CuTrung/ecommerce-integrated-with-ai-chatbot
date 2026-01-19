@@ -19,8 +19,6 @@ import { ApiUtilModule } from '../common/utils/api-util/api-util.module';
 import { FormatResponseInterceptor } from '../common/interceptors/format-response/format-response.interceptor';
 import { ExcelUtilModule } from '../common/utils/excel-util/excel-util.module';
 import { ProductImagesModule } from './product-images/product-images.module';
-import { CacheInterceptor } from '@nestjs/cache-manager';
-import { CacheUtilModule } from '../common/utils/cache-util/cache-util.module';
 import { RateLimitModule } from '../common/security/rate-limit/rate-limit.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { AccessControlGuard } from '../common/guards/access-control/access-control.guard';
@@ -58,7 +56,7 @@ import { UserRolesModule } from './user-roles/user-roles.module';
       validate: validate,
     }),
     EventEmitterModule.forRoot(),
-    CacheUtilModule,
+    // CacheUtilModule,
     PrismaModule,
     LoggerModule,
     RateLimitModule,
@@ -136,10 +134,10 @@ import { UserRolesModule } from './user-roles/user-roles.module';
       provide: APP_INTERCEPTOR,
       useClass: FormatResponseInterceptor,
     },
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: CacheInterceptor,
-    },
+    // {
+    //   provide: APP_INTERCEPTOR,
+    //   useClass: CacheInterceptor,
+    // },
   ],
 })
 export class AppModule {}
