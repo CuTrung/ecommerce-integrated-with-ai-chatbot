@@ -21,6 +21,7 @@ import { UserRole } from '../../app/user-roles/entities/user-role.entity';
 import { ProductCategory } from '../../app/product-categories/entities/product-category.entity';
 import { Notification } from '../../app/notifications/entities/notification.entity';
 import { CartItem } from '../../app/cart-items/entities/cart-item.entity';
+import { OrderItem } from '../../app/order-items/entities/order-item.entity';
 @Injectable()
 export class PrismaService
   extends PrismaClient
@@ -143,6 +144,7 @@ export class PrismaService
     Cart.name,
     CartItem.name,
     Notification.name,
+    OrderItem.name,
   ];
 
   initExtended() {
