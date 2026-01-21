@@ -37,6 +37,8 @@ import { AIModule } from '../../common/services/ai/ai.module';
 import { Intents } from './consts/intents.const';
 import { AI_MODEL_USER_EMAIL } from '../../common/services/ai/consts/ai.const';
 import { ProductVariantsService } from '../product-variants/product-variants.service';
+import { ConfigService } from '@nestjs/config';
+import { EnvVars } from '../../common/envs/validate.env';
 
 @Injectable()
 export class ChatMessagesService
@@ -57,6 +59,7 @@ export class ChatMessagesService
     private ordersService: OrdersService,
     private readonly lazyModuleLoader: LazyModuleLoader,
     private productVariantsService: ProductVariantsService,
+    private configService: ConfigService,
   ) {
     super(prismaService, 'chatMessage');
   }
@@ -440,7 +443,7 @@ export class ChatMessagesService
       chatHistory,
     });
 
-    const isExportExcel = ['xuất', 'excel'].some((word) =>
+    const isExportExcel = ['xuất', 'excel', 'download', 'tải về'].some((word) =>
       question.toLowerCase().includes(word),
     );
     if (isExportExcel) {
@@ -463,7 +466,7 @@ export class ChatMessagesService
         buffer,
         entityName,
       );
-      answer = `Bạn có thể tải file excel tại đường link sau: ${process.env.APP_URL}/chat-messages/files/exports/${fileName}`;
+      answer = `Bạn có thể tải file excel tại đường link sau: ${this.configService.get(EnvVars.APP_URL)}/chat-messages/files/exports/${fileName}`;
     }
 
     const isAutoCreateOrder = ['tạo đơn hàng', 'lên đơn hàng'].some((word) =>

@@ -76,6 +76,14 @@ export class ProductVariantsService
       skip: paging.skip,
       take: paging.itemPerPage,
       where: searchQuery,
+      include: {
+        product: {
+          include: {
+            productImages: true,
+          },
+        },
+        productImages: true,
+      },
     });
 
     const data = paging.format(list);
