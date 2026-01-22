@@ -7,6 +7,7 @@ import { VnpayModule } from 'nestjs-vnpay';
 import { ignoreLogger } from 'vnpay';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { EnvVars } from '../../common/envs/validate.env';
+import { EventsGateway } from '../../events/events.gateway';
 
 @Module({
   imports: [
@@ -28,7 +29,7 @@ import { EnvVars } from '../../common/envs/validate.env';
     }),
   ],
   controllers: [PaymentsController],
-  providers: [PaymentsService, PaginationUtilService],
+  providers: [PaymentsService, PaginationUtilService, EventsGateway],
   exports: [PaymentsService],
 })
 export class PaymentsModule {}

@@ -22,6 +22,7 @@ import { ConfigService } from '@nestjs/config';
 import { EnvVars } from '../../common/envs/validate.env';
 import { DateUtilService } from '../../common/utils/date-util/date-util.service';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
+import { EventsGateway } from '../../events/events.gateway';
 
 @Injectable()
 export class PaymentsService
@@ -40,6 +41,7 @@ export class PaymentsService
     private readonly vnpayService: VnpayService,
     private configService: ConfigService,
     private dateUtilService: DateUtilService,
+    private readonly eventsGateway: EventsGateway,
   ) {
     super(prismaService, 'payment');
   }
@@ -200,9 +202,24 @@ export class PaymentsService
     return data;
   }
 
-  vnpayReturn(data) {
-    console.log('>>> data', data);
-    // Emit to FE
+  async vnpayReturn(data) {
+    const payment = await this.extended.findFirst({
+      where: {
+        order: {
+          orderNumber: data.vnp_TxnRef,
+        },
+      },
+    });
+    await this.extended.update({
+      data: {
+        status: PaymentStatus.completed,
+        amount: data.vnp_Amount,
+        transactionID: data.vnp_TransactionNo,
+      },
+      where: {
+        id: payment?.id,
+      },
+    });
     return data;
   }
 }

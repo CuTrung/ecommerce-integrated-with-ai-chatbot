@@ -88,7 +88,6 @@ export class OrdersService
     select,
     ...search
   }: GetOrdersPaginationDto) {
-    this.eventsGateway.emitEvent('notifications', { hi: 'trungcpt' });
     const totalItems = await this.extended.count();
     const paging = this.paginationUtilService.paging({
       page,

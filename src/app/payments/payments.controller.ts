@@ -1,10 +1,18 @@
-import { Controller, Get, Post, Query, UseInterceptors } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Query,
+  Redirect,
+  UseInterceptors,
+} from '@nestjs/common';
 import {
   ExportPaymentsDto,
   GetPaymentsPaginationDto,
 } from './dto/get-payment.dto';
 import { ExcelResponseInterceptor } from '../../common/interceptors/excel-response/excel-response.interceptor';
 import { PaymentsService } from './payments.service';
+import { SkipAuth } from '../auth/auth.decorator';
 
 @Controller('payments')
 export class PaymentsController {
@@ -36,7 +44,9 @@ export class PaymentsController {
     return this.paymentsService.getBankList();
   }
 
+  @SkipAuth()
   @Get('vnpay-return')
+  @Redirect(`${JSON.parse(process.env.FE_URL!)[0]}/lib/customer/payment.html`)
   vnpayReturn(@Query() data) {
     return this.paymentsService.vnpayReturn(data);
   }
