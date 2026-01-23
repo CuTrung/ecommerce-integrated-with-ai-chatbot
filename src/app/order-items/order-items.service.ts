@@ -79,7 +79,11 @@ export class OrderItemsService
       include: {
         productVariant: {
           include: {
-            product: true,
+            product: {
+              include: {
+                productImages: true,
+              },
+            },
           },
         },
       },
