@@ -24,6 +24,7 @@ import { AIService } from '../../common/services/ai/ai.service';
 import { UsersService } from '../users/users.service';
 import { ProductsService } from '../products/products.service';
 import {
+  camelCase,
   capitalize,
   isArray,
   isEmpty,
@@ -452,9 +453,12 @@ export class ChatMessagesService
         [Intents.BEST_PRICE]: 'product',
         [Intents.PRICE]: 'product',
         [Intents.SHIPPING]: 'order',
+        productvariant: 'product',
       };
       const entityNameRoot = intent.toLowerCase();
-      const entityName = `${mappingEntityName[entityNameRoot] ?? entityNameRoot}s`;
+      const entityName = camelCase(
+        `${mappingEntityName[entityNameRoot] ?? entityNameRoot}s`,
+      );
 
       const buffer: Buffer = await this[`${entityName}Service`][
         `export${capitalize(entityName)}`
