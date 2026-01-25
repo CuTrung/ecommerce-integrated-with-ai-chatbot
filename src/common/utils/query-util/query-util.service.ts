@@ -33,6 +33,24 @@ export class QueryUtilService {
     return data;
   }
 
+  private buildSearchAnd(search) {
+    const data = Object.keys(search).reduce<{
+      AND: Record<string, any>;
+    }>(
+      (acc, key) => {
+        acc.AND.push({
+          [key]: {
+            contains: search[key],
+            mode: 'insensitive',
+          },
+        });
+        return acc;
+      },
+      { AND: [] },
+    );
+    return data;
+  }
+
   buildSearchQuery<T>({
     search,
     operator = Operator.OR,
@@ -42,6 +60,9 @@ export class QueryUtilService {
     switch (operator) {
       case Operator.OR:
         data = this.buildSearchOr(search);
+        break;
+      case Operator.AND:
+        data = this.buildSearchAnd(search);
         break;
       default:
         data = this.buildSearchOr(search);

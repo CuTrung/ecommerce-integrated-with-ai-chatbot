@@ -20,6 +20,7 @@ import {
 import { PaginationUtilService } from '../../common/utils/pagination-util/pagination-util.service';
 import { QueryUtilService } from '../../common/utils/query-util/query-util.service';
 import { WithUser } from '../../common/decorators/user.decorator';
+import { Operator } from '../../common/utils/query-util/interfaces/query-util.interface';
 
 @Injectable()
 export class CartItemsService
@@ -70,6 +71,7 @@ export class CartItemsService
       this.queryUtilService.convertFieldsSelectOption<CartItem>(select);
     const searchQuery = this.queryUtilService.buildSearchQuery<CartItem>({
       search,
+      operator: Operator.AND,
     });
     const list = await this.extended.findMany({
       select: fieldsSelect,
