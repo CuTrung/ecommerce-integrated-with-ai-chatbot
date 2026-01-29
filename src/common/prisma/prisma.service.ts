@@ -203,24 +203,23 @@ export class PrismaService
           hardDelete: [CartItem.name],
         },
       };
-      for (const [deleteModel, actions] of Object.entries(deleteModels)) {
-        if (model === deleteModel) {
-          const softDelete = actions.softDelete;
-          if (softDelete) {
-            for (const refModel of softDelete) {
-              await this.extended[camelCase(refModel)].softDelete({
-                [modelID]: id,
-              });
-            }
-          }
-          const hardDelete = actions.hardDelete;
-          if (hardDelete) {
-            for (const refModel of hardDelete) {
-              await this.extended[camelCase(refModel)].deleteMany({
-                where: { [modelID]: id },
-              });
-            }
-          }
+      const actions = deleteModels[model];
+      if (!actions) return;
+
+      const softDelete = actions.softDelete;
+      if (softDelete) {
+        for (const refModel of softDelete) {
+          await this.extended[camelCase(refModel)].softDelete({
+            [modelID]: id,
+          });
+        }
+      }
+      const hardDelete = actions.hardDelete;
+      if (hardDelete) {
+        for (const refModel of hardDelete) {
+          await this.extended[camelCase(refModel)].deleteMany({
+            where: { [modelID]: id },
+          });
         }
       }
     };
