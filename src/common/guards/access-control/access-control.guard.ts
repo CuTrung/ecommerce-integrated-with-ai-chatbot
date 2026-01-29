@@ -56,7 +56,6 @@ export class AccessControlGuard implements CanActivate {
   }
 
   async canActivate(context: ExecutionContext) {
-    return true;
     const isSkipAuth = this.reflector.getAllAndOverride<boolean>(IS_SKIP_AUTH, [
       context.getHandler(),
       context.getClass(),

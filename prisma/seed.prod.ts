@@ -53,6 +53,14 @@ export const createProdData = async () => {
     }),
     await prisma.user.create({
       data: {
+        email: 'admin@gmail.com',
+        firstName: 'Admin',
+        fullAddress: '',
+        password: '$2b$10$tcW4LxZLisafLJ1AYXE6Qe3nAsr.RT/iPAoemf2fwvamQ9ReI06cq',
+      },
+    }),
+    await prisma.user.create({
+      data: {
         email: AI_MODEL_USER_EMAIL,
         firstName: 'User AI Model',
         fullAddress: '',
@@ -156,7 +164,7 @@ export const createProdData = async () => {
       data: {
         name: 'Xem sản phẩm',
         description: 'Quyền xem danh sách sản phẩm',
-        key: '/product_read',
+        key: '[/product]_[read]',
         isSystemPermission: true,
       },
     }),
@@ -164,7 +172,7 @@ export const createProdData = async () => {
       data: {
         name: 'Tạo sản phẩm',
         description: 'Quyền tạo sản phẩm mới',
-        key: '/product_create',
+        key: '[/product]_[create]',
         isSystemPermission: true,
       },
     }),
@@ -172,7 +180,7 @@ export const createProdData = async () => {
       data: {
         name: 'Quản lý sản phẩm',
         description: 'Quyền quản lý toàn bộ sản phẩm',
-        key: '/product_manage',
+        key: '[/product]_[manage]',
         isSystemPermission: true,
       },
     }),
@@ -180,7 +188,7 @@ export const createProdData = async () => {
       data: {
         name: 'Xem đơn hàng',
         description: 'Quyền xem danh sách đơn hàng',
-        key: '/order_read',
+        key: '[/order]_[read]',
         isSystemPermission: true,
       },
     }),
@@ -188,7 +196,7 @@ export const createProdData = async () => {
       data: {
         name: 'Quản lý đơn hàng',
         description: 'Quyền quản lý toàn bộ đơn hàng',
-        key: '/order_manage',
+        key: '[/order]_[manage]',
         isSystemPermission: true,
       },
     }),
@@ -254,6 +262,13 @@ export const createProdData = async () => {
 
   // 6. Tạo UserRole
   await Promise.all([
+    prisma.userRole.create({
+      data: {
+        userID: users[3].id,
+        roleID: roles[0].id,
+        status: 'active',
+      },
+    }),
     prisma.userRole.create({
       data: {
         userID: users[0].id,
@@ -619,7 +634,7 @@ export const createProdData = async () => {
   console.log('✅ Đã tạo product variants');
 
   // 11. Tạo Product Images
-  await Promise.all([
+  const productImages = await Promise.all([
     // MacBook images
     prisma.productImage.create({
       data: {
@@ -762,7 +777,7 @@ export const createProdData = async () => {
   console.log('✅ Đã tạo carts');
 
   // 14. Tạo Cart Items
-  await Promise.all([
+  const cartItems = await Promise.all([
     prisma.cartItem.create({
       data: {
         cartID: carts[0].id,
@@ -837,7 +852,7 @@ export const createProdData = async () => {
   console.log('✅ Đã tạo orders');
 
   // 16. Tạo Order Items
-  await Promise.all([
+  const orderItems = await Promise.all([
     // Order 1 - iPhone 256GB
     prisma.orderItem.create({
       data: {
@@ -923,7 +938,7 @@ export const createProdData = async () => {
   console.log('✅ Đã tạo order items');
 
   // 17. Tạo Order Addresses
-  await Promise.all([
+  const orderAddresses = await Promise.all([
     // Order 1 - Shipping Address
     prisma.orderAddress.create({
       data: {
@@ -1021,7 +1036,7 @@ export const createProdData = async () => {
   console.log('✅ Đã tạo order promotions');
 
   // 19. Tạo Payments
-  await Promise.all([
+  const payments = await Promise.all([
     // Payment cho Order 1 - Đã hoàn thành
     prisma.payment.create({
       data: {
@@ -1059,7 +1074,7 @@ export const createProdData = async () => {
   console.log('✅ Đã tạo payments');
 
   // 20. Tạo Notifications
-  await Promise.all([
+  const notifications = await Promise.all([
     prisma.notification.create({
       data: {
         userID: users[0].id,
@@ -1510,21 +1525,21 @@ export const createProdData = async () => {
 
   console.log('🎉 Seed hoàn tất!');
   console.log('📊 Tổng kết dữ liệu:');
-  console.log('- Users: 3');
-  console.log('- Vendors: 3');
-  console.log('- Roles: 4');
-  console.log('- Permissions: 5');
+  console.log(`- Users: ${users.length}`);
+  console.log(`- Vendors: ${vendors.length}`);
+  console.log(`- Roles: ${roles.length}`);
+  console.log(`- Permissions: ${permissions.length}`);
   console.log('- Categories: 8 (3 cha + 5 con)');
-  console.log('- Products: 7');
-  console.log('- Product Variants: 12');
-  console.log('- Product Images: 8');
-  console.log('- Orders: 3');
-  console.log('- Order Items: 5');
-  console.log('- Order Addresses: 5');
-  console.log('- Promotions: 3');
-  console.log('- Carts: 2');
-  console.log('- Cart Items: 3');
-  console.log('- Payments: 3');
-  console.log('- Notifications: 6');
-  console.log('- Chat Messages: 24');
+  console.log(`- Products: ${products.length}`);
+  console.log(`- Product Variants: ${variants.length}`);
+  console.log(`- Product Images: ${productImages.length}`);
+  console.log(`- Orders: ${orders.length}`);
+  console.log(`- Order Items: ${orderItems.length}`);
+  console.log(`- Order Addresses: ${orderAddresses.length}`);
+  console.log(`- Promotions: ${promotions.length}`);
+  console.log(`- Carts: ${carts.length}`);
+  console.log(`- Cart Items: ${cartItems.length}`);
+  console.log(`- Payments: ${payments.length}`);
+  console.log(`- Notifications: ${notifications.length}`);
+  console.log(`- Chat Messages: ${await prisma.chatMessage.count()}`);
 };
