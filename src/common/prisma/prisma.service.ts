@@ -11,7 +11,7 @@ import { Vendor } from '../../app/vendors/entities/vendor.entity';
 import { Category } from '../../app/categories/entities/category.entity';
 import { StringUtilService } from '../utils/string-util/string-util.service';
 import { DateUtilService } from '../utils/date-util/date-util.service';
-import { isEmpty } from 'es-toolkit/compat';
+import { camelCase, isEmpty } from 'es-toolkit/compat';
 import { Decimal } from '@prisma/client/runtime/library';
 import { ChatMessage } from '../../app/chat-messages/entities/chat-message.entity';
 import { Cart } from '../../app/carts/entities/cart.entity';
@@ -22,6 +22,15 @@ import { ProductCategory } from '../../app/product-categories/entities/product-c
 import { Notification } from '../../app/notifications/entities/notification.entity';
 import { CartItem } from '../../app/cart-items/entities/cart-item.entity';
 import { OrderItem } from '../../app/order-items/entities/order-item.entity';
+import { Permission } from '../../app/permissions/entities/permission.entity';
+import { User } from '../../app/users/entities/user.entity';
+import { Role } from '../../app/roles/entities/role.entity';
+import { ProductImage } from '../../app/product-images/entities/product-images.entity';
+import { ProductVariant } from '../../app/product-variants/entities/product-variant.entity';
+import { Payment } from '../../app/payments/entities/payment.entity';
+import { OrderAddress } from '../../app/order-addresses/entities/order-address.entity';
+import { OrderPromotion } from '../../app/order-promotions/entities/order-promotion.entity';
+import { Promotion } from '../../app/promotions/entities/promotion.entity';
 @Injectable()
 export class PrismaService
   extends PrismaClient
@@ -148,6 +157,74 @@ export class PrismaService
   ];
 
   initExtended() {
+    const deleteReferences = async (model: string, id: string) => {
+      const modelID = `${camelCase(model)}ID`;
+      const deleteModels = {
+        [User.name]: {
+          softDelete: [
+            Vendor.name,
+            UserRole.name,
+            Order.name,
+            Cart.name,
+            Notification.name,
+            ChatMessage.name,
+          ],
+        },
+        [Vendor.name]: {
+          softDelete: [Product.name],
+        },
+        [Role.name]: {
+          hardDelete: [UserRole.name, RolePermission.name],
+        },
+        [Permission.name]: {
+          hardDelete: [RolePermission.name],
+        },
+        [Category.name]: {
+          softDelete: [ProductCategory.name],
+        },
+        [Product.name]: {
+          softDelete: [
+            ProductCategory.name,
+            ProductImage.name,
+            ProductVariant.name,
+          ],
+        },
+        [ProductVariant.name]: {
+          softDelete: [ProductImage.name, OrderItem.name, CartItem.name],
+        },
+        [Order.name]: {
+          hardDelete: [OrderItem.name, OrderAddress.name, OrderPromotion.name],
+          softDelete: [Payment.name],
+        },
+        [Promotion.name]: {
+          hardDelete: [OrderPromotion.name],
+        },
+        [Cart.name]: {
+          hardDelete: [CartItem.name],
+        },
+      };
+      for (const [deleteModel, actions] of Object.entries(deleteModels)) {
+        if (model === deleteModel) {
+          const softDelete = actions.softDelete;
+          if (softDelete) {
+            for (const refModel of softDelete) {
+              await this.extended[camelCase(refModel)].softDelete({
+                [modelID]: id,
+              });
+            }
+          }
+          const hardDelete = actions.hardDelete;
+          if (hardDelete) {
+            for (const refModel of hardDelete) {
+              await this.extended[camelCase(refModel)].deleteMany({
+                where: { [modelID]: id },
+              });
+            }
+          }
+        }
+      }
+    };
+
     const extended = this.$extends({
       query: {
         $allModels: {
@@ -257,6 +334,7 @@ export class PrismaService
               data: { deletedAt: new Date() },
               where,
             });
+            await deleteReferences(context.name, where.id);
             return result;
           },
           async restore<T>(
