@@ -16,6 +16,7 @@ import { GetChatMessagesDto } from './dto/get-chat-message.dto';
 import { join } from 'node:path';
 import { existsSync, createReadStream } from 'node:fs';
 import type { Response } from 'express';
+import { SkipAuth } from '../auth/auth.decorator';
 
 @Controller('chat-messages')
 export class ChatMessagesController {
@@ -77,6 +78,7 @@ export class ChatMessagesController {
   //   return this.chatMessagesService.deleteChatMessage({ id });
   // }
 
+  @SkipAuth()
   @Get('files/exports/:fileName')
   download(@Param('fileName') fileName: string, @Res() res: Response) {
     const filePath = join(process.cwd(), 'downloads/excels', fileName);
