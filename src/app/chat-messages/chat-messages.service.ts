@@ -184,13 +184,13 @@ export class ChatMessagesService
     return data;
   }
 
-  private async searchProductVariant(keywords: string[]) {
+  private async searchProducts(keywords: string[]) {
     const question = keywords.join(' ');
     const search: any = keywords.map((k) => ({
       OR: [{ name: { contains: k, mode: 'insensitive' } }],
     }));
 
-    let data = await this.productVariantsService.extended.search({
+    let data = await this.productsService.extended.search({
       where: { OR: search },
     });
 
@@ -199,7 +199,7 @@ export class ChatMessagesService
         question.includes(item),
       ) || data.length === 0;
     if (isSearchAll) {
-      data = await this.productVariantsService.extended.search({});
+      data = await this.productsService.extended.search({});
     }
 
     return data;
@@ -319,7 +319,7 @@ export class ChatMessagesService
       ],
       [Intents.PRICE]: ['giá', 'sale', 'khuyến', 'mãi'],
       [Intents.SHIPPING]: ['ship', 'vận', 'chuyển'],
-      [Intents.PRODUCT_VARIANT]: ['sản', 'phẩm', 'product'],
+      [Intents.PRODUCT]: ['sản', 'phẩm', 'product'],
       [Intents.ORDER]: [
         'đặt',
         'hàng',
@@ -343,7 +343,7 @@ export class ChatMessagesService
       }
     }
 
-    return Intents.PRODUCT_VARIANT;
+    return Intents.PRODUCT;
   }
 
   private async searchByIntent(intent: Intents, keywords: string[]) {
@@ -351,8 +351,8 @@ export class ChatMessagesService
       case Intents.BEST_PRICE:
         return this.searchBestPrice();
       case Intents.PRICE:
-      case Intents.PRODUCT_VARIANT:
-        return this.searchProductVariant(keywords);
+      case Intents.PRODUCT:
+        return this.searchProducts(keywords);
       case Intents.ORDER:
       case Intents.SHIPPING:
         return this.searchOrder(keywords);

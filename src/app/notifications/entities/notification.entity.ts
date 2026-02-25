@@ -6,4 +6,5 @@ export class Notification implements NotificationPrisma {
   title: string;
   message: string;
   isRead: boolean;
+  createdAt: Date;
 }

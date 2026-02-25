@@ -3,5 +3,5 @@ export enum Intents {
   PRICE = 'price',
   SHIPPING = 'shipping',
   ORDER = 'order',
-  PRODUCT_VARIANT = 'productVariant',
+  PRODUCT = 'product',
 }

@@ -385,11 +385,12 @@ model CartItem {
 }
 
 model Notification {
-  id      String  @id @default(uuid())
-  userID  String?
-  title   String
-  message String
-  isRead  Boolean @default(false)
+  id        String   @id @default(uuid())
+  userID    String?
+  title     String
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
 
   User User? @relation(fields: [userID], references: [id])
 }
