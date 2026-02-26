@@ -12,6 +12,7 @@ export class ForgotPasswordDto extends createZodDto(forgotPasswordSchema) {}
 
 const resetPasswordSchema = z.object({
   password: UserSchema.shape.password,
+  email: UserSchema.shape.email,
 });
 
 export class ResetPasswordDto extends createZodDto(resetPasswordSchema) {}

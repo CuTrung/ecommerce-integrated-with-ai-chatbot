@@ -11,8 +11,6 @@ import {
 } from '../../common/decorators/cookie/cookie.const';
 import { TokenKeys } from './consts/jwt.const';
 import { ForgotPasswordDto, ResetPasswordDto } from './dto/password.dto';
-import { User } from '../../common/decorators/user.decorator';
-import type { UserInfo } from '../../common/decorators/user.decorator';
 import { ZodResponse } from 'nestjs-zod';
 @Controller('auth')
 export class AuthController {
@@ -77,16 +75,15 @@ export class AuthController {
     return data;
   }
 
+  @SkipAuth()
   @Post('forgot-password')
   async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
     return await this.authService.forgotPassword(forgotPasswordDto);
   }
 
+  @SkipAuth()
   @Post('reset-password')
-  async resetPassword(
-    @Body() resetPasswordDto: ResetPasswordDto,
-    @User() user: UserInfo,
-  ) {
-    return await this.authService.resetPassword({ ...resetPasswordDto, user });
+  async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+    return await this.authService.resetPassword(resetPasswordDto);
   }
 }
