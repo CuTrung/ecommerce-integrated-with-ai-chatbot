@@ -63,7 +63,7 @@ export class PrismaService
   }
 
   private setCreatedBy(value: any, model?: string): any {
-    const modelsBypass = [Cart.name, CartItem.name];
+    const modelsBypass = [Cart.name, CartItem.name, Notification.name];
     if (modelsBypass.includes(model!)) return value;
 
     const isArray = Array.isArray(value);

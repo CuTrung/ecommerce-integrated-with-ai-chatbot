@@ -31,6 +31,7 @@ export class EventsGateway {
   }
 
   emitEvent(event: string, payload) {
-    this.server.emit(event, payload);
+    // this.server.emit(event, payload);
+    this.server.emit('notifications', payload);
   }
 }

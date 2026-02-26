@@ -22,6 +22,7 @@ import { NotificationsService } from '../notifications/notifications.service';
 import { EventsGateway } from '../../events/events.gateway';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { ProductVariantsService } from '../product-variants/product-variants.service';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 @Injectable()
 export class OrdersService
@@ -116,18 +117,19 @@ export class OrdersService
     });
 
     const { orderNumber, totalAmount, id: orderID } = orderCreated;
+    const user = (<any>createOrderDto).user;
     const paymentsService = await this.getPaymentsService();
     const payment = await paymentsService.createPayment({
       orderNumber,
       totalAmount,
       orderID,
-      user: (<any>createOrderDto).user,
+      user,
     });
     const data = { ...orderCreated, paymentUrl: payment.paymentUrl };
-    // this.eventEmitter.emit(OrderEvents.CREATED, {
-    //   ...data,
-    //   user: createOrderDto.user,
-    // });
+    this.eventEmitter.emit(OrderEvents.CREATED, {
+      ...data,
+      user,
+    });
     return data;
   }
 
@@ -199,7 +201,7 @@ export class OrdersService
     return data;
   }
 
-  // @Cron(CronExpression.EVERY_MINUTE)
+  @Cron(CronExpression.EVERY_MINUTE)
   async cancelOrderBackground() {
     const timeExpired = new Date(Date.now() - 10 * 60 * 1000); // >= 10 minutes
 
@@ -224,16 +226,26 @@ export class OrdersService
     });
 
     const notificationsService = await this.getNotificationsService();
-    const notificationsCanceled = orders.map((order) => ({
-      userID: order.userID,
-      title: `Order canceled by system`,
-      message: `Your order ${order.orderNumber} has been canceled due to non-payment within the required time frame.`,
-    }));
+    const messages: string[] = [];
+    const notificationsCanceled = orders.map((order) => {
+      const message = `Your order ${order.orderNumber} has been canceled due to non-payment within the required time frame.`;
+      messages.push(message);
+      return {
+        userID: order.userID,
+        title: `Order canceled by system`,
+        message,
+      };
+    });
     await notificationsService.extended.createMany({
       data: notificationsCanceled,
     });
 
-    // this.eventsGateway.emitEvent(OrderEvents.CANCELED, { message });
+    for (const message of messages) {
+      this.eventsGateway.emitEvent(OrderEvents.CANCELED, {
+        message,
+        type: 'warning',
+      });
+    }
     Logger.log({
       context: OrdersService.name,
       message: `Canceled ${totalOrders} orders: ${JSON.stringify(ids)}`,
@@ -249,7 +261,6 @@ export class OrdersService
       user,
       title: `Order ${orderNumber} Created`,
       message,
-      userID: user.userID,
     });
 
     // this.eventsGateway.emitEvent(OrderEvents.CREATED, { message });
