@@ -115,6 +115,8 @@ export class AuthService {
         template: MailTemplate.RESET_PASSWORD,
         context: {
           redirectTo,
+          logoUrl:
+            'https://res.cloudinary.com/duyzauzqs/image/upload/v1772465132/mega_mall_logo_pthpsv.png',
         },
       });
     } else {
