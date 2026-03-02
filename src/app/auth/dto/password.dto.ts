@@ -3,8 +3,8 @@ import { z } from 'zod';
 import { createZodDto } from 'nestjs-zod';
 
 const forgotPasswordSchema = z.object({
-  email: UserSchema.shape.email,
-  phone: UserSchema.shape.phone,
+  email: UserSchema.shape.email.optional(),
+  phone: UserSchema.shape.phone.optional(),
   redirectTo: z.string().url().optional(),
 });
 

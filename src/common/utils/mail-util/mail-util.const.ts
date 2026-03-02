@@ -1,8 +1,7 @@
 export enum MailTemplate {
   RESET_PASSWORD = 'reset-password',
   TEMPLATES_PATH = '/templates/mails',
-  MAIL_DEFAULT = '<trungcpt.work@gmail.com>',
-  MAIL_NAME_DEFAULT = 'Trungcpt.work',
+  MAIL_DEFAULT = 'trungcpt.work@gmail.com',
 }
 
 export enum MailEnvs {

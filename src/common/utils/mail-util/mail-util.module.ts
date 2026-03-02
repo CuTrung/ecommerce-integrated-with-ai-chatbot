@@ -10,28 +10,34 @@ import { MailEnvs, MailTemplate } from './mail-util.const';
     MailerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        transport: {
-          host: configService.get(MailEnvs.MAIL_HOST),
-          port: configService.get(MailEnvs.MAIL_PORT),
-          ignoreTLS: false,
-          secure: false,
-          auth: {
-            user: configService.get(MailEnvs.MAIL_INCOMING_USER),
-            pass: configService.get(MailEnvs.MAIL_INCOMING_PASS),
+      useFactory: (configService: ConfigService) => {
+        const userEmail =
+          configService.get(MailEnvs.MAIL_INCOMING_USER) ??
+          MailTemplate.MAIL_DEFAULT;
+        const userName = userEmail.split('@')[0];
+        return {
+          transport: {
+            host: configService.get(MailEnvs.MAIL_HOST),
+            port: configService.get(MailEnvs.MAIL_PORT),
+            ignoreTLS: false,
+            secure: false,
+            auth: {
+              user: userEmail,
+              pass: configService.get(MailEnvs.MAIL_INCOMING_PASS),
+            },
           },
-        },
-        defaults: {
-          from: `"${MailTemplate.MAIL_NAME_DEFAULT}" <${MailTemplate.MAIL_DEFAULT}>`,
-        },
-        template: {
-          dir: __dirname + MailTemplate.TEMPLATES_PATH,
-          adapter: new PugAdapter(),
-          options: {
-            strict: true,
+          defaults: {
+            from: `"${userName}" <${userEmail}>`,
           },
-        },
-      }),
+          template: {
+            dir: __dirname + MailTemplate.TEMPLATES_PATH,
+            adapter: new PugAdapter(),
+            options: {
+              strict: true,
+            },
+          },
+        };
+      },
     }),
   ],
   providers: [MailUtilService],
