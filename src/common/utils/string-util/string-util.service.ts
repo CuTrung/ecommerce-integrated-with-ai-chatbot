@@ -33,4 +33,8 @@ export class StringUtilService {
         .replace(/[đĐ]/g, 'd'), // chuyển đ -> d
     );
   }
+
+  toPascalCase(str: string) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
 }

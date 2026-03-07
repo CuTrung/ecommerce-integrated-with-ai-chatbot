@@ -24,6 +24,7 @@ import type { File } from '../../common/utils/excel-util/dto/excel-util.interfac
 import { GetOptionsParams } from '../../common/query/options.interface';
 import { IDDto } from '../../common/dto/param.dto';
 import { ImportExcel } from '../../common/utils/excel-util/excel-util.decorator';
+import { SkipAuth } from '../auth/auth.decorator';
 
 @Controller('categories')
 export class CategoriesController {
@@ -45,6 +46,7 @@ export class CategoriesController {
     });
   }
 
+  @SkipAuth()
   @Get()
   getCategories(@Query() query: GetCategoriesPaginationDto) {
     return this.categoriesService.getCategories(query);

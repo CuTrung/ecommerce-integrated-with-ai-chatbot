@@ -1,9 +1,36 @@
 import { PrismaClient } from '@prisma/client';
 import { AI_MODEL_USER_EMAIL } from '../src/common/services/ai/consts/ai.const';
 import { SYSTEM_USER_GMAIL } from '../src/app/users/consts/user.const';
+import { kebabCase } from 'es-toolkit/compat';
+import { Actions } from '../src/common/guards/access-control/access-control.const';
 
 const prisma = new PrismaClient();
 
+const initAllPermissions = async () => {
+  const runtimeDataModel = (prisma as any)._runtimeDataModel;
+  const models = runtimeDataModel.models;
+
+  const routersMapping = {
+    category: 'categories',
+    'order-address': 'order-addresses',
+  };
+  const actions = Object.values(Actions);
+  const allPermissions = Object.keys(models).reduce<any>((acc, model) => {
+    const kebabValue = kebabCase(model);
+    const router = routersMapping[kebabValue] ?? `${kebabValue}s`;
+    for (const action of actions) {
+      acc.push({
+        name: `${model} permission`,
+        key: `[/${router}]_[${action}]`,
+      });
+    }
+    return acc;
+  }, []);
+
+  await prisma.permission.createMany({
+    data: allPermissions,
+  });
+};
 export const createProdData = async () => {
   console.log('🌱 Bắt đầu seed dữ liệu...');
 
@@ -56,7 +83,8 @@ export const createProdData = async () => {
         email: 'admin@gmail.com',
         firstName: 'Admin',
         fullAddress: '',
-        password: '$2b$10$tcW4LxZLisafLJ1AYXE6Qe3nAsr.RT/iPAoemf2fwvamQ9ReI06cq',
+        password:
+          '$2b$10$tcW4LxZLisafLJ1AYXE6Qe3nAsr.RT/iPAoemf2fwvamQ9ReI06cq',
       },
     }),
     await prisma.user.create({
@@ -164,7 +192,7 @@ export const createProdData = async () => {
       data: {
         name: 'Xem sản phẩm',
         description: 'Quyền xem danh sách sản phẩm',
-        key: '[/product]_[read]',
+        key: '[/products]_[read]',
         isSystemPermission: true,
       },
     }),
@@ -172,7 +200,7 @@ export const createProdData = async () => {
       data: {
         name: 'Tạo sản phẩm',
         description: 'Quyền tạo sản phẩm mới',
-        key: '[/product]_[create]',
+        key: '[/products]_[create]',
         isSystemPermission: true,
       },
     }),
@@ -180,7 +208,7 @@ export const createProdData = async () => {
       data: {
         name: 'Quản lý sản phẩm',
         description: 'Quyền quản lý toàn bộ sản phẩm',
-        key: '[/product]_[manage]',
+        key: '[/products]_[manage]',
         isSystemPermission: true,
       },
     }),
@@ -188,7 +216,7 @@ export const createProdData = async () => {
       data: {
         name: 'Xem đơn hàng',
         description: 'Quyền xem danh sách đơn hàng',
-        key: '[/order]_[read]',
+        key: '[/orders]_[read]',
         isSystemPermission: true,
       },
     }),
@@ -196,11 +224,12 @@ export const createProdData = async () => {
       data: {
         name: 'Quản lý đơn hàng',
         description: 'Quyền quản lý toàn bộ đơn hàng',
-        key: '[/order]_[manage]',
+        key: '[/orders]_[manage]',
         isSystemPermission: true,
       },
     }),
   ]);
+  await initAllPermissions();
 
   console.log('✅ Đã tạo permissions');
 

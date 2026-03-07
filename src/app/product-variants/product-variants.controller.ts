@@ -24,6 +24,7 @@ import type { File } from '../../common/utils/excel-util/dto/excel-util.interfac
 import { GetOptionsParams } from '../../common/query/options.interface';
 import { IDDto } from '../../common/dto/param.dto';
 import { ImportExcel } from '../../common/utils/excel-util/excel-util.decorator';
+import { SkipAuth } from '../auth/auth.decorator';
 
 @Controller('product-variants')
 export class ProductVariantsController {
@@ -53,6 +54,7 @@ export class ProductVariantsController {
     });
   }
 
+  @SkipAuth()
   @Get()
   getProductVariants(@Query() query: GetProductVariantsPaginationDto) {
     return this.productVariantsService.getProductVariants(query);

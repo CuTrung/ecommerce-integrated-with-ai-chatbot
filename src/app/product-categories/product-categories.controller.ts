@@ -11,6 +11,7 @@ import { ProductCategoriesService } from './product-categories.service';
 import { ExportProductCategoriesDto } from './dto/get-product-category.dto';
 import { ExcelResponseInterceptor } from '../../common/interceptors/excel-response/excel-response.interceptor';
 import { ImportExcel } from '../../common/utils/excel-util/excel-util.decorator';
+import { SkipAuth } from '../auth/auth.decorator';
 
 @Controller('product-categories')
 export class ProductCategoriesController {
@@ -18,6 +19,7 @@ export class ProductCategoriesController {
     private readonly productCategoriesService: ProductCategoriesService,
   ) {}
 
+  @SkipAuth()
   @Get()
   getProductCategories() {
     return this.productCategoriesService.getProductCategories();

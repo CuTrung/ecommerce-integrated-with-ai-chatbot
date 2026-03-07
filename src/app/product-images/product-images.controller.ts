@@ -26,6 +26,7 @@ import type { UserInfo } from '../../common/decorators/user.decorator';
 import { IDDto } from '../../common/dto/param.dto';
 import { ImportExcel } from '../../common/utils/excel-util/excel-util.decorator';
 import { ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { SkipAuth } from '../auth/auth.decorator';
 
 @Controller('product-images')
 export class ProductImagesController {
@@ -85,6 +86,7 @@ export class ProductImagesController {
     });
   }
 
+  @SkipAuth()
   @Get()
   getProductImages(@Query() query: GetProductImagesPaginationDto) {
     return this.productImagesService.getProductImages(query);

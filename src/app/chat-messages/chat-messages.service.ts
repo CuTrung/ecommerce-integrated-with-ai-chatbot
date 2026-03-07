@@ -25,7 +25,6 @@ import { UsersService } from '../users/users.service';
 import { ProductsService } from '../products/products.service';
 import {
   camelCase,
-  capitalize,
   isArray,
   isEmpty,
   isNil,
@@ -40,6 +39,7 @@ import { AI_MODEL_USER_EMAIL } from '../../common/services/ai/consts/ai.const';
 import { ProductVariantsService } from '../product-variants/product-variants.service';
 import { ConfigService } from '@nestjs/config';
 import { EnvVars } from '../../common/envs/validate.env';
+import { StringUtilService } from '../../common/utils/string-util/string-util.service';
 
 @Injectable()
 export class ChatMessagesService
@@ -61,6 +61,7 @@ export class ChatMessagesService
     private readonly lazyModuleLoader: LazyModuleLoader,
     private productVariantsService: ProductVariantsService,
     private configService: ConfigService,
+    private stringUtilService: StringUtilService,
   ) {
     super(prismaService, 'chatMessage');
   }
@@ -184,13 +185,13 @@ export class ChatMessagesService
     return data;
   }
 
-  private async searchProducts(keywords: string[]) {
+  private async searchProductVariants(keywords: string[]) {
     const question = keywords.join(' ');
     const search: any = keywords.map((k) => ({
       OR: [{ name: { contains: k, mode: 'insensitive' } }],
     }));
 
-    let data = await this.productsService.extended.search({
+    let data = await this.productVariantsService.extended.search({
       where: { OR: search },
     });
 
@@ -199,7 +200,7 @@ export class ChatMessagesService
         question.includes(item),
       ) || data.length === 0;
     if (isSearchAll) {
-      data = await this.productsService.extended.search({});
+      data = await this.productVariantsService.extended.search({});
     }
 
     return data;
@@ -233,6 +234,7 @@ export class ChatMessagesService
             select: {
               productVariant: {
                 select: {
+                  id: true,
                   product: {
                     select: {
                       name: true,
@@ -319,7 +321,7 @@ export class ChatMessagesService
       ],
       [Intents.PRICE]: ['giá', 'sale', 'khuyến', 'mãi'],
       [Intents.SHIPPING]: ['ship', 'vận', 'chuyển'],
-      [Intents.PRODUCT]: ['sản', 'phẩm', 'product'],
+      [Intents.PRODUCT_VARIANT]: ['sản', 'phẩm', 'product'],
       [Intents.ORDER]: [
         'đặt',
         'hàng',
@@ -343,7 +345,7 @@ export class ChatMessagesService
       }
     }
 
-    return Intents.PRODUCT;
+    return Intents.PRODUCT_VARIANT;
   }
 
   private async searchByIntent(intent: Intents, keywords: string[]) {
@@ -351,8 +353,8 @@ export class ChatMessagesService
       case Intents.BEST_PRICE:
         return this.searchBestPrice();
       case Intents.PRICE:
-      case Intents.PRODUCT:
-        return this.searchProducts(keywords);
+      case Intents.PRODUCT_VARIANT:
+        return this.searchProductVariants(keywords);
       case Intents.ORDER:
       case Intents.SHIPPING:
         return this.searchOrder(keywords);
@@ -443,6 +445,7 @@ export class ChatMessagesService
       question,
       chatHistory,
     });
+    answer = answer.replace(/```json|```/g, '').trim();
 
     const isExportExcel = ['xuất', 'excel', 'download', 'tải về'].some((word) =>
       question.toLowerCase().includes(word),
@@ -453,15 +456,13 @@ export class ChatMessagesService
         [Intents.BEST_PRICE]: 'product',
         [Intents.PRICE]: 'product',
         [Intents.SHIPPING]: 'order',
-        productvariant: 'product',
       };
       const entityNameRoot = intent.toLowerCase();
       const entityName = camelCase(
         `${mappingEntityName[entityNameRoot] ?? entityNameRoot}s`,
       );
-
       const buffer: Buffer = await this[`${entityName}Service`][
-        `export${capitalize(entityName)}`
+        `export${this.stringUtilService.toPascalCase(entityName)}`
       ]({
         ids,
         select: null,

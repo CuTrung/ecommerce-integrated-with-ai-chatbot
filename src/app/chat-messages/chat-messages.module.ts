@@ -6,6 +6,7 @@ import { UsersModule } from '../users/users.module';
 import { ProductsModule } from '../products/products.module';
 import { OrdersModule } from '../orders/orders.module';
 import { ProductVariantsModule } from '../product-variants/product-variants.module';
+import { StringUtilModule } from '../../common/utils/string-util/string-util.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { ProductVariantsModule } from '../product-variants/product-variants.modu
     ProductsModule,
     OrdersModule,
     ProductVariantsModule,
+    StringUtilModule,
   ],
   controllers: [ChatMessagesController],
   providers: [ChatMessagesService],
