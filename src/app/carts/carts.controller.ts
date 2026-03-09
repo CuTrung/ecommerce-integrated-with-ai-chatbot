@@ -17,11 +17,13 @@ import { User } from '../../common/decorators/user.decorator';
 import type { UserInfo } from '../../common/decorators/user.decorator';
 import { IDDto } from '../../common/dto/param.dto';
 import { isEmpty } from 'es-toolkit/compat';
+import { SkipAuth } from '../auth/auth.decorator';
 
 @Controller('carts')
 export class CartsController {
   constructor(private readonly cartsService: CartsService) {}
 
+  @SkipAuth()
   @Post()
   createCart(@Body() createDto: CreateCartDto, @User() user: UserInfo) {
     createDto['user'] = user;
@@ -36,6 +38,7 @@ export class CartsController {
   //   });
   // }
 
+  @SkipAuth()
   @Get()
   getCarts(@Query() query: GetCartsPaginationDto) {
     return this.cartsService.getCarts(query);

@@ -20,11 +20,13 @@ import { CartItemsService } from './cart-items.service';
 import { User } from '../../common/decorators/user.decorator';
 import type { UserInfo } from '../../common/decorators/user.decorator';
 import { IDDto } from '../../common/dto/param.dto';
+import { SkipAuth } from '../auth/auth.decorator';
 
 @Controller('cart-items')
 export class CartItemsController {
   constructor(private readonly cartItemsService: CartItemsService) {}
 
+  @SkipAuth()
   @Post()
   createCartItem(@Body() createDto: CreateCartItemDto, @User() user: UserInfo) {
     return this.cartItemsService.createCartItem({ ...createDto, user });
@@ -41,6 +43,7 @@ export class CartItemsController {
     });
   }
 
+  @SkipAuth()
   @Get()
   getCartItems(@Query() query: GetCartItemsPaginationDto) {
     return this.cartItemsService.getCartItems(query);
