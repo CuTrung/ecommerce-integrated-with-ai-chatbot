@@ -187,8 +187,8 @@ export class PrismaService
           softDelete: [ProductImage.name, ProductVariant.name],
         },
         [ProductVariant.name]: {
-          hardDelete: [OrderItem.name],
-          softDelete: [ProductImage.name, CartItem.name],
+          hardDelete: [OrderItem.name, CartItem.name],
+          softDelete: [ProductImage.name],
         },
         [Order.name]: {
           hardDelete: [OrderItem.name, OrderAddress.name, OrderPromotion.name],
