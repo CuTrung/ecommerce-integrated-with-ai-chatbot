@@ -23,7 +23,6 @@ import { SkipAuth } from '../auth/auth.decorator';
 export class CartsController {
   constructor(private readonly cartsService: CartsService) {}
 
-  @SkipAuth()
   @Post()
   createCart(@Body() createDto: CreateCartDto, @User() user: UserInfo) {
     createDto['user'] = user;
