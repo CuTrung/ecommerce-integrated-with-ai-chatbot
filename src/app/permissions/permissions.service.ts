@@ -86,7 +86,7 @@ export class PermissionsService
   private isKeyValid(key: string) {
     const actions = Object.values(Actions).join('|');
     const regex = new RegExp(
-      `^\\[\\/[a-zA-Z0-9\\/\\-]+\\]_\\[(${actions})\\]$`,
+      `^\\[\\/[a-zA-Z0-9:\\/\\-]+\\]_\\[(${actions})\\]$`,
     );
     return regex.test(key);
   }
