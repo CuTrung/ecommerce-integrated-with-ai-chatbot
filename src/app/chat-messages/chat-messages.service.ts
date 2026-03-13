@@ -503,20 +503,23 @@ export class ChatMessagesService
     ].some((word) => question.toLowerCase().includes(word));
     if (isAutoCreateCart) {
       const productVariantIDs = JSON.parse(answer);
-      const isAutoCreateOrder = question.toLowerCase().includes('thanh toán');
-      if (isAutoCreateOrder) {
-        const order = await this.ordersService.createOrderFromChatbot({
-          user,
-          productVariantIDs,
-        });
-        answer = `Đơn hàng của bạn đã được tạo thành công với mã đơn hàng: ${order.orderNumber}.`;
-      } else {
-        await this.cartsService.createCartFromChatbot({
-          user,
-          productVariantIDs,
-        });
-        answer = `Sản phẩm đã được thêm vào giỏ hàng của bạn.`;
-      }
+      await this.cartsService.createCartFromChatbot({
+        user,
+        productVariantIDs,
+      });
+      answer = `Sản phẩm đã được thêm vào giỏ hàng của bạn.`;
+    }
+
+    const isAutoCreateOrder = ['thanh toán'].some((word) =>
+      question.toLowerCase().includes(word),
+    );
+    if (isAutoCreateOrder) {
+      const productVariantIDs = JSON.parse(answer);
+      const order = await this.ordersService.createOrderFromChatbot({
+        user,
+        productVariantIDs,
+      });
+      answer = `Đơn hàng của bạn đã được tạo thành công với mã đơn hàng: ${order.orderNumber}.`;
     }
 
     const messageModelCreate = {
