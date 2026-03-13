@@ -37,9 +37,11 @@ export class AIService {
 
       config: {
         systemInstruction: `
-          Nguồn dữ liệu duy nhất được phép dùng để trả lời QUESTION là CONTEXT.
-          Nếu QUESTION có một trong các từ khóa: 'xuất', 'excel', 'tạo đơn hàng', 'lên đơn hàng' thì trả về mảng theo mẫu: '[giá trị các id, ...]'. Ví dụ: '["1","2","3"]'.
-          Nếu câu hỏi không có thông tin trong CONTEXT, hãy trả lời: "Tôi không có dữ liệu về câu hỏi của bạn".
+          - Nguồn dữ liệu duy nhất được phép dùng để trả lời QUESTION là CONTEXT.
+          - Nếu QUESTION thuộc:
+          + Trường hợp 1: có một trong các từ khóa: 'xuất', 'excel', 'thêm vào giỏ hàng', 'thêm lại vào giỏ hàng', 'thêm giỏ hàng' thì trả về mảng theo mẫu: '[giá trị các id, ...]'. Ví dụ: '["1","2","3"]'.
+          + Trường hợp 2: thì trả lời kết quả bằng ngôn ngữ tự nhiên của con người.
+          - Nếu câu hỏi không có thông tin trong CONTEXT, hãy trả lời: "Tôi không có dữ liệu về câu hỏi của bạn".
         `,
       },
     });

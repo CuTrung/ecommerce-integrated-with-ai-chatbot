@@ -13,6 +13,7 @@ import {
 } from '../../common/query/options.interface';
 import { PaginationUtilService } from '../../common/utils/pagination-util/pagination-util.service';
 import { QueryUtilService } from '../../common/utils/query-util/query-util.service';
+import { UserInfo } from '../../common/decorators/user.decorator';
 
 @Injectable()
 export class CartsService extends PrismaBaseService<'cart'> implements Options {
@@ -170,5 +171,47 @@ export class CartsService extends PrismaBaseService<'cart'> implements Options {
   async deleteCart(where: Prisma.CartWhereUniqueInput) {
     const data = await this.extended.delete({ where });
     return data;
+  }
+
+  async createCartFromChatbot(payload: {
+    user: UserInfo;
+    productVariantIDs: string[];
+  }) {
+    const cartItems = payload.productVariantIDs.map((productVariantID) => ({
+      productVariantID,
+      quantity: 1,
+    }));
+    const userID = payload.user.userID;
+    const cartExist = await this.extended.findFirst({
+      where: {
+        userID,
+      },
+    });
+    if (cartExist) {
+      const cartUpdated = await this.updateCart({
+        data: {
+          cartItems: {
+            createMany: {
+              data: cartItems,
+            },
+          },
+        },
+        where: {
+          userID,
+        },
+      });
+      return cartUpdated;
+    }
+
+    const cartCreateData = {
+      user: payload.user,
+      cartItems: {
+        createMany: {
+          data: cartItems,
+        },
+      },
+    };
+    const cart = await this.createCart(cartCreateData);
+    return cart;
   }
 }

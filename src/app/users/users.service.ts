@@ -66,7 +66,7 @@ export class UsersService extends PrismaBaseService<'user'> implements Options {
     const data = await this.extended.findUnique({
       where,
     });
-    return data;
+    return data!;
   }
 
   async getUsers({

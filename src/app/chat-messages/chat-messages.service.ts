@@ -40,6 +40,7 @@ import { ProductVariantsService } from '../product-variants/product-variants.ser
 import { ConfigService } from '@nestjs/config';
 import { EnvVars } from '../../common/envs/validate.env';
 import { StringUtilService } from '../../common/utils/string-util/string-util.service';
+import { CartsService } from '../carts/carts.service';
 
 @Injectable()
 export class ChatMessagesService
@@ -62,6 +63,7 @@ export class ChatMessagesService
     private productVariantsService: ProductVariantsService,
     private configService: ConfigService,
     private stringUtilService: StringUtilService,
+    private cartsService: CartsService,
   ) {
     super(prismaService, 'chatMessage');
   }
@@ -177,10 +179,30 @@ export class ChatMessagesService
   }
 
   private async searchBestPrice() {
-    const data = await this.productVariantsService.extended.search({
-      where: {
-        price: { gte: 0 },
-      },
+    const productVariantsData =
+      await this.productVariantsService.extended.search({
+        select: {
+          id: true,
+          name: true,
+          price: true,
+          attributes: true,
+          stockQuantity: true,
+          product: {
+            select: {
+              name: true,
+            },
+          },
+        },
+      });
+    const data = productVariantsData.map((item) => {
+      const {
+        product: { name },
+        ...rest
+      } = item ?? {};
+      return {
+        ...rest,
+        name: `${name} ${item.name}`,
+      };
     });
     return data;
   }
@@ -474,16 +496,27 @@ export class ChatMessagesService
       answer = `Bạn có thể tải file excel tại đường link sau: ${this.configService.get(EnvVars.APP_URL)}/chat-messages/files/exports/${fileName}`;
     }
 
-    const isAutoCreateOrder = ['tạo đơn hàng', 'lên đơn hàng'].some((word) =>
-      question.toLowerCase().includes(word),
-    );
-    if (isAutoCreateOrder) {
+    const isAutoCreateCart = [
+      'thêm vào giỏ hàng',
+      'thêm lại vào giỏ hàng',
+      'thêm giỏ hàng',
+    ].some((word) => question.toLowerCase().includes(word));
+    if (isAutoCreateCart) {
       const productVariantIDs = JSON.parse(answer);
-      const order = await this.ordersService.createOrderFromChatbot({
-        user,
-        productVariantIDs,
-      });
-      answer = `Đơn hàng của bạn đã được tạo thành công với mã đơn hàng: ${order.orderNumber}.`;
+      const isAutoCreateOrder = question.toLowerCase().includes('thanh toán');
+      if (isAutoCreateOrder) {
+        const order = await this.ordersService.createOrderFromChatbot({
+          user,
+          productVariantIDs,
+        });
+        answer = `Đơn hàng của bạn đã được tạo thành công với mã đơn hàng: ${order.orderNumber}.`;
+      } else {
+        await this.cartsService.createCartFromChatbot({
+          user,
+          productVariantIDs,
+        });
+        answer = `Sản phẩm đã được thêm vào giỏ hàng của bạn.`;
+      }
     }
 
     const messageModelCreate = {
