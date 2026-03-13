@@ -161,14 +161,8 @@ export class PrismaService
       const modelID = `${camelCase(model)}ID`;
       const deleteModels = {
         [User.name]: {
-          hardDelete: [UserRole.name],
-          softDelete: [
-            Vendor.name,
-            Order.name,
-            Cart.name,
-            Notification.name,
-            ChatMessage.name,
-          ],
+          hardDelete: [UserRole.name, Cart.name, Notification.name],
+          softDelete: [Vendor.name, Order.name, ChatMessage.name],
         },
         [Vendor.name]: {
           softDelete: [Product.name],
