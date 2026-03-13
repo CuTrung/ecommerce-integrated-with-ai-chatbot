@@ -41,6 +41,8 @@ import { ConfigService } from '@nestjs/config';
 import { EnvVars } from '../../common/envs/validate.env';
 import { StringUtilService } from '../../common/utils/string-util/string-util.service';
 import { CartsService } from '../carts/carts.service';
+import { RolesService } from '../roles/roles.service';
+import { PermissionsService } from '../permissions/permissions.service';
 
 @Injectable()
 export class ChatMessagesService
@@ -64,6 +66,8 @@ export class ChatMessagesService
     private configService: ConfigService,
     private stringUtilService: StringUtilService,
     private cartsService: CartsService,
+    private rolesService: RolesService,
+    private permissionsService: PermissionsService,
   ) {
     super(prismaService, 'chatMessage');
   }
@@ -207,6 +211,19 @@ export class ChatMessagesService
     return data;
   }
 
+  private async searchUsers() {
+    const data = await this.usersService.extended.search({});
+    return data;
+  }
+  private async searchRoles() {
+    const data = await this.rolesService.extended.search({});
+    return data;
+  }
+  private async searchPermissions() {
+    const data = await this.permissionsService.extended.search({});
+    return data;
+  }
+
   private async searchProductVariants(keywords: string[]) {
     const question = keywords.join(' ');
     const search: any = keywords.map((k) => ({
@@ -252,6 +269,12 @@ export class ChatMessagesService
     if (isSearchAll) {
       data = await this.ordersService.extended.search({
         select: {
+          id: true,
+          orderNumber: true,
+          status: true,
+          totalAmount: true,
+          currency: true,
+          subtotal: true,
           orderItems: {
             select: {
               productVariant: {
@@ -355,6 +378,9 @@ export class ChatMessagesService
         'nhiều',
         'mua nhiều',
       ],
+      [Intents.USER]: ['người dùng', 'user'],
+      [Intents.ROLE]: ['vai trò', 'role'],
+      [Intents.PERMISSION]: ['quyền', 'permission'],
     };
     const question = keywords.join(' ').toLowerCase();
     const keys = Object.keys(intents) as Intents[];
@@ -380,7 +406,12 @@ export class ChatMessagesService
       case Intents.ORDER:
       case Intents.SHIPPING:
         return this.searchOrder(keywords);
-
+      case Intents.USER:
+        return this.searchUsers();
+      case Intents.ROLE:
+        return this.searchRoles();
+      case Intents.PERMISSION:
+        return this.searchPermissions();
       default:
         return [];
     }
@@ -520,6 +551,19 @@ export class ChatMessagesService
         productVariantIDs,
       });
       answer = `Đơn hàng của bạn đã được tạo thành công với mã đơn hàng: ${order.orderNumber}.`;
+    }
+
+    const isAutoUpdateOrderStatus = [
+      'chuyển trạng thái',
+      'cập nhật trạng thái',
+    ].some((word) => question.toLowerCase().includes(word));
+    if (isAutoUpdateOrderStatus) {
+      const dataUpdate = JSON.parse(answer);
+      const order = await this.ordersService.updateOrder({
+        data: { status: dataUpdate.status?.toLowerCase() },
+        where: { id: dataUpdate.id },
+      });
+      answer = `Đơn hàng ${order.orderNumber} đã được cập nhật trạng thái ${order.status}.`;
     }
 
     const messageModelCreate = {

@@ -180,14 +180,11 @@ export class PrismaService
           hardDelete: [RolePermission.name],
         },
         [Category.name]: {
-          softDelete: [ProductCategory.name],
+          hardDelete: [ProductCategory.name],
         },
         [Product.name]: {
-          softDelete: [
-            ProductCategory.name,
-            ProductImage.name,
-            ProductVariant.name,
-          ],
+          hardDelete: [ProductCategory.name],
+          softDelete: [ProductImage.name, ProductVariant.name],
         },
         [ProductVariant.name]: {
           softDelete: [ProductImage.name, OrderItem.name, CartItem.name],

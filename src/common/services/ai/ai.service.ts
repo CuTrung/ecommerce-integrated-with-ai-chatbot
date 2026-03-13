@@ -40,7 +40,8 @@ export class AIService {
           - Nguồn dữ liệu duy nhất được phép dùng để trả lời QUESTION là CONTEXT.
           - Nếu QUESTION thuộc:
           + Trường hợp 1: có một trong các từ khóa: 'xuất', 'excel', 'thêm vào giỏ hàng', 'thêm lại vào giỏ hàng', 'thêm giỏ hàng', 'thanh toán' thì trả về mảng theo mẫu: '[giá trị các id, ...]'. Ví dụ: '["1","2","3"]'.
-          + Trường hợp 2: thì trả lời kết quả bằng ngôn ngữ tự nhiên của con người.
+          + Trường hợp 2: có một trong các từ khóa: 'chuyển trạng thái', 'cập nhật trạng thái' thì trả về object theo mẫu: '{status: trạng thái, id: giá trị id}'. Chuyển đổi giá trị trạng thái như sau: chờ thanh toán => "pending", đã xác nhận => "confirmed", đang xử lý => "processing", đã nhận hàng => "shipped", đã vận chuyển => "delivered", đã hủy => "canceled", đã hoàn => "refunded". Ví dụ: '{"status":"confirmed","id":"1"}'.
+          + Trường hợp 3: thì trả lời kết quả bằng ngôn ngữ tự nhiên của con người.
           - Nếu câu hỏi không có thông tin trong CONTEXT, hãy trả lời: "Tôi không có dữ liệu về câu hỏi của bạn".
         `,
       },

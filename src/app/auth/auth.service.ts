@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
@@ -14,6 +15,8 @@ import { ForgotPasswordDto, ResetPasswordDto } from './dto/password.dto';
 import { MailUtilService } from '../../common/utils/mail-util/mail-util.service';
 import { MailUtilModule } from '../../common/utils/mail-util/mail-util.module';
 import { LazyModuleLoader } from '@nestjs/core';
+import { UserRolesService } from '../user-roles/user-roles.service';
+import { RolesService } from '../roles/roles.service';
 
 @Injectable()
 export class AuthService {
@@ -22,6 +25,8 @@ export class AuthService {
     private stringUtilService: StringUtilService,
     private jwtService: JwtService,
     private readonly lazyModuleLoader: LazyModuleLoader,
+    private userRoles: UserRolesService,
+    private rolesService: RolesService,
   ) {}
 
   async getMailUtilService() {
@@ -67,6 +72,23 @@ export class AuthService {
       ...otherInfo,
     });
     const { password: passwordCreated, ...userResponse } = userCreated;
+    try {
+      // Add default role name "Normal User"
+      const roleDefault = await this.rolesService.extended.findFirstOrThrow({
+        where: {
+          name: 'Normal User',
+        },
+      });
+      await this.userRoles.extended.create({
+        data: {
+          userID: userCreated.id,
+          roleID: roleDefault.id,
+        },
+      });
+    } catch (error) {
+      Logger.error('Error assigning default role to user:', error);
+    }
+
     return userResponse;
   }
 

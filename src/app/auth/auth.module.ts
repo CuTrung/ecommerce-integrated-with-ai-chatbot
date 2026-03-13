@@ -6,10 +6,14 @@ import { ConfigService } from '@nestjs/config';
 import { StringUtilService } from '../../common/utils/string-util/string-util.service';
 import { UsersModule } from '../users/users.module';
 import { JWTEnvs } from './consts/jwt.const';
+import { UserRolesModule } from '../user-roles/user-roles.module';
+import { RolesModule } from '../roles/roles.module';
 
 @Module({
   imports: [
     UsersModule,
+    UserRolesModule,
+    RolesModule,
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({

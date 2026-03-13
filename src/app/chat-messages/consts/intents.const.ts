@@ -4,4 +4,7 @@ export enum Intents {
   SHIPPING = 'shipping',
   ORDER = 'order',
   PRODUCT_VARIANT = 'product_variant',
+  USER = 'user',
+  ROLE = 'role',
+  PERMISSION = 'permission',
 }

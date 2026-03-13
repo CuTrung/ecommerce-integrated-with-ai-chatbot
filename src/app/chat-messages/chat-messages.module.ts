@@ -8,6 +8,8 @@ import { OrdersModule } from '../orders/orders.module';
 import { ProductVariantsModule } from '../product-variants/product-variants.module';
 import { StringUtilModule } from '../../common/utils/string-util/string-util.module';
 import { CartsModule } from '../carts/carts.module';
+import { RolesModule } from '../roles/roles.module';
+import { PermissionsModule } from '../permissions/permissions.module';
 
 @Module({
   imports: [
@@ -18,6 +20,8 @@ import { CartsModule } from '../carts/carts.module';
     ProductVariantsModule,
     StringUtilModule,
     CartsModule,
+    RolesModule,
+    PermissionsModule,
   ],
   controllers: [ChatMessagesController],
   providers: [ChatMessagesService],

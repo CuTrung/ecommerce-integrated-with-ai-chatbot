@@ -9,5 +9,6 @@ import { UsersModule } from '../users/users.module';
   imports: [ExcelUtilModule, UsersModule, RolesModule],
   controllers: [UserRolesController],
   providers: [UserRolesService],
+  exports: [UserRolesService],
 })
 export class UserRolesModule {}

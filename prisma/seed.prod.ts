@@ -20,7 +20,7 @@ const initAllPermissions = async () => {
     const router = routersMapping[kebabValue] ?? `${kebabValue}s`;
     for (const action of actions) {
       acc.push({
-        name: `${model} permission`,
+        name: `${action} ${model} permission`,
         key: `[/${router}]_[${action}]`,
       });
     }
@@ -34,6 +34,8 @@ const initAllPermissions = async () => {
 export const createProdData = async () => {
   console.log('🌱 Bắt đầu seed dữ liệu...');
 
+  await initAllPermissions()
+  return;
   // 1. Tạo Users
   const users = await Promise.all([
     prisma.user.create({
@@ -631,7 +633,7 @@ export const createProdData = async () => {
         productID: products[4].id,
         name: 'Size L',
         sku: 'ASM-TR-002-L',
-        price: 350000,
+        price: 360000,
         stockQuantity: 50,
         attributes: { size: 'L' },
       },
